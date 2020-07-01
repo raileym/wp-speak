@@ -11,14 +11,14 @@ cache:
 #
 # Reference: https://www.php.net/supported-versions.php
 php:
-  - 7.4snapshot
+  #- 7.4snapshot
   - 7.3
-  - 7.2
+  #- 7.2
 
 # Test against the latest version of WordPress and one version back.
 env:
   - WP_VERSION=latest
-  - WP_VERSION=5.2
+  #- WP_VERSION=5.2
 
 # Customize the build matrix.
 matrix:
@@ -30,14 +30,14 @@ matrix:
       env: WP_VERSION=latest WP_TRAVISCI=phpcs
 
     # Canary for our oldest-supported version
-    - name: Legacy
-      php: 5.6
-      env: WP_VERSION=4.9
+    #- name: Legacy
+    #  php: 5.6
+    #  env: WP_VERSION=4.9
 
     # Nightly versions of PHP and WordPress.
-    - name: Bleeding edge
-      php: 7.4snapshot
-      env: WP_VERSION=trunk
+    #- name: Bleeding edge
+    #  php: 7.4snapshot
+    #  env: WP_VERSION=trunk
 
   # Jobs that are permitted to fail without breaking the build
   allow_failures:
