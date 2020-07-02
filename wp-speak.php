@@ -1,15 +1,410 @@
 <?php
 /**
- * Plugin Name:     Wp Speak
- * Plugin URI:      PLUGIN SITE HERE
- * Description:     PLUGIN DESCRIPTION HERE
- * Author:          YOUR NAME HERE
- * Author URI:      YOUR SITE HERE
- * Text Domain:     wp-speak
- * Domain Path:     /languages
- * Version:         0.1.0
+Plugin Name: Professor Malcolm's WP-Speak (wp-speak)
+Plugin URI: https://wp-speak.com 
+Description: Plugin for adding audio to your Wordpress site
+Author: Professor Malcolms LLC
+Version: 1.0 
+Author URI: https://wp-speak.com 
+License: GPLv2 or later
+*/
+
+/**
+ * wp-speak.php - Creates main plugin features page, validates entries, and manages settings
  *
- * @package         Wp_Speak
+ * Copyright (C) 2020 Malcolm Railey <legal@wp-speak.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @author    Malcolm Railey <malcolm@wp-speak.com>
+ * @copyright Malcolm Railey 2014
+ * @license   http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link      http://wp-speak.com
+ * @version   1.0
+ * @filesource
  */
 
-// Your code starts here.
+namespace WP_Speak;
+
+$wp_speak_version = "1.0.10";
+
+function wp_speak_enqueue_styles()
+{
+    global $wp_speak_version;
+	
+    wp_enqueue_style("wp-speak-css",     WP_SPEAK_CSS_URL, false, $wp_speak_version, "all");
+    wp_enqueue_style("font-awesome-css", FONT_AWESOME_URL, false, $wp_speak_version, "all");
+
+}
+	
+function wp_speak_enqueue_scripts()
+{
+	global $wp_speak_version;
+	
+    wp_enqueue_script("jquery");
+    wp_enqueue_script("wps-init", WP_SPEAK_INIT_JS_URL, NULL, $wp_speak_version, false);//WPS_ENQUEUE_HEADER);
+    wp_enqueue_script("wps-main", WP_SPEAK_MAIN_JS_URL, NULL, $wp_speak_version, false);//WPS_ENQUEUE_HEADER);
+}
+	
+function wp_speak_admin_enqueue_styles()
+{
+	global $wp_speak_version;
+	
+    wp_enqueue_style("wp-speak-css",       WP_SPEAK_CSS_URL, false, $wp_speak_version, "all");
+	wp_enqueue_style("wp-speak-admin-css", WP_SPEAK_ADMIN_CSS_URL, false, $wp_speak_version, "all");
+    wp_enqueue_style("font-awesome-css",   FONT_AWESOME_URL, false, $wp_speak_version, "all");
+}
+	
+function wp_speak_admin_enqueue_scripts()
+{
+	global $wp_speak_version;
+	
+    wp_enqueue_script("jquery");
+    wp_enqueue_script("wps-init", WP_SPEAK_INIT_JS_URL, NULL, $wp_speak_version, false);//WPS_ENQUEUE_HEADER);
+    wp_enqueue_script("wps-main", WP_SPEAK_MAIN_JS_URL, NULL, $wp_speak_version, false);//WPS_ENQUEUE_HEADER);
+}
+	
+if ( is_admin() )
+{
+	add_action("admin_enqueue_scripts", "WP_Speak\wp_speak_admin_enqueue_styles");
+	add_action("admin_enqueue_scripts", "WP_Speak\wp_speak_admin_enqueue_scripts");
+
+} else {
+
+    add_action("wp_enqueue_scripts", "WP_Speak\wp_speak_enqueue_styles");
+    add_action("wp_enqueue_scripts", "WP_Speak\wp_speak_enqueue_scripts");
+
+}
+
+// Autoloader details ...
+// See http://www.joelambert.co.uk/article/creating-a-psr4-wordpress-plugin/
+// See https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader-examples.md
+//
+// Choosing PSR-4 Autoload ... 
+//     https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader-examples.md
+//     https://enshrined.co.uk/2015/02/27/psr-4-autoloading-wordpress/
+require 'autoload.php';
+//
+// Create a new instance of the autoloader
+$loader = new Psr4AutoloaderClass();
+//
+// Register this instance
+$loader->register();
+//
+// Add our namespace and the folder it maps to
+$loader->addNamespace('WP_Speak', dirname( __FILE__) . '/includes/classes');
+
+
+add_action('init', function() {
+    // NB: If your custom post type is hierarchical, meaning it has 
+    // 'hierarchical' => true in its register_post_type(), you need 
+    // to switch out the constant EP_PERMALINK with EP_PAGES.
+
+	add_rewrite_endpoint('wp-speak-audio', EP_ROOT);
+});
+
+add_filter('request', function($vars) {
+	return $vars;
+});
+
+add_action( 'template_redirect', 'WP_Speak\pmg_rewrite_catch_form' );
+function pmg_rewrite_catch_form()
+{
+    if( get_query_var( 'wp-speak-audio' ) )
+    {
+        return Audio::get_instance()->wp_speak_getfile();
+    }
+}
+
+add_filter( 'query_vars', 'WP_Speak\add_query_var' );
+function add_query_var( $vars ) {
+    $vars[] = 'audio';
+
+    return $vars;
+}
+
+require( dirname(__FILE__)."/wp-speak-config.php" );
+require( dirname(__FILE__)."/admin/src/utils.php" );
+require( dirname(__FILE__)."/admin/src/errno.php" );
+require( dirname(__FILE__)."/admin/src/errnm.php" );
+require( dirname(__FILE__)."/admin/src/error.php" );
+require( dirname(__FILE__)."/admin/src/option.php" );
+require( dirname(__FILE__)."/admin/src/logmask.php" );
+require( dirname(__FILE__)."/admin/src/basic.php" );
+require( dirname(__FILE__)."/admin/src/add-settings-field.php" );
+require( dirname(__FILE__)."/admin/src/add-settings-section.php" );
+require( dirname(__FILE__)."/admin/src/db.php" );
+require( dirname(__FILE__)."/admin/src/factory-table.php" );
+require( dirname(__FILE__)."/admin/src/callback.php" );
+require( dirname(__FILE__)."/admin/src/ibm-watson-option.php" );
+require( dirname(__FILE__)."/admin/src/register-option.php" );
+require( dirname(__FILE__)."/admin/src/cache-option.php" );
+require( dirname(__FILE__)."/admin/src/copyright-option.php" );
+require( dirname(__FILE__)."/admin/src/debug-option.php" );
+require( dirname(__FILE__)."/admin/src/example-option.php" );
+require( dirname(__FILE__)."/admin/src/log-option.php" );
+require( dirname(__FILE__)."/admin/src/media-option.php" );
+require( dirname(__FILE__)."/admin/src/image-option.php" );
+require( dirname(__FILE__)."/admin/src/format-option.php" );
+require( dirname(__FILE__)."/admin/src/include-option.php" );
+require( dirname(__FILE__)."/admin/src/registry.php" );
+require( dirname(__FILE__)."/admin/src/logger.php" );
+// require( dirname(__FILE__)."/includes/classes/audio.php" );
+require( dirname(__FILE__)."/audio.php" );
+
+if ( is_admin() )
+{
+	require( dirname(__FILE__)."/admin.php" );
+}
+
+
+// Audio::get_instance();
+
+Registry::get_instance()
+    ->set_logger(Logger::get_instance())
+    ->init_log_registry(Option::$OPTION_EXTENDED_TITLE["log_option"], Option::$OPTION_LIST["log_option"])
+    ->set_mask(Logmask::MASK["log_registry"])
+    ->set_logger(Logger::get_instance());
+
+foreach (Option::$SECTIONS as $section) {
+    if ($section == "Log_Option") {
+        continue;
+    }
+    Registry::get_instance()->init_registry(Option::$OPTION_EXTENDED_TITLE[strtolower($section)], Option::$OPTION_LIST[strtolower($section)]);
+}
+
+
+Callback::get_instance()
+    ->set_logger(Logger::get_instance())
+    ->set_registry(Registry::get_instance())
+    ->set_mask(Logmask::MASK["log_callback"]);
+
+Add_Settings_Field::get_instance()
+    ->set_logger(Logger::get_instance())
+    ->set_registry(Registry::get_instance());
+
+Add_Settings_Section::get_instance()
+    ->set_logger(Logger::get_instance())
+    ->set_registry(Registry::get_instance());
+
+DB::get_instance()
+    ->set_logger(Logger::get_instance())
+    ->set_registry(Registry::get_instance());
+
+Audio::get_instance()
+    ->set_logger(Logger::get_instance())
+    ->set_registry(Registry::get_instance());
+
+Factory_Table::get_instance()
+    ->set_logger(Logger::get_instance())
+    ->set_registry(Registry::get_instance())
+    ->set_db(DB::get_instance());
+
+$image_table     = Factory_Table::get_instance()->create('image');
+$img_table       = Factory_Table::get_instance()->create('img');
+$img_image_table = Factory_Table::get_instance()->create('img_image');
+
+if ( is_admin() )
+{
+    Admin::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_mask(Logmask::MASK["log_admin"]);
+
+    IBM_Watson_Option::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_ibm_watson"]);
+
+    Register_Option::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_register"]);
+
+    Cache_Option::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_cache"]);
+
+    Copyright_Option::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_copyright"]);
+
+    Debug_Option::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_debug"]);
+
+    Example_Option::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_example"]);
+
+    Log_Option::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_log"]);
+
+    Media_Option::get_instance()
+        ->set_image_table($image_table)
+        ->set_img_table($img_table)
+        ->set_img_image_table($img_image_table)
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_media"]);
+
+    Image_Option::get_instance()
+        ->set_image_table($image_table)
+        ->set_img_table($img_table)
+        ->set_img_image_table($img_image_table)
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_image"]);
+
+    Format_Option::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_format"]);
+
+    Include_Option::get_instance()
+        ->set_logger(Logger::get_instance())
+        ->set_registry(Registry::get_instance())
+        ->set_add_settings_section(Add_Settings_Section::get_instance())
+        ->set_add_settings_field(Add_Settings_Field::get_instance())
+        ->set_mask(Logmask::MASK["log_include"]);
+
+    Admin::init();
+}    
+
+function wps_localize() {
+
+    $image_table     = Factory_Table::get_instance()->create('image');
+    $img_table       = Factory_Table::get_instance()->create('img');
+    $img_image_table = Factory_Table::get_instance()->create('img_image');
+    
+    $img_image_rows  = $img_image_table->fetch_all();
+    $image_rows      = $image_table->fetch_all();
+    $img_rows        = $img_table->fetch_all();
+
+    $image_table = array();
+    foreach( $image_rows as $row ) {
+        $image_table[$row["image_id"]] = $row;
+    }
+
+    $img_table = array();
+    foreach( $img_rows as $row ) {
+        $img_table[$row["img_id"]] = $row;
+    }
+
+    $params = array();
+    foreach($img_image_rows as $img_image_row) {
+    
+// error_log( print_r($img_image_row, true) );
+
+//         $param = array();
+    
+        $img   = $img_table[   $img_image_row[  "img_id"] ];
+        $image = $image_table[ $img_image_row["image_id"] ];
+    
+//         $param["img_alt"]      = $img["alt"];
+//         $param["img_attr_alt"] = $img["attr_alt"];
+//         $param["wp_post_id"]   = $img["wp_post_id"];
+//         $param["use_alt"]      = $img["use_alt"];
+//         $param["image_alt"]    = $image["alt"];
+//         $param["src"]          = $image["src"];
+
+        $search = "body.postid-{$img['wp_post_id']} img[src='{$image['src']}'][alt='{$img['attr_alt']}']";
+        
+// error_log( $search );
+
+        switch( $img["use_alt"] ) {
+        
+            case "use_img_alt":
+                $params[$search] = $img["alt"];
+                break; 
+                       
+            case "use_img_attr_alt":
+                $params[$search] = $img["attr_alt"];
+                break;  
+                      
+            default:
+            case "use_image_alt":
+                $params[$search] = $image["alt"];
+                break;   
+                     
+        }
+        
+    }
+    
+//     $param = array(
+//         "one" => json_encode($params),
+//         "two" => 222,
+//     );
+// error_log( print_r($params, true) );
+
+    wp_localize_script("wps-main", 'IMAGES', $params );
+}
+add_action("wp_enqueue_scripts",    "WP_Speak\wps_localize" );
+add_action("admin_enqueue_scripts", "WP_Speak\wps_localize" );
+
+
+// Registry::get_instance()->init_table_registry($img_table);
+// Registry::get_instance()->init_table_registry($image_table);
+// Registry::get_instance()->init_table_registry($img_image_table);
+        
+
+register_activation_hook(__FILE__,'WP_Speak\wp_speak_activate');
+function wp_speak_activate()
+{
+     error_log("**** INSIDE ACTIVATION ****");
+     
+     Factory_Table::get_instance()->install('image');
+     Factory_Table::get_instance()->install('img');
+     Factory_Table::get_instance()->install('img_image');
+}
+
+register_deactivation_hook(__FILE__,'WP_Speak\wp_speak_deactivate');
+function wp_speak_deactivate()
+{
+    error_log("**** INSIDE (DE)ACTIVATION ****");
+
+    Factory_Table::get_instance()->uninstall('image');
+    Factory_Table::get_instance()->uninstall('img');
+    Factory_Table::get_instance()->uninstall('img_image');
+
+	foreach( Option::$OPTION_EXTENDED_TITLE as $title ) {
+	    delete_option($title);
+	}
+
+}
+?>

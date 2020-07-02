@@ -1,0 +1,511 @@
+/* ****************************************************************************
+ * This CSS is specific to the addthis feature.
+ * ****************************************************************************
+ */
+.addthis_toolbox a {
+
+	/* Hides the look of the addthis feature unless the
+	 * user explicitly want to see this feature.
+	 */
+	opacity: .5; }
+
+	.addthis_toolbox a:hover {
+		opacity: 1.0; }
+
+
+
+
+
+
+
+
+
+
+/* ****************************************************************************
+ * Primary target here is for Tweetable content. wps-box surrounds the content 
+ * that is shipped out. References to locking referring to whether the included
+ * code is open-text, compressed, or encoded.
+ * ****************************************************************************
+ */
+.wps-box { /* mr - confirmed */
+	margin: 40px auto 40px auto;
+	padding-left:40px;
+	padding-right:40px;
+	width: 460px; }
+
+.entry-content .wps-box { /* mr - confirmed */
+	
+	/* Skip adjustments from within Wordpress. Adjustments 
+	 * are for stand-alone pages only. 
+	 */
+	
+	margin:			0 auto 0 auto;
+	padding-left:	0;
+	padding-right:	0;
+	width: 			460px;
+}
+
+.wps-share {
+	font-size:		11px;
+	line-height:	2em; 
+	float:			left;
+	font-family:	arial;
+	opacity:		0.8;
+}
+
+.wps-preview-this {
+	font-size:		11px;
+	line-height:	2em; 
+	float:			left;
+
+	margin: 40px auto 40px auto;
+	padding-left:40px;
+	padding-right:40px;
+	width: 460px; 
+	
+}
+
+.wps-preview-this p {
+}
+
+
+
+
+
+
+
+
+.wps-debug h5 {
+	margin:			0;
+	padding:		2px 0;
+	font-size:		10px;
+}
+.wps-debug h6 {
+	margin:			0;
+	padding:		2px 0 2px 10px;
+	font-size:		8px;
+}
+
+
+
+.wps-dot {
+	padding: 			0 2px;
+	vertical-align:		-2px;
+}
+
+
+
+.wps-copyright {
+	clear:				both;
+	height:				auto;
+	margin-bottom:		14px;	
+	opacity:			0.8;
+	width:				100%;
+}
+.wps-copyright.wps-extended-copyright {
+	height:				auto;
+}
+
+
+
+p.wps-copyright {
+	width:				65%;
+	float:				right;
+	font-size:			11px;
+	line-height:		12px; }
+	
+p.wps-copyright a {
+	font-size:			110%;
+	font-weight:		bold;
+	line-height:		1em;
+	text-decoration:	none;
+}
+
+
+
+
+.wps-copyright-material-border {
+	border: 2px solid black;
+	border-radius: 20px; }
+
+.wps-copyright-material {
+	margin-bottom:1.5em; 
+	clear:both; }
+	
+	
+.wps-powered-by-container {
+    width: 100%; 
+    overflow: auto; 
+    float: right;
+    width: 250px; }
+
+.entry-content .wps-powered-by {
+    width: 110px;/*87px;*/ 
+    float: right; }
+    
+.wps-powered-by {
+    width: 90px; /*120px;*//*87px;*/ 
+    float: right; }
+    
+.entry-content .wps-powered-by p.wps-powered-by,
+.wps-powered-by p.wps-powered-by {
+	color: grey;
+	/*float: right;*/
+	font-size: 10px;
+	line-height: 32px;/*10px; */
+	margin-bottom: 0px;
+	margin-right: 28px; }
+
+.entry-content .wps-powered-by img, 
+.wps-powered-by img {
+	height:30px; 
+	float:right; }
+	
+.entry-content .wps-powered-by a, 
+.wps-powered-by a  {
+	opacity: .5; }
+
+.entry-content .wps-powered-by a:hover, 
+.wps-powered-by a:hover {
+	opacity: 1.0; }
+	
+
+	
+
+
+
+.wps-file-description {
+	margin-left:auto;
+	margin-right:auto;
+	padding: 20px 0 20px 0;
+	text-align:center;
+	font-size:120%;
+	font-weight:normal; }
+
+.wps-file-rule {
+	width:50%;
+	margin: 0 auto 30px auto;
+	opacity:0.35; 
+	background-color: black; }
+
+button.wps-button {
+	height:24px; 
+	border-radius: 6px; }
+	
+
+
+/* Preview */
+
+
+
+
+
+
+
+
+.wps-no-header {
+	display:		none;
+}
+.wps-break {
+	clear:both;
+}
+.wps-group.wps-border {
+	width:			30px;
+}
+
+
+
+#content_area .post_content.wps-black p,
+#content_area .text_box.wps-black p,
+#content_area .text_box.wps-black ul {
+	color:			black;
+}
+#content_area .post_content.wps-grey p,
+#content_area .text_box.wps-grey p,
+#content_area .text_box.wps-grey ul {
+	color:			#BBB;
+}
+#content_area p.wps-copyright,
+#content_area p.wps-copyright-extended {
+	width:50%;
+	float:right;
+	font-size: 8px;
+	line-height: 10px; 
+}
+#content_area .entry-content .wps-powered-by p.wps-powered-by,
+#content_area .wps-powered-by p.wps-powered-by {
+	color: grey;
+	/*float: right;*/
+	font-size: 10px;
+	line-height: 30px;/*10px; */
+	margin-bottom: 0px;
+	margin-right: 28px; 
+}
+.ZZZZwps-show {
+	display:		block;
+}
+.ZZZZwps-hide {
+	display:		block;
+    left:			-500px;
+    position:		absolute;
+    top: 			-500px;
+}
+
+.wps-group.wps-title .wps-title {
+	margin:			2px 4px;
+}
+.wps-footer {
+	height:			30px;
+	clear:			both;
+}
+
+.wps-share p {
+    color: #808080;
+    font-size: 10px;
+    line-height: 30px;
+    margin-bottom: 0;
+    margin-right: 28px;
+}
+
+.wps-share p a {
+    font-size: 110%;
+    font-weight: bold;
+    line-height: 1em;
+    text-decoration: none;
+    vertical-align:middle;
+}
+img.wps-cite-logo {
+	height:			24px;
+	width:			24px;
+	vertical-align:	middle;
+	opacity:		1.0;
+}
+img.wps-cite-logo:hover {
+	opacity:		1.0;
+}
+.helper {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+div.wps-register {
+    background: 	none repeat scroll 0 0 red;
+    border:			2px solid darkred;
+    color:			blue;
+    font-weight:	bold;
+    padding:		2px;
+    color:			white;
+    width:			200px;
+    float:			left;
+    text-align:		center;
+}
+
+div.wps-register.wps-registered {
+    border:			2px solid green;
+    background:		none repeat scroll 0 0 darkgreen;
+    color:			black;
+}
+div.wps-register-state {
+	padding:		6px;
+    font-size:		120%;
+    font-weight:	bold;
+    line-height: 	1.2em;
+    position:		relative;
+    top:			-12px;
+	color:			red;
+	width:			300px;
+	float:			left;
+}
+div.wps-register-state.wps-registered {
+	color:			green;
+}
+.wps-settings-title {
+	float:			left;
+	width:			150px;
+	padding:		2px;
+}
+
+pre.wps-debug-pre {
+	font-size:		11px;
+	line-height:	2em;
+}
+.wps-settings {
+	clear:			both;
+}
+
+.wps-pro-feature {
+	color:			#999;
+}
+.wps-pro-feature.wps-cite-pro {
+	color:			darkgreen;
+	font-weight:	bold;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ****************************************************************************
+ * ****************************************************************************
+ * 		Site-Wide CSS
+ * ****************************************************************************
+ * ****************************************************************************
+ */
+
+/* Allow for left, center, and right position of the title line.  Works
+ * in combination with the print tagline function.
+ */
+.wps-site-title-box {
+	width:					100%;
+}	
+.wps-site-title-box .wps-site-left {
+    margin:					0 auto 0 0;
+}
+.wps-site-title-box .wps-site-right {
+    margin:					0 0 0 auto;
+}
+.wps-site-title-box .wps-site-center {
+    margin:					0 auto;
+}
+
+
+/* Infamous DOT that I use throughout my naming.  This immediate definition
+ * accommodates text-based or text-oriented use of the DOT.
+ */
+.wps-site-dot {
+    padding: 0 2px;
+    vertical-align: -2px;
+}
+
+
+/* Here, I am actually trying to make the title line look
+ * good, including spacing, the DOT, and the emphasis on CITE
+ */
+.wps-site-title {
+    font-family:			calibri,arial;
+    font-size:				35px;
+    font-weight:			normal;
+    padding:				30px 0;
+    text-align:				right;
+    width:					280px;
+}
+.wps-site-title .wps-site-dot {
+	font-family: 			times new roman;
+	padding:				0 4px;
+	vertical-align:			-5%;
+}
+.wps-site-title .wps-site-tagline {
+	height:					76px;
+	line-height:			76px;
+}
+.wps-site-title .wps-site-logo {
+	height:					76px;
+	float:					left;
+}
+
+
+/* BREAK is what I use to force a break after a division
+ */
+.wps-site-break {
+	clear:					both;
+}
+    
+
+
+
+/* ****************************************************************************
+ * Site-Wide CSS ... Colors Only
+ * ****************************************************************************
+ */
+.wps-site-title {
+    color: 					rgba(0, 0, 0, 1);
+    text-shadow:			2px 2px #bbb;
+}
+.wps-site-title .wps-site-cite {
+	color:					rgba(194, 65, 7, 1);
+}
+
+
+a.wps-audio {
+    cursor: pointer;
+}
+
+.wps-site-logo {
+    color: black;
+    font-size: 40px;
+    font-weight: 700; 
+    letter-spacing: 8px;
+    line-height: 1.2em;
+    margin: 0 auto;
+    text-align: left;
+    width:fit-content;  
+}
+
+.wps-clear {
+    clear:both;
+}
+
+.wps-site-title {
+    width: 60%;
+    background: white;
+    height: 167px;
+    padding: 43px 0 0 0;
+}
+
+.wps-site-logo .wps-site-logo-front,
+.wps-site-logo .wps-site-logo-back {
+    border-width: 6px;
+    border-style: solid;
+    float: left;
+    padding: 2px 0px;
+}
+
+.wps-site-logo .wps-site-logo-front {
+    border-color: transparent;
+}
+
+.wps-site-logo .wps-site-logo-back {
+    color: white;
+    text-align: center;
+    background-color: rgba(137,83,221,1);
+    border-color: black;
+    width: 180px;
+}
+
+.wps-site-logo .wps-site-tagline {
+    font-size:70%;
+}
+
+.fa-microphone {
+    color:rgba(137,83,221,1);
+    margin:0 0.5em;
+    font-size:24px;
+}
+
+.fa-microphone span {
+    position:absolute; 
+    margin-left:-999999px;
+}
+
+a .fa-microphone {
+    float:right;
+    font-size:32px;
+    margin:0.5em 0em 1em 1em;
+}
+
+i.fa-microphone {
+/*     margin: 0px; */
+}
+
+.wps-hide {
+    position: absolute;
+    left-margin: -999999px;
+    left: -999999px;
+}

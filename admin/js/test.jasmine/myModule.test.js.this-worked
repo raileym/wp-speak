@@ -1,0 +1,38 @@
+// See https://github.com/jhnns/rewire
+//
+
+// test.jasmine/myModule.test.js
+const rewire = require("rewire");
+const myModule = rewire("myModule");
+
+// Will move these two instructions INSIDE, and then DOUBLE
+// the number of tests involved.
+
+const fsMock = {
+    readFile: function (path, encoding, cb) {
+        expect(path).toEqual("/somewhere/on/the/disk");
+        cb(null, "Success!");
+    }
+};
+myModule.__set__("fs", fsMock);
+
+// myModule.readSomethingFromFileSystem(function (err, data) {
+//     console.log(data); // = Success!
+// });
+
+describe("mymodule", function () {
+
+    describe("Basics", function () {
+
+        it("readSomethingFromFileSystem - Stub out fs", function () {
+
+            myModule.readSomethingFromFileSystem(function (err, data) {
+                console.log(data); // = Success!
+            });
+
+        });
+
+    });
+     
+});
+
