@@ -142,22 +142,7 @@ EOD;
 
     public static function element_four_files_callback($arg_list)
     {
-        $copyright = get_option( self::$section_title );
-        
-        $value = Callback::get_page_option($arg_list["page"], $arg_list["element"], array("action"=>"get"));
-
-        $html = "<div style='width:".Admin::MAX_WIDTH.";'>";
-        $html .= (isset($arg_list["description"])) ? 
-                 "<p>".wordwrap($arg_list['description'], Admin::WORDWRAP_WIDTH, "<br/>")."</p>" 
-                 : "";
-        
-        $html .= "&copy; {$copyright['copyright_date']} {$copyright['copyright_author']}. ";
-        $html .= "<input type='text' id='{$arg_list['element']}' ";
-        $html .= "name='{$arg_list['page']}[{$arg_list['element']}]' value='{$value}' />";
-        $html .= (isset($arg_list["label"])) ? 
-                 "<label for='{$arg_list['element']}'>{$arg_list['label']}</label>" 
-                 : "";
-        $html .= "</div>";
+        $html = "<h1>Fix this when you are ready</h1>";
         
         echo $html;
     }

@@ -1,56 +1,85 @@
 <?php
+/**
+ * Basic captures recurring functions employed by all classes.
+ *
+ * Basic pulls together operations for setting the mask,
+ * logger, and registry. These three elements are used
+ * consistently by every class.
+ *
+ * @file
+ * @package admin
+ */
+
 namespace WP_Speak;
 
-abstract class Basic
-{
+/**
+ * Basic captures recurring functions employed by all classes.
+ */
+class Basic {
+
+	/**
+	 * $mask is a bitmask specific to a class.
+	 *
+	 * @var int $mask.
+	 */
 	protected static $mask;
+
+	/**
+	 * $registry is a handle to an registry instance.
+	 *
+	 * @var Registry $registry.
+	 */
 	protected static $registry;
+
+	/**
+	 * $logger is a handle to an logger instance.
+	 *
+	 * @var Logger $logger.
+	 */
 	protected static $logger;
-	//protected static $instance;
-
-	public static function get_instance()
-	{
 
 
-if ( is_null(static::$instance) ) {
-    $class = get_called_class();
-//    error_log("Will create class: {$class}");
-    static::$instance = new $class();
-}
+	/**
+	 * The function get_instance serves the role of returning an instance.
+	 * This function supports the Singleton creation pattern.
+	 */
+	public static function get_instance() {
+		if ( is_null( static::$instance ) ) {
+			$class            = get_called_class();
+			static::$instance = new $class();
+		}
 
-return static::$instance;
+		return static::$instance;
+	}
 
-        // See https://stackoverflow.com/questions/30388424/how-to-instantiate-a-child-singleton-of-an-abstract-class
-// 		$class = get_called_class();
-// 		is_null(self::$instance) && self::$instance = new $class();
-// 		return self::$instance;
-
-
-// 		is_null(self::$instance) && self::$instance = new self;
-// 		return self::$instance;
-	} 
-    
-    public function set_mask($arg_mask)
-	{
-		//assert( '!is_null($arg_mask)' );
+	/**
+	 * The function set_mask sets the bit mask for a particular class.
+	 *
+	 * @param int $arg_mask is the integer mask specific to the binding class.
+	 */
+	public function set_mask( $arg_mask ) {
 		self::$mask = $arg_mask;
 		return $this;
 	}
-	
-	public function set_logger( $arg_logger)
-	{
-		//assert( '!is_null($arg_registry)' );
+
+	/**
+	 * The function set_logger sets the instance handle for the logger.
+	 *
+	 * @param Logger $arg_logger is a handle to a Logger instance.
+	 */
+	public function set_logger( Logger $arg_logger ) {
 		self::$logger = $arg_logger;
 		return $this;
 	}
-		
-	public function set_registry( Registry $arg_registry)
-	{
-		//assert( '!is_null($arg_registry)' );
+
+	/**
+	 * The function set_registry sets the instance handle for the registry.
+	 *
+	 * @param Registry $arg_registry is a handle to a Registry instance.
+	 */
+	public function set_registry( Registry $arg_registry ) {
 		self::$registry = $arg_registry;
 		return $this;
 	}
-		
-}
 
-?>
+}

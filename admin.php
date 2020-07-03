@@ -151,9 +151,9 @@ EOD;
         $tagline = self::$tagline;
 
         // From incoming URL Query String ... page= and tab=
-        if( isset( $GET[ "tab" ] ) )
+        if( isset( $_GET[ "tab" ] ) )
         {
-            $arg_active_tab = strtolower($GET[ "tab" ]);
+            $arg_active_tab = strtolower($_GET[ "tab" ]);
         } else {
             $arg_active_tab = "media_option"; //Option::$INITIAL_PANEL;
         }
@@ -214,7 +214,7 @@ EOD;
             $section_lc = strtolower($section);
             $title = Option::$OPTION_TITLE[$section_lc];
             echo<<<EOD
-    <a href="?page=wp_speak_admin&tab={$section}" class="nav-tab {$active_tab[$section_lc]}">{$title}</a>
+    <a href="?page=wp_speak_admin&tab={$section_lc}" class="nav-tab {$active_tab[$section_lc]}">{$title}</a>
 EOD;
         }
         echo<<<EOD
