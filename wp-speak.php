@@ -138,7 +138,7 @@ require( dirname(__FILE__)."/admin/src/errno.php" );
 require( dirname(__FILE__)."/admin/src/errnm.php" );
 require( dirname(__FILE__)."/admin/src/error.php" );
 require( dirname(__FILE__)."/admin/src/option.php" );
-require( dirname(__FILE__)."/admin/src/logmask.php" );
+require( dirname(__FILE__)."/admin/src/class-logmask.php" );
 require( dirname(__FILE__)."/admin/src/basic.php" );
 require( dirname(__FILE__)."/admin/src/add-settings-field.php" );
 require( dirname(__FILE__)."/admin/src/add-settings-section.php" );

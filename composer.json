@@ -1,5 +1,5 @@
 {
   "scripts" : {
       "sniffs" : "phpcs --standard=PSR2 admin/src/ && phpcs --standard=PSR2 tests/unit/admin"
-  },
+  }
 }
