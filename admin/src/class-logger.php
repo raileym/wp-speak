@@ -3,16 +3,16 @@ namespace WP_Speak;
 
 class Logger extends Basic
 {
-    protected static $_instance;
+    protected static $instance;
 
-    private static $_logger_mask;
+    private static $logger_mask;
     
-    private $_random_value;
+    private $random_value;
 
     protected function __construct()
     {
         $this->_random_value = rand(1,1000);
-        self::$_logger_mask = 0; //Logmask::LOG_ADMIN;
+        self::$logger_mask = 0; //Logmask::LOG_ADMIN;
     }
 
     public function setmask($arg_mask)
@@ -21,17 +21,17 @@ class Logger extends Basic
 // ob_start();
 // debug_print_backtrace();
 // error_log(ob_get_clean());
-        self::$_logger_mask = $arg_mask;
+        self::$logger_mask = $arg_mask;
     }
 
     public function getmask()
     {
-        return self::$_logger_mask;
+        return self::$logger_mask;
     }
 
     public function write($arg_mask, $arg_message)
     {
-        if (! ($arg_mask & self::$_logger_mask) )
+        if (! ($arg_mask & self::$logger_mask) )
         {
 // error_log("*** WILL NOT PRINT ERRORLOG ***");
             return;
@@ -71,18 +71,18 @@ class Logger extends Basic
 // error_log("String found and there is a match: " . $arg_logmask);
 //             $mask = Logmask::MASK[$arg_logmask];
 // error_log("Mask: " . $mask);
-// error_log("Current Mask: " . self::$_logger_mask);
+// error_log("Current Mask: " . self::$logger_mask);
 //     
 //         }
         
         if (is_array($arg_message) || is_object($arg_message))
         {
-            //$this->write($arg_mask, "(".basename($_SERVER["SCRIPT_URL"]).") ".print_r($arg_message, true));
+            //$this->write($arg_mask, "(".basename($SERVER["SCRIPT_URL"]).") ".print_r($arg_message, true));
             $this->write($arg_mask, "(fix-this) ".print_r($arg_message, true));
         }
         else
         {
-            //$this->write($arg_mask, "(".basename($_SERVER["SCRIPT_URL"]).") ".$arg_message);
+            //$this->write($arg_mask, "(".basename($SERVER["SCRIPT_URL"]).") ".$arg_message);
             $this->write($arg_mask, "(fix-this) ".$arg_message);
         }
     }

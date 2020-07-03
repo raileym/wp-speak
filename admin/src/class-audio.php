@@ -5,10 +5,10 @@ class Audio {
 
 	private function __construct()
 	{
-		add_shortcode("wps_audio", array($this, "_shortcode"));
+		add_shortcode("wps_audio", array($this, "shortcode"));
     }
 
-	public function _shortcode($arg_atts, $arg_content = NULL)
+	public function shortcode($arg_atts, $arg_content = NULL)
 	{
         $content = do_shortcode($arg_content);
         

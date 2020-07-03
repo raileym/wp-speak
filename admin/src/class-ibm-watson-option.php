@@ -3,16 +3,16 @@ namespace WP_Speak;
 
 class IBM_Watson_Option extends Basic
 {
-    protected static $_instance;
+    protected static $instance;
 
-	private static $_add_settings_section;
-	private static $_add_settings_field = array();
-	private static $_section = "ibm_watson_option";    //"wp_speak_admin_ibm_watson_option"
-	private static $_section_title;
-	private static $_fields = array (
+	private static $add_settings_section;
+	private static $add_settings_field = array();
+	private static $section = "ibm_watson_option";    //"wp_speak_admin_ibm_watson_option"
+	private static $section_title;
+	private static $fields = array (
             "wp_speak_admin_ibm_watson_option"
 	    );
-	private static $_default_options = array(
+	private static $default_options = array(
             "ibm_watson_message"	    =>	"no message",
             "ibm_watson_user_name"	    =>	"no user name",
             "ibm_watson_user_password"  =>	"no user password"
@@ -21,16 +21,16 @@ class IBM_Watson_Option extends Basic
 	
 	protected function __construct() { 
 
-    	self::$_section_title = Admin::WPS_ADMIN . self::$_section;
+    	self::$section_title = Admin::WPS_ADMIN . self::$section;
     	
         add_action("admin_init", array(get_class(), "init")); 
-        add_action(Admin::WPS_ADMIN."init_".self::$_section,     array(self::$_registry, "init_registry"),   Callback::EXPECT_NON_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
-        add_filter(Admin::WPS_ADMIN."validate_".self::$_section, array(self::$_registry, "update_registry"), Callback::EXPECT_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
+        add_action(Admin::WPS_ADMIN."init_".self::$section,     array(self::$registry, "init_registry"),   Callback::EXPECT_NON_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
+        add_filter(Admin::WPS_ADMIN."validate_".self::$section, array(self::$registry, "update_registry"), Callback::EXPECT_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
 
 	}
 	
     public function get_section() {
-        return self::$_section;
+        return self::$section;
     }
     
     /**
@@ -38,12 +38,12 @@ class IBM_Watson_Option extends Basic
      */
     public static function init($arg1)
     {
-        $page = Option::$OPTION_EXTENDED_TITLE[self::$_section];
+        $page = Option::$OPTION_EXTENDED_TITLE[self::$section];
 
         // If the IBM Watson Options don't exist, create them.
         if( !get_option( $page ) )
         {
-            update_option( $page, self::filter_default_options( self::$_default_options ) );
+            update_option( $page, self::filter_default_options( self::$default_options ) );
         }
 
 
@@ -51,12 +51,12 @@ class IBM_Watson_Option extends Basic
 Fill-in the details for your registration.
 EOD;
 
-        array_map( self::$_add_settings_section, [
+        array_map( self::$add_settings_section, [
             ["id"=>ADMIN::WPS_ADMIN."ibm_watson", "title"=>"IBM Watson Options", "callback"=>array("WP_Speak\Callback", "section_p_callback"), "args"=>array( "paragraph" => $paragraph )]
         ]);
 
 
-        array_map( self::$_add_settings_field["ibm_watson"], [
+        array_map( self::$add_settings_field["ibm_watson"], [
             ["id"=>"ibm_watson_user_name",     "title"=>"User Name",     "callback"=>array("WP_Speak\Callback", "element_input_callback"), "args"=>array( "label" => "ex: 20-chars, alphanumeric" )],
             ["id"=>"ibm_watson_user_password", "title"=>"User Password", "callback"=>array("WP_Speak\Callback", "element_input_callback"), "args"=>array( "label" => "ex: 20-chars, alphanumeric" )]
         ]);
@@ -67,21 +67,21 @@ EOD;
             array(self::get_instance(), "validate_ibm_watson_option")
         );
 
-        do_action( ADMIN::WPS_ADMIN.__FUNCTION__, $page, Option::$OPTION_LIST[self::$_section] );
+        do_action( ADMIN::WPS_ADMIN.__FUNCTION__, $page, Option::$OPTION_LIST[self::$section] );
     }
 
     public function validate_ibm_watson_option( $arg_input )
     {
-        Logger::get_instance()->log( self::$_mask, "Validation: " . __FUNCTION__ );
-        Logger::get_instance()->log( self::$_mask, "Input");
-        Logger::get_instance()->log( self::$_mask, print_r( $arg_input, true ) );
+        Logger::get_instance()->log( self::$mask, "Validation: " . __FUNCTION__ );
+        Logger::get_instance()->log( self::$mask, "Input");
+        Logger::get_instance()->log( self::$mask, print_r( $arg_input, true ) );
 
         // Define the array for the updated options
         $output = array();
 
         if ( !isset($arg_input) )
         {
-            return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$_section]);
+            return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
         }
 
         // Loop through each of the options sanitizing the data
@@ -107,7 +107,7 @@ EOD;
         if ( isset($arg_input["ibm_watson_user_name"], $arg_input["ibm_watson_user_password"], $ibm_watson_domain) ) {
 
             $response = Comm::get_instance()->ibm_watson_user($arg_input["ibm_watson_user_name"], $arg_input["ibm_watson_user_password"], $ibm_watson_domain);
-            $options["show_comm"] && Logger::get_instance()->log( self::$_mask, "Admin Register: ".print_r($response, TRUE));
+            $options["show_comm"] && Logger::get_instance()->log( self::$mask, "Admin Register: ".print_r($response, TRUE));
 
             if ($response["status"] && "200" == $response["wp_speak_code"])
             {
@@ -140,7 +140,7 @@ EOD;
     }
 
         // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$_section]);
+        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
     }
 
     /**
@@ -163,7 +163,7 @@ EOD;
     public function set_add_settings_section($arg_add_settings_section)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$_add_settings_section = $arg_add_settings_section->create(Option::$OPTION_EXTENDED_TITLE[self::$_section]);;
+		self::$add_settings_section = $arg_add_settings_section->create(Option::$OPTION_EXTENDED_TITLE[self::$section]);;
 		return $this;
 	}
 	
@@ -172,7 +172,7 @@ EOD;
 		//assert( '!is_null($arg_registry)' );
 		$section = "wp_speak_admin_ibm_watson_option";
 		$field   = "ibm_watson";
-		self::$_add_settings_field[$field] = $arg_add_settings_field->create($section, Admin::WPS_ADMIN.$field);
+		self::$add_settings_field[$field] = $arg_add_settings_field->create($section, Admin::WPS_ADMIN.$field);
 		return $this;
 	}
 	

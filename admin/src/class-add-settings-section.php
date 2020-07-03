@@ -3,7 +3,7 @@ namespace WP_Speak;
 
 class Add_Settings_Section extends Basic
 {
-    protected static $_instance;
+    protected static $instance;
 
     //     The following constants denote the ordered
     //     parameters for Wordpress add_settings_section.

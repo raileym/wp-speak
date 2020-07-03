@@ -3,35 +3,35 @@ namespace WP_Speak;
 
 class Media_Option extends Basic
 {
-    protected static $_instance;
+    protected static $instance;
 
-	private static $_add_settings_section;
-	private static $_image_table;
-	private static $_img_table;
-	private static $_img_image_table;
-	private static $_add_settings_field = array();
-	private static $_section = "media_option";
-	private static $_section_title;
-	private static $_fields = array (
+	private static $add_settings_section;
+	private static $image_table;
+	private static $img_table;
+	private static $img_image_table;
+	private static $add_settings_field = array();
+	private static $section = "media_option";
+	private static $section_title;
+	private static $fields = array (
             "media"
 	    );
-	private static $_default_options = array(
+	private static $default_options = array(
         );
 
 
 	
 	protected function __construct() { 
 
-    	self::$_section_title = Admin::WPS_ADMIN . self::$_section;
+    	self::$section_title = Admin::WPS_ADMIN . self::$section;
     	
         add_action("admin_init", array(get_class(), "init")); 
-        add_action(Admin::WPS_ADMIN."init_".self::$_section,     array(self::$_registry, "init_registry"),   Callback::EXPECT_NON_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
-        add_filter(Admin::WPS_ADMIN."validate_".self::$_section, array(self::$_registry, "update_registry"), Callback::EXPECT_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
+        add_action(Admin::WPS_ADMIN."init_".self::$section,     array(self::$registry, "init_registry"),   Callback::EXPECT_NON_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
+        add_filter(Admin::WPS_ADMIN."validate_".self::$section, array(self::$registry, "update_registry"), Callback::EXPECT_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
 
 	}
 	
     public function get_section() {
-        return self::$_section;
+        return self::$section;
     }
     
     /**
@@ -39,18 +39,18 @@ class Media_Option extends Basic
      */
     public static function init($arg1)
     {
-        $page = Option::$OPTION_EXTENDED_TITLE[self::$_section];
+        $page = Option::$OPTION_EXTENDED_TITLE[self::$section];
 
         if( !get_option( $page ) )
         {
-            update_option( $page, self::filter_default_options( self::$_default_options ) );
+            update_option( $page, self::filter_default_options( self::$default_options ) );
         }
 
         $paragraph = <<<EOD
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis euismod ut nisl nec tincidunt. Donec quis tempus dui. Nam venenatis ullamcorper metus, at semper velit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus interdum egestas aliquam. Etiam efficitur, dolor et dignissim sagittis, ante nunc pellentesque nulla, ut tempus diam sapien lacinia dui. Curabitur lobortis urna a faucibus volutpat. Sed eget risus pharetra, porta risus et, fermentum ligula. Mauris sed hendrerit ex, sed vulputate lorem. Duis in lobortis justo. Aenean mattis odio tortor, sit amet fermentum orci tempus ut. Donec vitae elit facilisis, tincidunt augue id, tempus elit. Nullam sapien est, gravida nec luctus non, rhoncus vitae magna. Fusce dolor justo, ultricies non efficitur vitae, interdum in tortor.
 EOD;
 
-        array_map( self::$_add_settings_section, [
+        array_map( self::$add_settings_section, [
             ["id"=>Admin::WPS_ADMIN."media", "title"=>"Media Files", "callback"=>array("WP_Speak\Callback", "section_p_callback"), "args"=>array( "paragraph" => $paragraph )]
         ]);
 
@@ -66,17 +66,17 @@ EOD;
         // The Query
         //$the_query = new WP_Query( $args );
 
-        if ( !self::$_img_table->update_all( 'status', 'invalid' ) ) {
+        if ( !self::$img_table->update_all( 'status', 'invalid' ) ) {
             add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
             return;
         }
 
-        if ( !self::$_image_table->update_all( 'status', 'invalid' ) ) {
+        if ( !self::$image_table->update_all( 'status', 'invalid' ) ) {
             add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
             return;
         }
 
-        if ( !self::$_img_image_table->update_all( 'status', 'invalid' ) ) {
+        if ( !self::$img_image_table->update_all( 'status', 'invalid' ) ) {
             add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
             return;
         }
@@ -132,57 +132,57 @@ EOD;
                         "img_id"       => $img['img_id'], 
                         "image_id"     => $image['image_id']);
 
-                    if ( !self::$_img_table->validate( $img ) ) {
+                    if ( !self::$img_table->validate( $img ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
             
-                    if ( !self::$_image_table->validate( $image ) ) {
+                    if ( !self::$image_table->validate( $image ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
             
-                    if ( !self::$_img_image_table->validate( $img_image ) ) {
+                    if ( !self::$img_image_table->validate( $img_image ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
             
-                    if ( !self::$_img_table->insert_unique( $img ) ) {
+                    if ( !self::$img_table->insert_unique( $img ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
                         
-                    if ( !self::$_image_table->insert_unique( $image ) ) {
+                    if ( !self::$image_table->insert_unique( $image ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
-                    if ( !self::$_img_image_table->insert_unique( $img_image ) ) {
+                    if ( !self::$img_image_table->insert_unique( $img_image ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
-                    if ( !self::$_img_table->update( 'status', 'valid', 'img_id', $img['img_id'] ) ) {
+                    if ( !self::$img_table->update( 'status', 'valid', 'img_id', $img['img_id'] ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
-                    if ( !self::$_img_table->update( 'attr_alt', $img['attr_alt'], 'img_id', $img['img_id'] ) ) {
+                    if ( !self::$img_table->update( 'attr_alt', $img['attr_alt'], 'img_id', $img['img_id'] ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
-                    if ( !self::$_image_table->update( 'status', 'valid', 'image_id', $image['image_id'] ) ) {
+                    if ( !self::$image_table->update( 'status', 'valid', 'image_id', $image['image_id'] ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
-                    if ( !self::$_img_image_table->update( 'status', 'valid', 'img_image_id', $img_image['img_image_id'] ) ) {
+                    if ( !self::$img_image_table->update( 'status', 'valid', 'img_image_id', $img_image['img_image_id'] ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
-                    if ( !$img_fetch = self::$_img_table->fetch( 'img_id', $img['img_id'] ) ) {
+                    if ( !$img_fetch = self::$img_table->fetch( 'img_id', $img['img_id'] ) ) {
                         add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
@@ -198,19 +198,19 @@ EOD;
         /* Restore original Post Data */
         wp_reset_postdata();
  
-        $img_image_table = self::$_img_image_table->fetch_all();
-        $image_table     = self::$_image_table->fetch_all();
-        $img_table       = self::$_img_table->fetch_all();
+        $img_image_table = self::$img_image_table->fetch_all();
+        $image_table     = self::$image_table->fetch_all();
+        $img_table       = self::$img_table->fetch_all();
 
         $master = ["img"=>$img_table, "image"=>$image_table, "img_image"=>$img_image_table];
         
-        array_map( self::$_add_settings_field["media"], [
+        array_map( self::$add_settings_field["media"], [
             ["id"=>"media_files",  "title"=>"Media Files", "callback"=>array("WP_Speak\Media_Option", "element_media_callback"), "args"=>array( "master" => $master )]
         ]);
 
-Registry::get_instance()->init_table_registry(self::$_img_table);
-Registry::get_instance()->init_table_registry(self::$_image_table);
-Registry::get_instance()->init_table_registry(self::$_img_image_table);
+Registry::get_instance()->init_table_registry(self::$img_table);
+Registry::get_instance()->init_table_registry(self::$image_table);
+Registry::get_instance()->init_table_registry(self::$img_image_table);
 
         register_setting(
             $page,
@@ -218,7 +218,7 @@ Registry::get_instance()->init_table_registry(self::$_img_image_table);
             array(self::get_instance(), "validate_media_option")
         );
 
-        do_action( Admin::WPS_ADMIN.__FUNCTION__, $page, Option::$OPTION_LIST[self::$_section] );
+        do_action( Admin::WPS_ADMIN.__FUNCTION__, $page, Option::$OPTION_LIST[self::$section] );
     }
 
     public static function element_media_callback($arg_list)
@@ -365,16 +365,16 @@ EOF;
 
     public function validate_media_option( $arg_input )
     {
-        self::$_logger->log( self::$_mask, "Validation: " . __FUNCTION__ );
-        self::$_logger->log( self::$_mask, "Input");
-        self::$_logger->log( self::$_mask, print_r( $arg_input, true ) );
+        self::$logger->log( self::$mask, "Validation: " . __FUNCTION__ );
+        self::$logger->log( self::$mask, "Input");
+        self::$logger->log( self::$mask, print_r( $arg_input, true ) );
 
         // Define the array for the updated options
         $output = array();
 
         if ( !isset($arg_input) )
         {
-            return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$_section]);
+            return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
         }
 
         // Loop through each of the options sanitizing the data
@@ -397,12 +397,12 @@ EOF;
             $custom_alt = $arg_input[ "{$element}_custom_alt_{$cnt}" ];
             $use_alt    = $arg_input[ "{$element}_sel_alt_{$cnt}" ];
             
-            if ( !self::$_img_table->update('alt', $custom_alt, 'img_id', $img_id) ) {
+            if ( !self::$img_table->update('alt', $custom_alt, 'img_id', $img_id) ) {
                 add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                 return;
             }
             
-            if ( !self::$_img_table->update('use_alt', $use_alt, 'img_id', $img_id) ) {
+            if ( !self::$img_table->update('use_alt', $use_alt, 'img_id', $img_id) ) {
                 add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                 return;
             }
@@ -412,7 +412,7 @@ EOF;
         
         
          // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$_section]);
+        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
 
         $master = json_decode($arg_input["media_files"], true);
         
@@ -421,29 +421,29 @@ EOF;
             $img   = $master["img"  ][ $img_image["img_id"] ];
             $image = $master["image"][ $img_image["image_id"] ];
             
-            if ( !self::$_img_table->validate( $img ) ) {
+            if ( !self::$img_table->validate( $img ) ) {
                 add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                 return;
             }
             
-            if ( !self::$_image_table->validate( $image ) ) {
+            if ( !self::$image_table->validate( $image ) ) {
                 add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                 return;
             }
             
-            $img_id = self::$_img_table->insert($img);
+            $img_id = self::$img_table->insert($img);
             if ( FALSE === $img_id ) {
                 add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                 return;
             }
 
-            $image_id = self::$_image_table->insert($image);
+            $image_id = self::$image_table->insert($image);
             if ( FALSE === $image_id ) {
                 add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                 return;
             }
 
-            $img_image_id = self::$_img_image_table->insert( array("img_id" => $img_id, "image_id" => $image_id) );
+            $img_image_id = self::$img_image_table->insert( array("img_id" => $img_id, "image_id" => $image_id) );
             if ( FALSE === $img_image_id ) {
                 add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                 return;
@@ -451,7 +451,7 @@ EOF;
         }
         
         // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$_section]);
+        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
     }
 
 
@@ -471,36 +471,36 @@ EOF;
 	public function set_image_table( $arg_image_table)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$_image_table = $arg_image_table;
+		self::$image_table = $arg_image_table;
 		return $this;
 	}
 	
 	public function set_img_table( $arg_img_table)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$_img_table = $arg_img_table;
+		self::$img_table = $arg_img_table;
 		return $this;
 	}
 	
 	public function set_img_image_table( $arg_img_image_table)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$_img_image_table = $arg_img_image_table;
+		self::$img_image_table = $arg_img_image_table;
 		return $this;
 	}
 		
     public function set_add_settings_section($arg_add_settings_section)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$_add_settings_section = $arg_add_settings_section->create(Option::$OPTION_EXTENDED_TITLE[self::$_section]);;
+		self::$add_settings_section = $arg_add_settings_section->create(Option::$OPTION_EXTENDED_TITLE[self::$section]);;
 		return $this;
 	}
 	
     public function set_add_settings_field($arg_add_settings_field)
 	{
 		//assert( '!is_null($arg_registry)' );
-		foreach(self::$_fields as $field) {
-            self::$_add_settings_field[$field] = $arg_add_settings_field->create(self::$_section_title, Admin::WPS_ADMIN.$field);
+		foreach(self::$fields as $field) {
+            self::$add_settings_field[$field] = $arg_add_settings_field->create(self::$section_title, Admin::WPS_ADMIN.$field);
 		}
 		return $this;
 	}
@@ -508,7 +508,7 @@ EOF;
 	public function set_db(DB $arg_db)
 	{
 		//assert( '!is_null($arg_logger)' );
-		self::$_db = $arg_db;
+		self::$db = $arg_db;
 		return $this;
 	}
 	

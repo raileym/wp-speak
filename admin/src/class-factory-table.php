@@ -8,17 +8,17 @@ namespace WP_Speak;
 
 class Factory_Table extends Basic
 {
-    protected static $_instance;
+    protected static $instance;
 
-	private static $_db;
-	private static $_tables;
+	private static $db;
+	private static $tables;
 
-	private $_charset;
-	private $_id;
-	private $_tag;
-	private $_table;
-	private $_columns;
-	private $_create_table;
+	private $charset;
+	private $id;
+	private $tag;
+	private $table;
+	private $columns;
+	private $create_table;
 	
 	
 	const _COLUMNS = array(
@@ -105,19 +105,19 @@ class Factory_Table extends Basic
             $this->_create_table = self::_CREATE_TABLE[$arg_tag];
 	    }
 	    
-	    self::$_tables = array();
+	    self::$tables = array();
 	}
 	
 	public function create($arg_tag) {
 	    $self = new self($arg_tag);
 	    
-	    self::$_tables[$arg_tag] = $self;
+	    self::$tables[$arg_tag] = $self;
 	    
 	    return new self($arg_tag);
 	}
 	
 	public function get($arg_tag) {
-	    return self::$_tables[$arg_tag];
+	    return self::$tables[$arg_tag];
 	}
 	
 	public function table() {
@@ -133,7 +133,7 @@ class Factory_Table extends Basic
 	}
 	
 	public function fetch( $arg_key, $arg_match ) {
-        if ( !$results = self::$_db->fetch($this->_table, $arg_key, $arg_match) ) {
+        if ( !$results = self::$db->fetch($this->_table, $arg_key, $arg_match) ) {
             return FALSE;
         }
 
@@ -141,7 +141,7 @@ class Factory_Table extends Basic
 	}
 
 // 	public function select( $arg_match ) {
-//         if ( !$id = self::$_db->fetch($this->_table, $this->_id, $arg_match) ) {
+//         if ( !$id = self::$db->fetch($this->_table, $this->_id, $arg_match) ) {
 //             return FALSE;
 //         }
 // 
@@ -149,7 +149,7 @@ class Factory_Table extends Basic
 // 	}
 
     public function update( $arg_column, $arg_value, $arg_key, $arg_match ) {
-		if ( !self::$_db->update( $this->_table, $arg_column, $arg_value, $arg_key, $arg_match ) ) {
+		if ( !self::$db->update( $this->_table, $arg_column, $arg_value, $arg_key, $arg_match ) ) {
 		    return FALSE;
 		}
 		
@@ -157,7 +157,7 @@ class Factory_Table extends Basic
 	}
 	
     public function update_all( $arg_column, $arg_value ) {
-		if ( !self::$_db->update_all( $this->_table, $arg_column, $arg_value ) ) {
+		if ( !self::$db->update_all( $this->_table, $arg_column, $arg_value ) ) {
 		    return FALSE;
 		}
 		
@@ -170,7 +170,7 @@ class Factory_Table extends Basic
             return FALSE;            
         }
         
-        if ( !self::$_db->insert_unique($this->_table, $this->_id, $arg_list[$this->_id], $arg_list) ) {
+        if ( !self::$db->insert_unique($this->_table, $this->_id, $arg_list[$this->_id], $arg_list) ) {
             return FALSE;
         }
 
@@ -183,7 +183,7 @@ class Factory_Table extends Basic
             return FALSE;            
         }
         
-        if ( !self::$_db->insert($this->_table, $arg_list) ) {
+        if ( !self::$db->insert($this->_table, $arg_list) ) {
             return FALSE;
         }
 
@@ -192,7 +192,7 @@ class Factory_Table extends Basic
 
 	public function fetch_all() {
         
-        if ( !$results = self::$_db->fetch_all($this->_table) ) {
+        if ( !$results = self::$db->fetch_all($this->_table) ) {
             return FALSE;
         }
 
@@ -219,7 +219,7 @@ class Factory_Table extends Basic
         global $wpdb;
 
         $table   = $wpdb->prefix . "speak_" . $arg_tag;
-        self::$_db->drop_table( $table );
+        self::$db->drop_table( $table );
 
         //delete_option( 'wp_speak_img_db_version' );
 	}
@@ -264,7 +264,7 @@ class Factory_Table extends Basic
 	public function set_db(DB $arg_db)
 	{
 		//assert( '!is_null($arg_logger)' );
-		self::$_db = $arg_db;
+		self::$db = $arg_db;
 		return $this;
 	}
 	

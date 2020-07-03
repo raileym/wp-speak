@@ -147,15 +147,10 @@ require( dirname(__FILE__)."/admin/src/class-factory-table.php" );
 require( dirname(__FILE__)."/admin/src/class-callback.php" );
 require( dirname(__FILE__)."/admin/src/class-ibm-watson-option.php" );
 require( dirname(__FILE__)."/admin/src/class-register-option.php" );
-require( dirname(__FILE__)."/admin/src/class-cache-option.php" );
-require( dirname(__FILE__)."/admin/src/class-copyright-option.php" );
-require( dirname(__FILE__)."/admin/src/class-debug-option.php" );
 require( dirname(__FILE__)."/admin/src/class-example-option.php" );
 require( dirname(__FILE__)."/admin/src/class-log-option.php" );
 require( dirname(__FILE__)."/admin/src/class-media-option.php" );
 require( dirname(__FILE__)."/admin/src/class-image-option.php" );
-require( dirname(__FILE__)."/admin/src/class-format-option.php" );
-require( dirname(__FILE__)."/admin/src/class-include-option.php" );
 require( dirname(__FILE__)."/admin/src/class-registry.php" );
 require( dirname(__FILE__)."/admin/src/class-logger.php" );
 // require( dirname(__FILE__)."/includes/classes/audio.php" );
@@ -234,27 +229,6 @@ if ( is_admin() )
         ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::MASK["log_register"]);
 
-    Cache_Option::get_instance()
-        ->set_logger(Logger::get_instance())
-        ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
-        ->set_mask(Logmask::MASK["log_cache"]);
-
-    Copyright_Option::get_instance()
-        ->set_logger(Logger::get_instance())
-        ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
-        ->set_mask(Logmask::MASK["log_copyright"]);
-
-    Debug_Option::get_instance()
-        ->set_logger(Logger::get_instance())
-        ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
-        ->set_mask(Logmask::MASK["log_debug"]);
-
     Example_Option::get_instance()
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
@@ -288,20 +262,6 @@ if ( is_admin() )
         ->set_add_settings_section(Add_Settings_Section::get_instance())
         ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::MASK["log_image"]);
-
-    Format_Option::get_instance()
-        ->set_logger(Logger::get_instance())
-        ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
-        ->set_mask(Logmask::MASK["log_format"]);
-
-    Include_Option::get_instance()
-        ->set_logger(Logger::get_instance())
-        ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
-        ->set_mask(Logmask::MASK["log_include"]);
 
     Admin::init();
 }    

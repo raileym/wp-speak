@@ -50,21 +50,21 @@ class Admin extends Basic
      * 
      * @var string
      */
-    protected static $_instance;
+    protected static $instance;
 
     /**
      * HTML representation of the WP_Speak logo (left, center, or right)
      * 
      * @var string
      */
-    private static $_logo;
+    private static $logo;
 
     /**
      * HTML representation of the WP_Speak tagline
      * 
      * @var string
      */
-    private static $_tagline;
+    private static $tagline;
 
 
     /**
@@ -79,8 +79,8 @@ class Admin extends Basic
      */
     public static function init()
     {
-        self::$_logo    = self::print_logo("center");
-        self::$_tagline = self::print_tagline();
+        self::$logo    = self::print_logo("center");
+        self::$tagline = self::print_tagline();
 
         add_action("admin_menu", array(self::get_instance(), "init_page"));
     }
@@ -134,7 +134,7 @@ EOD;
     {
         add_options_page(
             "WP-Speak Options",    // The value used to populate the browser"s title bar when the Settings>WP-Speak is active
-            self::$_tagline,       // The text of the menu under "Settings > WP-Speak " in the administrator's sidebar
+            self::$tagline,       // The text of the menu under "Settings > WP-Speak " in the administrator's sidebar
             "administrator",       // Capability: What roles are able/who is able to access the menu
             "wp_speak_admin",      // The ID used to bind submenu items to this menu
             array("WP_Speak\Admin", "init_page_callback")	// The callback function used to render this menu
@@ -147,13 +147,13 @@ EOD;
         // These assignments have been set at init. See above.
         // I have to make this assignment because I am using
         // these two values in a heredoc below.
-        $logo    = self::$_logo;
-        $tagline = self::$_tagline;
+        $logo    = self::$logo;
+        $tagline = self::$tagline;
 
         // From incoming URL Query String ... page= and tab=
-        if( isset( $_GET[ "tab" ] ) )
+        if( isset( $GET[ "tab" ] ) )
         {
-            $arg_active_tab = strtolower($_GET[ "tab" ]);
+            $arg_active_tab = strtolower($GET[ "tab" ]);
         } else {
             $arg_active_tab = "media_option"; //Option::$INITIAL_PANEL;
         }

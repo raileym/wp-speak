@@ -6,7 +6,7 @@ namespace WP_Speak;
 abstract class RegistryAbstract
 {
 
-    protected static $_instances = array();
+    protected static $instances = array();
 
     // get Singleton instance of the registry (uses the 'get_called_class()' function available in PHP 5.3)
     public static function get_instance()
@@ -14,11 +14,11 @@ abstract class RegistryAbstract
         // resolves the called class at run time
         $class = get_called_class();
 
-        if (!isset(self::$_instances[$class])) {
-            self::$_instances[$class] = new $class;
+        if (!isset(self::$instances[$class])) {
+            self::$instances[$class] = new $class;
         }
 
-        return self::$_instances[$class];
+        return self::$instances[$class];
     }
 
     // overriden by some subclasses
@@ -34,7 +34,7 @@ abstract class RegistryAbstract
 
 class ArrayRegistry extends RegistryAbstract
 {
-    private $_data = array();
+    private $data = array();
 
     public function set($arg_key, $arg_value)
     {
@@ -56,7 +56,7 @@ class ArrayRegistry extends RegistryAbstract
 
 class Registry extends Basic
 {
-    protected static $_instance;
+    protected static $instance;
 
     protected function __construct()
     {
@@ -84,7 +84,7 @@ class Registry extends Basic
             ArrayRegistry::get_instance()->set($key, $value);
         }
         
-        self::$_logger->log(self::$_mask, "-1-----------------------------------");
+        self::$logger->log(self::$mask, "-1-----------------------------------");
 
         return $this;
     }
@@ -95,22 +95,22 @@ class Registry extends Basic
         
         foreach ($arg_name_list as $name) {
             ArrayRegistry::get_instance()->set($name, $value = (isset($option[$name])) ? $option[$name] : null);
-            false === strpos($name, "password") && self::$_logger->log(self::$_mask, "Set Registry. {$name} = {$value}");
-            false !== strpos($name, "password") && self::$_logger->log(self::$_mask, "Set Registry. {$name} = ".str_repeat("*", 8));
+            false === strpos($name, "password") && self::$logger->log(self::$mask, "Set Registry. {$name} = {$value}");
+            false !== strpos($name, "password") && self::$logger->log(self::$mask, "Set Registry. {$name} = ".str_repeat("*", 8));
         }
         
-        self::$_logger->log(self::$_mask, "-2-----------------------------------");
+        self::$logger->log(self::$mask, "-2-----------------------------------");
         return $this;
     }
     
     public function init_log_registry($arg_page, $arg_name_list)
     {
-        self::$_logger->log(self::$_mask, __FUNCTION__."({$arg_page})");
-        self::$_logger->log(self::$_mask, __FUNCTION__ . print_r($arg_name_list, true));
+        self::$logger->log(self::$mask, __FUNCTION__."({$arg_page})");
+        self::$logger->log(self::$mask, __FUNCTION__ . print_r($arg_name_list, true));
 
         $option = get_option($arg_page);
 
-        self::$_logger->log(self::$_mask, "MASK OPTIONS on init: " . print_r($option, true));
+        self::$logger->log(self::$mask, "MASK OPTIONS on init: " . print_r($option, true));
 
 // error_log("********************");
 // error_log("********************");
@@ -122,40 +122,40 @@ class Registry extends Basic
         foreach ($arg_name_list as $name) {
             if (isset($option[$name])  && 0 !== $option[$name]) {
                 ArrayRegistry::get_instance()->set($name, $value = $option[$name]);
-                self::$_logger->setmask(self::$_logger->getmask() | Logmask::MASK[$name]);
-                self::$_logger->log(self::$_mask, "Set Registry. {$name} = ON");
+                self::$logger->setmask(self::$logger->getmask() | Logmask::MASK[$name]);
+                self::$logger->log(self::$mask, "Set Registry. {$name} = ON");
             } else {
                 ArrayRegistry::get_instance()->set($name, $value = null);
-                self::$_logger->setmask(self::$_logger->getmask() & ~Logmask::MASK[$name]);
-                self::$_logger->log(self::$_mask, "Set Registry. {$name} = OFF");
+                self::$logger->setmask(self::$logger->getmask() & ~Logmask::MASK[$name]);
+                self::$logger->log(self::$mask, "Set Registry. {$name} = OFF");
             }
         }
         
-        self::$_logger->log(self::$_mask, "-3-----------------------------------");
+        self::$logger->log(self::$mask, "-3-----------------------------------");
         return $this;
     }
     
     public function update_registry($arg_output, $arg_name_list)
     {
-        self::$_logger->log(self::$_mask, __FUNCTION__ . print_r($arg_output, true));
-        self::$_logger->log(self::$_mask, __FUNCTION__ . print_r($arg_name_list, true));
+        self::$logger->log(self::$mask, __FUNCTION__ . print_r($arg_output, true));
+        self::$logger->log(self::$mask, __FUNCTION__ . print_r($arg_name_list, true));
 
         foreach ($arg_name_list as $name) {
             ArrayRegistry::get_instance()->set($name, $value = (isset($arg_output[$name])) ? $arg_output[$name] : null);
-            false === strpos($name, "password") && self::$_logger->log(self::$_mask, "Update Registry. {$name} = {$value}");
-            false !== strpos($name, "password") && self::$_logger->log(self::$_mask, "Update Registry. {$name} = ".str_repeat("*", 8));
+            false === strpos($name, "password") && self::$logger->log(self::$mask, "Update Registry. {$name} = {$value}");
+            false !== strpos($name, "password") && self::$logger->log(self::$mask, "Update Registry. {$name} = ".str_repeat("*", 8));
         }
 
-        self::$_logger->log(self::$_mask, "-4-----------------------------------");
+        self::$logger->log(self::$mask, "-4-----------------------------------");
         return $arg_output;
     }
             
     public function update_log_registry($arg_output, $arg_name_list)
     {
-        self::$_logger->log(self::$_mask, __FUNCTION__ . " " . print_r($arg_output, true));
-        self::$_logger->log(self::$_mask, __FUNCTION__ . " " . print_r($arg_name_list, true));
+        self::$logger->log(self::$mask, __FUNCTION__ . " " . print_r($arg_output, true));
+        self::$logger->log(self::$mask, __FUNCTION__ . " " . print_r($arg_name_list, true));
 
-        self::$_logger->log(self::$_mask, "MASK OPTIONS on update: " . " " . print_r($arg_output, true));
+        self::$logger->log(self::$mask, "MASK OPTIONS on update: " . " " . print_r($arg_output, true));
 
 // error_log("Working each name");
 // error_log( print_r($arg_name_list, true) );
@@ -165,19 +165,19 @@ class Registry extends Basic
         foreach ($arg_name_list as $name) {
             if (isset($arg_output[$name])) {
                 ArrayRegistry::get_instance()->set($name, $value = $arg_output[$name]);
-                self::$_logger->setmask(self::$_logger->getmask() | Logmask::MASK[$name]);
-                self::$_logger->log(self::$_mask, "Update Registry. {$name} = ON");
+                self::$logger->setmask(self::$logger->getmask() | Logmask::MASK[$name]);
+                self::$logger->log(self::$mask, "Update Registry. {$name} = ON");
             } else {
 // error_log("Turn mask off for {$name}");
-// error_log("Current mask is " . self::$_logger->getmask());
+// error_log("Current mask is " . self::$logger->getmask());
                 ArrayRegistry::get_instance()->set($name, $value = "OFF");
-                self::$_logger->log(self::$_mask, "Update Registry. {$name} = OFF");
-                self::$_logger->setmask(self::$_logger->getmask() & ~Logmask::MASK[$name]);
-// error_log("Current mask is " . self::$_logger->getmask());
+                self::$logger->log(self::$mask, "Update Registry. {$name} = OFF");
+                self::$logger->setmask(self::$logger->getmask() & ~Logmask::MASK[$name]);
+// error_log("Current mask is " . self::$logger->getmask());
             }
         }
 
-        self::$_logger->log(self::$_mask, "-5-----------------------------------");
+        self::$logger->log(self::$mask, "-5-----------------------------------");
         return $arg_output;
     }
 }

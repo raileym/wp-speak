@@ -10,7 +10,7 @@ class Callback extends Basic
 	const EXPECT_ONE_ARGUMENT   = 1;            /** For add_action: expect one argument */
 	const EXPECT_TWO_ARGUMENTS  = 2;            /** For add_action: expect two arguments */
 
-    protected static $_instance;
+    protected static $instance;
 
 	protected function __construct() { }
 		

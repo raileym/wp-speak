@@ -3,18 +3,18 @@ namespace WP_Speak;
 
 class Add_Settings_Field extends Basic
 {
-    protected static $_instance;
+    protected static $instance;
 
     //     The following constants denote the ordered
     //     parameters for Wordpress add_settings_field.
     //     See https://developer.wordpress.org/reference/functions/add_settings_field/.
     //     
-    const _ID       = 0;
-    const _TITLE    = 1;
-    const _CALLBACK = 2;
-    const _PAGE     = 3;
-    const _SECTION  = 4;
-    const _ARGS     = 5;
+    const IDX_ID       = 0;
+    const IDX_TITLE    = 1;
+    const IDX_CALLBACK = 2;
+    const IDX_PAGE     = 3;
+    const IDX_SECTION  = 4;
+    const IDX_ARGS     = 5;
 
 	protected function __construct() { }
 	
@@ -31,13 +31,13 @@ class Add_Settings_Field extends Basic
             $arg_list["args"]["element"] = $arg_list["id"];
 
             // Tee ourselves up for our call to Wordpress add_settings_field
-            $use_list[self::_ID]       = $arg_list["id"];
-            $use_list[self::_TITLE]    = $arg_list["title"];
-//            $use_list[self::_CALLBACK] = array($arg_list["class"], $arg_list["callback"]);
-            $use_list[self::_CALLBACK] = $arg_list["callback"];
-            $use_list[self::_PAGE]     = $use_page;
-            $use_list[self::_SECTION]  = $use_section;
-            $use_list[self::_ARGS]     = $arg_list["args"];
+            $use_list[self::IDX_ID]       = $arg_list["id"];
+            $use_list[self::IDX_TITLE]    = $arg_list["title"];
+//            $use_list[self::IDX_CALLBACK] = array($arg_list["class"], $arg_list["callback"]);
+            $use_list[self::IDX_CALLBACK] = $arg_list["callback"];
+            $use_list[self::IDX_PAGE]     = $use_page;
+            $use_list[self::IDX_SECTION]  = $use_section;
+            $use_list[self::IDX_ARGS]     = $arg_list["args"];
 
             call_user_func_array("add_settings_field", $use_list);
             

@@ -3,16 +3,16 @@ namespace WP_Speak;
 
 class Log_Option extends Basic
 {
-    protected static $_instance;
+    protected static $instance;
 
-	private static $_add_settings_section;
-	private static $_add_settings_field = array();
-	private static $_section = "log_option";
-	private static $_section_title;
-	private static $_fields = array (
+	private static $add_settings_section;
+	private static $add_settings_field = array();
+	private static $section = "log_option";
+	private static $section_title;
+	private static $fields = array (
 	        "log"
 	    );
-	private static $_default_options = array(
+	private static $default_options = array(
             "log_admin"      => 0,
             "log_cache"      => 0,
             "log_callback"   => 0,
@@ -31,7 +31,7 @@ class Log_Option extends Basic
 
 	protected function __construct() { 
 
-    	self::$_section_title = Admin::WPS_ADMIN . self::$_section;
+    	self::$section_title = Admin::WPS_ADMIN . self::$section;
     	
         add_action("admin_init", array(get_class(), "init")); 
         add_action(Admin::WPS_ADMIN."init_log_option",           array(Registry::get_instance(), "init_log_registry"),   Callback::EXPECT_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
@@ -40,7 +40,7 @@ class Log_Option extends Basic
 	}
 	
     public function get_section() {
-        return self::$_section;
+        return self::$section;
     }
     
     /**
@@ -48,23 +48,23 @@ class Log_Option extends Basic
      */
     public static function init()
     {
-        $page = Option::$OPTION_EXTENDED_TITLE[self::$_section];
+        $page = Option::$OPTION_EXTENDED_TITLE[self::$section];
 
         if( !get_option( $page ) )
         {
-            update_option( $page, self::filter_default_options( self::$_default_options ) );
+            update_option( $page, self::filter_default_options( self::$default_options ) );
         }
 
         $paragraph = <<<EOD
 Choose which type(s) of information is displayed in the WP log.
 EOD;
 
-        array_map( self::$_add_settings_section, [
+        array_map( self::$add_settings_section, [
             ["id"=>Admin::WPS_ADMIN."log", "title"=>"Debug Logs", "callback"=>array("WP_Speak\Callback", "section_p_callback"), "args"=>array( "paragraph" => $paragraph )]
         ]);
 
 
-        array_map( self::$_add_settings_field["log"], [
+        array_map( self::$add_settings_field["log"], [
             ["id"=>"log_admin",      "title"=>"Log ADMIN",      "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
             ["id"=>"log_cache",      "title"=>"Log CACHE",      "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
             ["id"=>"log_callback",   "title"=>"Log CALLBACK",   "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
@@ -89,7 +89,7 @@ EOD;
 
 // error_log("DO ACTION: " . Admin::WPS_ADMIN.__FUNCTION__);
 
-        do_action( Admin::WPS_ADMIN.__FUNCTION__, $page, Option::$OPTION_LIST[self::$_section] ); 
+        do_action( Admin::WPS_ADMIN.__FUNCTION__, $page, Option::$OPTION_LIST[self::$section] ); 
 
 // error_log("POST-DO ACTION: " . Admin::WPS_ADMIN.__FUNCTION__);
     }
@@ -98,9 +98,9 @@ EOD;
 
     public function validate_log_option( $arg_input )
     {
-        Logger::get_instance()->log( self::$_mask, "Validation: " . __FUNCTION__ );
-        Logger::get_instance()->log( self::$_mask, "Input");
-        Logger::get_instance()->log( self::$_mask, print_r( $arg_input, true ) );
+        Logger::get_instance()->log( self::$mask, "Validation: " . __FUNCTION__ );
+        Logger::get_instance()->log( self::$mask, "Input");
+        Logger::get_instance()->log( self::$mask, print_r( $arg_input, true ) );
 
         // Define the array for the updated options
         $output = array();
@@ -109,8 +109,8 @@ EOD;
         {
 // error_log("*** INPUT IS NOT SET ***");
 // error_log("APPLY FILTER: " . Admin::WPS_ADMIN.__FUNCTION__);
-// error_log( print_r(Option::$OPTION_LIST[self::$_section], true) );
-            $results = apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$_section]);
+// error_log( print_r(Option::$OPTION_LIST[self::$section], true) );
+            $results = apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
 // error_log("*** New RESULTS ***");
 // error_log( print_r($results, true) );
             return $results;
@@ -133,7 +133,7 @@ EOD;
 // error_log("APPLY FILTER: " . Admin::WPS_ADMIN.__FUNCTION__);
 
         // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$_section] );
+        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section] );
     }
 
 
@@ -167,15 +167,15 @@ EOD;
     public function set_add_settings_section($arg_add_settings_section)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$_add_settings_section = $arg_add_settings_section->create(Option::$OPTION_EXTENDED_TITLE[self::$_section]);;
+		self::$add_settings_section = $arg_add_settings_section->create(Option::$OPTION_EXTENDED_TITLE[self::$section]);;
 		return $this;
 	}
 	
     public function set_add_settings_field($arg_add_settings_field)
 	{
 		//assert( '!is_null($arg_registry)' );
-		foreach(self::$_fields as $field) {
-            self::$_add_settings_field[$field] = $arg_add_settings_field->create(self::$_section_title, Admin::WPS_ADMIN.$field);
+		foreach(self::$fields as $field) {
+            self::$add_settings_field[$field] = $arg_add_settings_field->create(self::$section_title, Admin::WPS_ADMIN.$field);
 		}
 		return $this;
 	}
@@ -183,7 +183,7 @@ EOD;
 	public function set_db(DB $arg_db)
 	{
 		//assert( '!is_null($arg_logger)' );
-		self::$_db = $arg_db;
+		self::$db = $arg_db;
 		return $this;
 	}
 	

@@ -3,7 +3,7 @@ namespace WP_Speak;
 
 class DB extends Basic {
 
-    protected static $_instance;
+    protected static $instance;
 
 	protected function __construct( ) { }
 	
