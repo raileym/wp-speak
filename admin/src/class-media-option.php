@@ -208,9 +208,9 @@ EOD;
             ["id"=>"media_files",  "title"=>"Media Files", "callback"=>array("WP_Speak\Media_Option", "element_media_callback"), "args"=>array( "master" => $master )]
         ]);
 
-Registry::get_instance()->init_table_registry(self::$img_table);
-Registry::get_instance()->init_table_registry(self::$image_table);
-Registry::get_instance()->init_table_registry(self::$img_image_table);
+self::$registry->init_table_registry(self::$img_table);
+self::$registry->init_table_registry(self::$image_table);
+self::$registry->init_table_registry(self::$img_image_table);
 
         register_setting(
             $page,

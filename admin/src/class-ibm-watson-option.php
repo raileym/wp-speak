@@ -72,9 +72,9 @@ EOD;
 
     public function validate_ibm_watson_option( $arg_input )
     {
-        Logger::get_instance()->log( self::$mask, "Validation: " . __FUNCTION__ );
-        Logger::get_instance()->log( self::$mask, "Input");
-        Logger::get_instance()->log( self::$mask, print_r( $arg_input, true ) );
+        self::$logger->log( self::$mask, "Validation: " . __FUNCTION__ );
+        self::$logger->log( self::$mask, "Input");
+        self::$logger->log( self::$mask, print_r( $arg_input, true ) );
 
         // Define the array for the updated options
         $output = array();
@@ -106,23 +106,23 @@ EOD;
 
         if ( isset($arg_input["ibm_watson_user_name"], $arg_input["ibm_watson_user_password"], $ibm_watson_domain) ) {
 
-            $response = Comm::get_instance()->ibm_watson_user($arg_input["ibm_watson_user_name"], $arg_input["ibm_watson_user_password"], $ibm_watson_domain);
-            $options["show_comm"] && Logger::get_instance()->log( self::$mask, "Admin Register: ".print_r($response, TRUE));
-
-            if ($response["status"] && "200" == $response["wp_speak_code"])
-            {
-                $output["is_ibm_watsoned"]    = TRUE;
-                $output["ibm_watson_message"] = $response["wp_speak_message"];
-                $output["status_name"]      = $response["wp_speak_status_name"];
-                $output["ibm_watson_domain"]  = $ibm_watson_domain;
-            }
-            else
-            {
-                $output["is_ibm_watsoned"]    = FALSE;
-                $output["ibm_watson_message"] = $response["wp_speak_message"];
-                $output["status_name"]      = NULL;
-                $output["ibm_watson_domain"]  = $ibm_watson_domain;
-            }
+//             $response = Comm::get_instance()->ibm_watson_user($arg_input["ibm_watson_user_name"], $arg_input["ibm_watson_user_password"], $ibm_watson_domain);
+//             $options["show_comm"] && self::$logger->log( self::$mask, "Admin Register: ".print_r($response, TRUE));
+// 
+//             if ($response["status"] && "200" == $response["wp_speak_code"])
+//             {
+//                 $output["is_ibm_watsoned"]    = TRUE;
+//                 $output["ibm_watson_message"] = $response["wp_speak_message"];
+//                 $output["status_name"]      = $response["wp_speak_status_name"];
+//                 $output["ibm_watson_domain"]  = $ibm_watson_domain;
+//             }
+//             else
+//             {
+//                 $output["is_ibm_watsoned"]    = FALSE;
+//                 $output["ibm_watson_message"] = $response["wp_speak_message"];
+//                 $output["status_name"]      = NULL;
+//                 $output["ibm_watson_domain"]  = $ibm_watson_domain;
+//             }
 
         }
         else

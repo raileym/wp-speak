@@ -23,10 +23,12 @@ class Example_Option extends Basic
     	self::$section_title = Admin::WPS_ADMIN . self::$section;
     	
         add_action("admin_init", array(get_class(), "init")); 
+        
         add_action(Admin::WPS_ADMIN."init_".self::$section,     
             array(self::$registry, "init_registry"),   
             Callback::EXPECT_NON_DEFAULT_PRIORITY, 
             Callback::EXPECT_TWO_ARGUMENTS);
+        
         add_filter(Admin::WPS_ADMIN."validate_".self::$section, 
             array(self::$registry, "update_registry"), 
             Callback::EXPECT_DEFAULT_PRIORITY, 
@@ -115,9 +117,9 @@ EOD;
 
     public function validate_example_option( $arg_input )
     {
-        Logger::get_instance()->log( self::$mask, "Validation: " . __FUNCTION__ );
-        Logger::get_instance()->log( self::$mask, "Input");
-        Logger::get_instance()->log( self::$mask, print_r( $arg_input, true ) );
+        self::$logger->log( self::$mask, "Validation: " . __FUNCTION__ );
+        self::$logger->log( self::$mask, "Input");
+        self::$logger->log( self::$mask, print_r( $arg_input, true ) );
 
         // Define the array for the updated options
         $output = array();

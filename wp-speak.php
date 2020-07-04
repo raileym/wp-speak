@@ -151,6 +151,8 @@ require( dirname(__FILE__)."/admin/src/class-example-option.php" );
 require( dirname(__FILE__)."/admin/src/class-log-option.php" );
 require( dirname(__FILE__)."/admin/src/class-media-option.php" );
 require( dirname(__FILE__)."/admin/src/class-image-option.php" );
+require( dirname(__FILE__)."/admin/src/abstract-registry.php" );
+require( dirname(__FILE__)."/admin/src/class-array-registry.php" );
 require( dirname(__FILE__)."/admin/src/class-registry.php" );
 require( dirname(__FILE__)."/admin/src/class-logger.php" );
 // require( dirname(__FILE__)."/includes/classes/audio.php" );
@@ -166,9 +168,12 @@ if ( is_admin() )
 
 Registry::get_instance()
     ->set_logger(Logger::get_instance())
-    ->init_log_registry(Option::$OPTION_EXTENDED_TITLE["log_option"], Option::$OPTION_LIST["log_option"])
     ->set_mask(Logmask::MASK["log_registry"])
-    ->set_logger(Logger::get_instance());
+    ->set_logger(Logger::get_instance())
+    ->set_array_registry(Array_Registry::get_instance());
+
+Registry::get_instance()
+    ->init_log_registry(Option::$OPTION_EXTENDED_TITLE["log_option"], Option::$OPTION_LIST["log_option"]);
 
 foreach (Option::$SECTIONS as $section) {
     if ($section == "Log_Option") {

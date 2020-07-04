@@ -79,9 +79,9 @@ EOD;
 
     public function validate_register_option( $arg_input )
     {
-        Logger::get_instance()->log( self::$mask, "Validation: " . __FUNCTION__ );
-        Logger::get_instance()->log( self::$mask, "Input");
-        Logger::get_instance()->log( self::$mask, print_r( $arg_input, true ) );
+        self::$logger->log( self::$mask, "Validation: " . __FUNCTION__ );
+        self::$logger->log( self::$mask, "Input");
+        self::$logger->log( self::$mask, print_r( $arg_input, true ) );
 
         // Define the array for the updated options
         $output = array();
@@ -114,7 +114,7 @@ EOD;
         if ( isset($arg_input["register_user_name"], $arg_input["register_user_password"], $register_domain) ) {
 
             $response = Comm::get_instance()->register_user($arg_input["register_user_name"], $arg_input["register_user_password"], $register_domain);
-            $options["show_comm"] && Logger::get_instance()->log( self::$mask, "Admin Register: ".print_r($response, TRUE));
+            $options["show_comm"] && self::$logger->log( self::$mask, "Admin Register: ".print_r($response, TRUE));
 
             if ($response["status"] && "200" == $response["wp_speak_code"])
             {
