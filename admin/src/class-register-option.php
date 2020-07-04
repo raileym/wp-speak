@@ -113,23 +113,23 @@ EOD;
 
         if ( isset($arg_input["register_user_name"], $arg_input["register_user_password"], $register_domain) ) {
 
-            $response = Comm::get_instance()->register_user($arg_input["register_user_name"], $arg_input["register_user_password"], $register_domain);
-            $options["show_comm"] && self::$logger->log( self::$mask, "Admin Register: ".print_r($response, TRUE));
-
-            if ($response["status"] && "200" == $response["wp_speak_code"])
-            {
-                $output["is_registered"]    = TRUE;
-                $output["register_message"] = $response["wp_speak_message"];
-                $output["status_name"]      = $response["wp_speak_status_name"];
-                $output["register_domain"]  = $register_domain;
-            }
-            else
-            {
-                $output["is_registered"]    = FALSE;
-                $output["register_message"] = $response["wp_speak_message"];
-                $output["status_name"]      = NULL;
-                $output["register_domain"]  = $register_domain;
-            }
+//             $response = Comm::get_instance()->register_user($arg_input["register_user_name"], $arg_input["register_user_password"], $register_domain);
+//             $options["show_comm"] && self::$logger->log( self::$mask, "Admin Register: ".print_r($response, TRUE));
+// 
+//             if ($response["status"] && "200" == $response["wp_speak_code"])
+//             {
+//                 $output["is_registered"]    = TRUE;
+//                 $output["register_message"] = $response["wp_speak_message"];
+//                 $output["status_name"]      = $response["wp_speak_status_name"];
+//                 $output["register_domain"]  = $register_domain;
+//             }
+//             else
+//             {
+//                 $output["is_registered"]    = FALSE;
+//                 $output["register_message"] = $response["wp_speak_message"];
+//                 $output["status_name"]      = NULL;
+//                 $output["register_domain"]  = $register_domain;
+//             }
 
         }
         else
