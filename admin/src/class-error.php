@@ -115,6 +115,20 @@ class Error extends Errno {
     }
 
     /**
+     * The function write_errlog writes to the errlog.
+     *
+     * @param string @arg_message is the message to write.
+     * @param bool @arg_print_errlog_ind denotes whether to print the log.
+     */
+    public static function write_errlog( $arg_message, $arg_print_errlog_ind = true ) {
+        self::$errlog .= $arg_message;
+
+        if ( $arg_print_errlog_ind ) {
+            self::print_errlog( true );
+        }
+    }
+
+    /**
      * The function print_errlog simply prints the errlog to error_log.
      *
      * @param bool $arg_clear_errlog_ind dictates whether to reset the errlog.

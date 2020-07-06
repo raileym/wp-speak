@@ -95,11 +95,11 @@ error_log("HERE I AM, AGAIN.");
         foreach ($arg_name_list as $name) {
             if (isset($option[$name])  && 0 !== $option[$name]) {
                 self::$array_registry->set($name, $value = $option[$name]);
-                self::$logger->set_logger_mask(self::$logger->getmask() | Logmask::MASK[$name]);
+                self::$logger->set_logger_mask(self::$logger->get_logger_mask() | Logmask::MASK[$name]);
                 self::$logger->log(self::$mask, "Set Registry. {$name} = ON");
             } else {
                 self::$array_registry->set($name, $value = null);
-                self::$logger->set_logger_mask(self::$logger->getmask() & ~Logmask::MASK[$name]);
+                self::$logger->set_logger_mask(self::$logger->get_logger_mask() & ~Logmask::MASK[$name]);
                 self::$logger->log(self::$mask, "Set Registry. {$name} = OFF");
             }
         }
@@ -138,15 +138,15 @@ error_log("HERE I AM, AGAIN.");
         foreach ($arg_name_list as $name) {
             if (isset($arg_output[$name])) {
                 self::$array_registry->set($name, $value = $arg_output[$name]);
-                self::$logger->set_logger_mask(self::$logger->getmask() | Logmask::MASK[$name]);
+                self::$logger->set_logger_mask(self::$logger->get_logger_mask() | Logmask::MASK[$name]);
                 self::$logger->log(self::$mask, "Update Registry. {$name} = ON");
             } else {
 // error_log("Turn mask off for {$name}");
-// error_log("Current mask is " . self::$logger->getmask());
+// error_log("Current mask is " . self::$logger->get_logger_mask());
                 self::$array_registry->set($name, $value = "OFF");
                 self::$logger->log(self::$mask, "Update Registry. {$name} = OFF");
-                self::$logger->set_logger_mask(self::$logger->getmask() & ~Logmask::MASK[$name]);
-// error_log("Current mask is " . self::$logger->getmask());
+                self::$logger->set_logger_mask(self::$logger->get_logger_mask() & ~Logmask::MASK[$name]);
+// error_log("Current mask is " . self::$logger->get_logger_mask());
             }
         }
 
