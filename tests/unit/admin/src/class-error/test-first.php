@@ -55,21 +55,6 @@ class test_first extends \WP_UnitTestCase {
     }
 
 
-	/**
-     * @test Error test for set_errnm.
-     * @expectedException WP_Speak\ErrorException
-     */
-	public function test_errnm_E02() {
-
-		$tgt_errnm   = "XXXX";
-		
-    	Error::set_errnm( $tgt_errnm );
-    	
-        $this->expectException(ErrorException::class);
-
-    }
-
-
     /*--------------------------------------------------------------*/
 
 
@@ -102,21 +87,6 @@ class test_first extends \WP_UnitTestCase {
     	$errno = Error::get_errno( );
     	
 	    $this->assertEquals( $tgt_errno, $errno );	
-
-    }
-
-
-	/**
-     * @test Error test for set_errno. Bad value.
-     * @expectedException WP_Speak\ErrorException
-     */
-	public function test_errno_E01() {
-
-        $tgt_errno  = count(Error::$errno) + 1;
-		
-    	Error::set_errno( $tgt_errno );
-
-        $this->expectException(ErrorException::class);
 
     }
 

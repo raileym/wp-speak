@@ -134,6 +134,8 @@ function add_query_var( $vars ) {
 
 require( dirname(__FILE__)."/wp-speak-config.php" );
 require( dirname(__FILE__)."/admin/src/utils.php" );
+require( dirname(__FILE__)."/admin/src/class-assert.php" );
+require( dirname(__FILE__)."/admin/src/class-error-exception.php" );
 require( dirname(__FILE__)."/admin/src/class-errno.php" );
 // require( dirname(__FILE__)."/admin/src/class-errnm.php" );
 require( dirname(__FILE__)."/admin/src/class-error.php" );
