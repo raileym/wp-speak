@@ -4,7 +4,7 @@ namespace WP_Speak;
 // See https://premium.wpmudev.org/blog/activate-deactivate-uninstall-hooks/
 
 //global $wp_speak_img_db_version;
-//$wp_speak_img_db_version = '1.0';
+//$wp_speak_img_db_version = '1.0'; 
 
 class Factory_Table extends Basic
 {
