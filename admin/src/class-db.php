@@ -59,7 +59,7 @@ class DB extends Basic {
 
 		} else {
 
-            Error::set_errno( Errno::OKAY );
+            Error::set_errno( Errno::ERR_NO_OKAY );
             return TRUE; //$wpdb->insert_id;
 
 		}

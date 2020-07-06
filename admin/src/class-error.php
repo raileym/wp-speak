@@ -68,7 +68,7 @@ class Error extends Errno {
      * @param int $arg_errnm_idx is an index into errnm.
      */
     public static function set_errnm( $arg_errnm_idx ) {
-        assert( 'array_key_exists($arg_errnm_idx, WP_Speak\Error::$errno)', sprintf( Assert::ASSERT_UNDEFINED, 'arg_errnm_idx', $arg_errnm_idx ) );
+        assert( array_key_exists($arg_errnm_idx, Error::$errno), sprintf( Assert::ASSERT_UNDEFINED, 'arg_errnm_idx', $arg_errnm_idx ) );
 
         self::$errnm_idx = $arg_errnm_idx;
         self::$errno_idx = self::$errno[ $arg_errnm_idx ];
@@ -82,7 +82,7 @@ class Error extends Errno {
      * @param int $arg_errno_idx is an index into errno.
      */
     public static function set_errno( $arg_errno_idx ) {
-        assert( 'WP_Speak\Assert::in_range($arg_errno_idx, 0, count(WP_Speak\Error::$errno))', sprintf( Assert::ASSERT_OUT_OF_BOUNDS, 'arg_errno_idx', $arg_errno_idx ) );
+        assert( Assert::in_range($arg_errno_idx, 0, count(Error::$errno)), sprintf( Assert::ASSERT_OUT_OF_BOUNDS, 'arg_errno_idx', $arg_errno_idx ) );
 
         self::$errno_idx = $arg_errno_idx;
         self::$errnm_idx = self::$errnm[ $arg_errno_idx ];
@@ -94,7 +94,7 @@ class Error extends Errno {
      * for the errnm array.
      */
     public static function get_errnm() {
-        assert( 'array_key_exists( self::$errno_idx, self::$errnm )', sprintf( Assert::ASSERT_INDEX_NOT_FOUND, 'errno_idx', self::$errno_idx ) );
+        assert( array_key_exists( self::$errno_idx, self::$errnm ), sprintf( Assert::ASSERT_INDEX_NOT_FOUND, 'errno_idx', self::$errno_idx ) );
         return self::$errnm_idx;
     }
 
@@ -103,7 +103,7 @@ class Error extends Errno {
      * for the errno array.
      */
     public static function get_errno() {
-        assert( 'array_key_exists( self::$errnm_idx, self::$errno )', sprintf( Assert::ASSERT_INDEX_NOT_FOUND, 'errnm_idx', self::$errnm_idx ) );
+        assert( array_key_exists( self::$errnm_idx, self::$errno ), sprintf( Assert::ASSERT_INDEX_NOT_FOUND, 'errnm_idx', self::$errnm_idx ) );
         return self::$errno_idx;
     }
 
