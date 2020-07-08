@@ -17,6 +17,9 @@ namespace WP_Speak;
  */
 class Logger extends Basic {
 
+    public const LOGGER_PRINT    = true;
+    public const LOGGER_NO_PRINT = false;
+
     /**
      * $instance supports the Singleton creation design.
      *
@@ -44,7 +47,9 @@ class Logger extends Basic {
      *
      * @param uint $arg_mask is the new logger_mask.
      */
-    public function set_logger_mask( $arg_mask ) {
+    public static function set_logger_mask(
+        $arg_mask ) {
+
         self::$logger_mask = $arg_mask;
     }
 
@@ -52,27 +57,33 @@ class Logger extends Basic {
      * The function get_logger_mask function returns the
      * current value for the logger_mask.
      */
-    public function get_logger_mask() {
+    public static function get_logger_mask() {
         return self::$logger_mask;
     }
 
     /**
      * The function write() is the explicit function for
-     * writing to the log file.
+     * writing to the log file. Set function to public
+     * for unit-testing.
      *
      * @param uint   $arg_mask is the mask to be tested (log or not).
      * @param string $arg_message is the message to be logged.
+     * @param string $arg_print_errlog_ind indicates whether to print the errlog.
      */
-    private function write( $arg_mask, $arg_message ) {
+    public static function write(
+        $arg_mask,
+        $arg_message,
+        $arg_print_errlog_ind = self::LOGGER_PRINT ) {
+
         if ( ! ( $arg_mask & self::$logger_mask ) ) {
             return;
         }
 
         if ( WP_DEBUG === true ) {
             if ( is_array( $arg_message ) || is_object( $arg_message ) ) {
-                Error::write_errlog( print_r( $arg_message, true ) );
+                Error::write_errlog( print_r( $arg_message, true ), $arg_print_errlog_ind );
             } else {
-                Error::write_errlog( $arg_message );
+                Error::write_errlog( $arg_message, $arg_print_errlog_ind );
             }
         }
     }
@@ -84,7 +95,10 @@ class Logger extends Basic {
      * @param uint   $arg_mask is the mask to be tested (log or not).
      * @param string $arg_message is the message to be logged.
      */
-    public function log( $arg_mask, $arg_message ) {
+    public function log(
+        $arg_mask,
+        $arg_message ) {
+
         if ( is_array( $arg_message ) || is_object( $arg_message ) ) {
             $this->write( $arg_mask, print_r( $arg_message, true ) );
         } else {

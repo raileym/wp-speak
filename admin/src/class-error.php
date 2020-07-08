@@ -68,7 +68,7 @@ class Error extends Errno {
      * @param int $arg_errnm_idx is an index into errnm.
      */
     public static function set_errnm( $arg_errnm_idx ) {
-        assert( array_key_exists($arg_errnm_idx, Error::$errno), sprintf( Assert::ASSERT_UNDEFINED, 'arg_errnm_idx', $arg_errnm_idx ) );
+        assert( array_key_exists( $arg_errnm_idx, self::$errno ), sprintf( Assert::ASSERT_UNDEFINED, 'arg_errnm_idx', $arg_errnm_idx ) );
 
         self::$errnm_idx = $arg_errnm_idx;
         self::$errno_idx = self::$errno[ $arg_errnm_idx ];
@@ -82,7 +82,7 @@ class Error extends Errno {
      * @param int $arg_errno_idx is an index into errno.
      */
     public static function set_errno( $arg_errno_idx ) {
-        assert( Assert::in_range($arg_errno_idx, 0, count(Error::$errno)), sprintf( Assert::ASSERT_OUT_OF_BOUNDS, 'arg_errno_idx', $arg_errno_idx ) );
+        assert( Assert::in_range( $arg_errno_idx, 0, count( self::$errno ) ), sprintf( Assert::ASSERT_OUT_OF_BOUNDS, 'arg_errno_idx', $arg_errno_idx ) );
 
         self::$errno_idx = $arg_errno_idx;
         self::$errnm_idx = self::$errnm[ $arg_errno_idx ];
@@ -117,27 +117,23 @@ class Error extends Errno {
     /**
      * The function write_errlog writes to the errlog.
      *
-     * @param string @arg_message is the message to write.
-     * @param bool @arg_print_errlog_ind denotes whether to print the log.
+     * @param string $arg_message is the message to write.
+     * @param bool   $arg_print_errlog_ind denotes whether to print the log.
      */
     public static function write_errlog( $arg_message, $arg_print_errlog_ind = true ) {
-        self::$errlog .= $arg_message;
+
+        self::$errlog .= $arg_message . PHP_EOL;
 
         if ( $arg_print_errlog_ind ) {
-            self::print_errlog( true );
+            self::print_errlog();
         }
     }
 
     /**
      * The function print_errlog simply prints the errlog to error_log.
-     *
-     * @param bool $arg_clear_errlog_ind dictates whether to reset the errlog.
      */
-    public static function print_errlog( $arg_clear_errlog_ind = true ) {
-        error_log( self::get_errlog( $arg_clear_errlog_ind ) );
-        if ( $arg_clear_errlog_ind ) {
-            self::clear_errlog();
-        }
+    public static function print_errlog() {
+        error_log( self::get_errlog( true ) );
     }
 
     /**
@@ -215,7 +211,7 @@ class Error extends Errno {
      */
     public static function get_errlog( $arg_clear_errlog_ind = true ) {
 
-        $errlog = self::$errlog;
+        $errlog = trim( self::$errlog );
 
         if ( $arg_clear_errlog_ind ) {
             self::clear_errlog();

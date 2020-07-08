@@ -1,3 +1,6 @@
+mr-debug.log
+admin/src/^.\#*
+admin/src/^\#*
 .DS_Store
 phpcs.xml
 phpunit.xml
