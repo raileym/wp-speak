@@ -120,10 +120,22 @@ class Error extends Errno {
      * @param string $arg_message is the message to write.
      * @param bool   $arg_print_errlog_ind denotes whether to print the log.
      */
-    public static function write_errlog( $arg_message, $arg_print_errlog_ind = true ) {
+    public static function write_errlog(
+        $arg_message,
+        $arg_print_errlog_ind = true ) {
 
-        self::$errlog .= $arg_message . PHP_EOL;
+        if ( WP_DEBUG !== true ) {
+            return;
+        }
 
+        if ( is_array( $arg_message ) || is_object( $arg_message ) ) {
+            $message = print_r( $arg_message, true );
+        } else {
+            $message = $arg_message;
+        }
+        
+        self::$errlog .= $message . PHP_EOL;
+        
         if ( $arg_print_errlog_ind ) {
             self::print_errlog();
         }

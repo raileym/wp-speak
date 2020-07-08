@@ -79,13 +79,7 @@ class Logger extends Basic {
             return;
         }
 
-        if ( WP_DEBUG === true ) {
-            if ( is_array( $arg_message ) || is_object( $arg_message ) ) {
-                Error::write_errlog( print_r( $arg_message, true ), $arg_print_errlog_ind );
-            } else {
-                Error::write_errlog( $arg_message, $arg_print_errlog_ind );
-            }
-        }
+        Error::write_errlog( $arg_message, $arg_print_errlog_ind );
     }
 
     /**
