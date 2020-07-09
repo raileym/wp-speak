@@ -37,7 +37,7 @@ class Logger extends Basic {
     /**
      * This constructor supports the Singleton creation design.
      */
-    protected function __construct() {     }
+    protected function __construct() { }
 
     /**
      * The function set_logger_mask() sets the updated
@@ -47,7 +47,7 @@ class Logger extends Basic {
      *
      * @param uint $arg_mask is the new logger_mask.
      */
-    public static function set_logger_mask(
+    public function set_logger_mask(
         $arg_mask ) {
 
         self::$logger_mask = $arg_mask;
@@ -57,7 +57,7 @@ class Logger extends Basic {
      * The function get_logger_mask function returns the
      * current value for the logger_mask.
      */
-    public static function get_logger_mask() {
+    public function get_logger_mask() {
         return self::$logger_mask;
     }
 
@@ -67,7 +67,7 @@ class Logger extends Basic {
      *
      * @param array $arg_array to transform to a string.
      */
-    public static function print_r( 
+    public function print_r( 
         $arg_array ) {
 
         return print_r($arg_array, true);
@@ -82,7 +82,7 @@ class Logger extends Basic {
      * @param string $arg_message is the message to be logged.
      * @param string $arg_print_errlog_ind indicates whether to print the errlog.
      */
-    public static function write(
+    public function write(
         $arg_mask,
         $arg_message,
         $arg_print_errlog_ind = self::LOGGER_PRINT ) {

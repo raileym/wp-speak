@@ -17,7 +17,7 @@ namespace WP_Speak;
  */
 class Logmask
 {
-    const MASK =
+    public static $mask =
         array(
             'log_all'        => 0xFFFF,
             'log_admin'      => 0x0001,
@@ -34,5 +34,6 @@ class Logmask
             'log_media'      => 0x0800,
             'log_register'   => 0x1000,
             'log_registry'   => 0x2000,
+            'log_wp_option'  => 0x4000,
         );
 }

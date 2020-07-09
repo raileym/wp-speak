@@ -15,6 +15,14 @@ namespace WP_Speak;
  */
 class Test_Logger extends \WP_UnitTestCase {
 
+    private static $logger;
+
+    public function setUp() {
+        parent::setUp();
+        
+        self::$logger = Logger::get_instance();
+    }
+
     /**
      * Nominal: Testing basic set_logger_mask()/get_logger_mask().
      *
@@ -24,9 +32,9 @@ class Test_Logger extends \WP_UnitTestCase {
 
         $tgt_mask = 0x0010;
 
-        Logger::set_logger_mask( $tgt_mask );
+        self::$logger->set_logger_mask( $tgt_mask );
 
-        $mask = Logger::get_logger_mask();
+        $mask = self::$logger->get_logger_mask();
 
         $this->assertEquals( $tgt_mask, $mask );
     }
@@ -45,8 +53,8 @@ class Test_Logger extends \WP_UnitTestCase {
         Error::clear_errlog();
         Error::clear_errmsg();
 
-        Logger::set_logger_mask( $tgt_mask );
-        Logger::write( $tgt_mask, $tgt_message, Logger::LOGGER_NO_PRINT );
+        self::$logger->set_logger_mask( $tgt_mask );
+        self::$logger->write( $tgt_mask, $tgt_message, Logger::LOGGER_NO_PRINT );
 
         $errlog = Error::get_errlog();
 
@@ -69,8 +77,8 @@ class Test_Logger extends \WP_UnitTestCase {
         Error::clear_errlog();
         Error::clear_errmsg();
 
-        Logger::set_logger_mask( $mask );
-        Logger::write( $other_mask, $tgt_message, Logger::LOGGER_NO_PRINT );
+        self::$logger->set_logger_mask( $mask );
+        self::$logger->write( $other_mask, $tgt_message, Logger::LOGGER_NO_PRINT );
 
         $errlog = Error::get_errlog();
 
@@ -92,13 +100,13 @@ class Test_Logger extends \WP_UnitTestCase {
         Error::clear_errlog();
         Error::clear_errmsg();
 
-        Logger::set_logger_mask( $mask );
+        self::$logger->set_logger_mask( $mask );
 
         foreach ( [ 1, 2, 3, 4 ] as $idx => $val ) {
             $tgt_message[ $idx ] = "Dummy message-{$val}: " . __FUNCTION__;
         }
 
-        Logger::write( $mask, $tgt_message, Logger::LOGGER_NO_PRINT );
+        self::$logger->write( $mask, $tgt_message, Logger::LOGGER_NO_PRINT );
 
         $errlog = Error::get_errlog();
 
@@ -120,12 +128,12 @@ class Test_Logger extends \WP_UnitTestCase {
         Error::clear_errlog();
         Error::clear_errmsg();
 
-        Logger::set_logger_mask( $mask );
+        self::$logger->set_logger_mask( $mask );
 
         foreach ( [ 1, 2, 3, 4 ] as $idx => $val ) {
             $message      = "Dummy message-{$val}: " . __FUNCTION__;
             $tgt_message .= $message . PHP_EOL;
-            Logger::write( $mask, $message, Logger::LOGGER_NO_PRINT );
+            self::$logger->write( $mask, $message, Logger::LOGGER_NO_PRINT );
 
         }
 
@@ -149,12 +157,12 @@ class Test_Logger extends \WP_UnitTestCase {
         Error::clear_errlog();
         Error::clear_errmsg();
 
-        Logger::set_logger_mask( $mask );
+        self::$logger->set_logger_mask( $mask );
 
         foreach ( [ 1, 2, 3, 4 ] as $idx => $val ) {
             $message      = "Dummy message-{$idx}: " . __FUNCTION__;
             $tgt_message .= $message . PHP_EOL;
-            Logger::write( $mask, $message, Logger::LOGGER_PRINT );
+            self::$logger->write( $mask, $message, Logger::LOGGER_PRINT );
 
         }
 
@@ -178,14 +186,14 @@ class Test_Logger extends \WP_UnitTestCase {
         Error::clear_errlog();
         Error::clear_errmsg();
 
-        Logger::set_logger_mask( $mask );
+        self::$logger->set_logger_mask( $mask );
 
         foreach ( [ 1, 2, 3, 4 ] as $idx_p => $p ) {
             foreach ( [ 1, 2, 3, 4 ] as $idx_n => $n ) {
                 foreach ( [ 1, 2, 3, 4 ] as $idx_m => $m ) {
                     $message      = "Messages ({$p}, {$n},{$m}): " . __FUNCTION__;
                     $tgt_message .= $message . PHP_EOL;
-                    Logger::write( $mask, $message, Logger::LOGGER_NO_PRINT );
+                    self::$logger->write( $mask, $message, Logger::LOGGER_NO_PRINT );
 
                 }
             }
@@ -210,14 +218,14 @@ class Test_Logger extends \WP_UnitTestCase {
         Error::clear_errlog();
         Error::clear_errmsg();
 
-        Logger::set_logger_mask( $mask );
+        self::$logger->set_logger_mask( $mask );
 
         foreach ( [ 1, 2, 3, 4 ] as $idx_p => $p ) {
             foreach ( [ 1, 2, 3, 4 ] as $idx_n => $n ) {
                 foreach ( [ 1, 2, 3, 4 ] as $idx_m => $m ) {
                     $message      = "Messages ({$p}, {$n},{$m}): " . __FUNCTION__;
                     $tgt_message .= $message . PHP_EOL;
-                    Logger::write( $mask, $message, Logger::LOGGER_NO_PRINT );
+                    self::$logger->write( $mask, $message, Logger::LOGGER_NO_PRINT );
 
                 }
             }
@@ -227,7 +235,7 @@ class Test_Logger extends \WP_UnitTestCase {
 
         Error::clear_errlog();
 
-        Logger::write( $mask, $errlog, Logger::LOGGER_PRINT );
+        self::$logger->write( $mask, $errlog, Logger::LOGGER_PRINT );
 
         $this->assertEquals( trim( print_r( $tgt_message, true ) ), $errlog );
 
@@ -247,8 +255,8 @@ class Test_Logger extends \WP_UnitTestCase {
         Error::clear_errlog();
         Error::clear_errmsg();
 
-        Logger::set_logger_mask( $tgt_mask );
-        Logger::write( $tgt_mask, $tgt_message, Logger::LOGGER_PRINT );
+        self::$logger->set_logger_mask( $tgt_mask );
+        self::$logger->write( $tgt_mask, $tgt_message, Logger::LOGGER_PRINT );
 
         $errlog = Error::get_errlog();
 

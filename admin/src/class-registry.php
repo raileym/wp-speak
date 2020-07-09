@@ -80,19 +80,26 @@ class Registry extends Basic {
 
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
 
-        $option = get_option( $arg_page );
+        // Grab my option based on $arg_page.
+        $option = self::$wp_option->get_option( $arg_page );
 
         if ( false === $option ) {
-            self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page}). get_option() returns FALSE." );
+            // Exit stage right if there is no such option.
+            self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page}). get_option() returns 'false'." );
             return $this;
         }
 
         if ( empty( $option ) ) {
-            self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page}). get_option() returns empty." );
+            // I found the option, but its empty. Okay.
+            self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page}). get_option() returns 'empty'." );
         }
 
+        // Now, let's work each named item in the name list.
         foreach ( $arg_name_list as $name ) {
 
+            error_log( "Yes, I am here.");
+        
+            // For each named element for this option, let's set our in-cache values.
             self::$array_registry->set( $name, $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : null );
 
             // Show full details provided the attribute is NOT a password.
@@ -104,6 +111,8 @@ class Registry extends Basic {
                 && self::$logger->log( self::$mask, "Set Registry. {$name} = " . str_repeat( '*', 8 ) );
         }
 
+
+        // We're done.
         self::$logger->log( self::$mask, '-2-----------------------------------' );
         return $this;
     }
@@ -120,20 +129,20 @@ class Registry extends Basic {
         $arg_name_list ) {
 
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
-        self::$logger->log( self::$mask, __FUNCTION__ . Logger::print_r( $arg_name_list ) );
+        self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
 
-        $option = get_option( $arg_page );
+        $option = self::$wp_option->get_option( $arg_page );
 
-        self::$logger->log( self::$mask, 'MASK OPTIONS on init: ' . Logger::print_r( $option ) );
+        self::$logger->log( self::$mask, 'MASK OPTIONS on init: ' . self::$logger->print_r( $option ) );
 
         foreach ( $arg_name_list as $name ) {
             if ( isset( $option[ $name ] ) && 0 !== $option[ $name ] ) {
                 self::$array_registry->set( $name, $value = $option[ $name ] );
-                self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::MASK[ $name ] );
+                self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = ON" );
             } else {
                 self::$array_registry->set( $name, $value = null );
-                self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::MASK[ $name ] );
+                self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = OFF" );
             }
         }
@@ -150,8 +159,8 @@ class Registry extends Basic {
      * @param string $arg_name_list refers to the list of values for an admin panel.
      */
     public function update_registry( $arg_output, $arg_name_list ) {
-        self::$logger->log( self::$mask, __FUNCTION__ . Logger::print_r( $arg_output ) );
-        self::$logger->log( self::$mask, __FUNCTION__ . Logger::print_r( $arg_name_list ) );
+        self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_output ) );
+        self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
 
         foreach ( $arg_name_list as $name ) {
             self::$array_registry->set( $name, $value = ( isset( $arg_output[ $name ] ) ) ? $arg_output[ $name ] : null );
@@ -174,20 +183,20 @@ class Registry extends Basic {
         $arg_output,
         $arg_name_list ) {
 
-        self::$logger->log( self::$mask, __FUNCTION__ . ' ' . Logger::print_r( $arg_output ) );
-        self::$logger->log( self::$mask, __FUNCTION__ . ' ' . Logger::print_r( $arg_name_list ) );
+        self::$logger->log( self::$mask, __FUNCTION__ . ' ' . self::$logger->print_r( $arg_output ) );
+        self::$logger->log( self::$mask, __FUNCTION__ . ' ' . self::$logger->print_r( $arg_name_list ) );
 
-        self::$logger->log( self::$mask, 'MASK OPTIONS on update: ' . Logger::print_r( $arg_output ) );
+        self::$logger->log( self::$mask, 'MASK OPTIONS on update: ' . self::$logger->print_r( $arg_output ) );
 
         foreach ( $arg_name_list as $name ) {
             if ( isset( $arg_output[ $name ] ) ) {
                 self::$array_registry->set( $name, $value = $arg_output[ $name ] );
-                self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::MASK[ $name ] );
+                self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Update Registry. {$name} = ON" );
             } else {
                 self::$array_registry->set( $name, $value = 'OFF' );
                 self::$logger->log( self::$mask, "Update Registry. {$name} = OFF" );
-                self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::MASK[ $name ] );
+                self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::$mask[ $name ] );
             }
         }
 

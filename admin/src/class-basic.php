@@ -40,6 +40,14 @@ class Basic {
 
 
 	/**
+	 * $wp_option is a handle to an wp_option.
+	 *
+	 * @var WP_Option $wp_option.
+	 */
+	protected static $wp_option;
+
+
+	/**
 	 * The function get_instance serves the role of returning an instance.
 	 * This function supports the Singleton creation pattern.
 	 */
@@ -53,6 +61,16 @@ class Basic {
 	}
 
 	/**
+	 * The function set_logger sets the instance handle for the logger.
+	 *
+	 * @param Logger $arg_logger is a handle to a Logger instance.
+	 */
+	public function set_logger( Logger $arg_logger ) {
+		self::$logger = $arg_logger;
+		return $this;
+	}
+
+	/**
 	 * The function set_mask sets the bit mask for a particular class.
 	 *
 	 * @param int $arg_mask is the integer mask specific to the binding class.
@@ -63,12 +81,12 @@ class Basic {
 	}
 
 	/**
-	 * The function set_logger sets the instance handle for the logger.
+	 * The function set_wp_option sets the instance handle for the wp_option.
 	 *
-	 * @param Logger $arg_logger is a handle to a Logger instance.
+	 * @param Logger $arg_wp_option is a handle to a WP_Option instance.
 	 */
-	public function set_logger( Logger $arg_logger ) {
-		self::$logger = $arg_logger;
+	public function set_wp_option( WP_Option $arg_wp_option ) {
+		self::$wp_option = $arg_wp_option;
 		return $this;
 	}
 
