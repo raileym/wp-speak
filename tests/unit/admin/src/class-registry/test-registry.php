@@ -149,4 +149,54 @@ class Test_Registry extends TestCase {
                                        'fake-04'));
     }
     
+    /**
+     * Nominal: Testing init_registry() on fake option.
+     *
+     * @test
+     */
+    public function test_init_registry_03() {
+
+        self::$logger->expects($this->exactly(6))
+                     ->method('log')
+                     ->withConsecutive(
+                         [Logmask::$mask['log_registry'], 'init_registry(fake)'],
+                         [Logmask::$mask['log_registry'], 'Set Registry. fake-01 = FAKE-01'],
+                         [Logmask::$mask['log_registry'], 'Set Registry. password = ********'],
+                         [Logmask::$mask['log_registry'], 'Set Registry. fake-03 = FAKE-03'],
+                         [Logmask::$mask['log_registry'], 'Set Registry. fake-04 = FAKE-04'],
+                         [Logmask::$mask['log_registry'], '-2-----------------------------------']
+                     );
+        
+        self::$wp_option->expects($this->once())
+                        ->method('get_option')
+                        ->with('fake')
+                        ->willReturn(array(
+                            'fake-01'=> 'FAKE-01', 
+                            'password'=> 'FAKE-02', 
+                            'fake-03'=> 'FAKE-03', 
+                            'fake-04'=> 'FAKE-04'));
+        
+        self::$array_registry->expects($this->exactly(4))
+                             ->method('set')
+                             ->willReturn('Dont care')
+                             ->withConsecutive(
+                                 ['fake-01', 'FAKE-01'],
+                                 ['password', 'FAKE-02'],
+                                 ['fake-03', 'FAKE-03'],
+                                 ['fake-04', 'FAKE-04']
+                             );
+        
+        $registry = Registry::get_instance()
+                  ->set_array_registry( self::$array_registry )
+                  ->set_wp_option( self::$wp_option )
+                  ->set_logger( self::$logger )
+                  ->set_mask(Logmask::$mask['log_registry']);
+        
+        $registry->init_registry('fake', 
+                                 array('fake-01', 
+                                       'password',
+                                       'fake-03',
+                                       'fake-04'));
+    }
+    
 }

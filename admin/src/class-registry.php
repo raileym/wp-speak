@@ -80,39 +80,57 @@ class Registry extends Basic {
 
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
 
-        // Grab my option based on $arg_page.
+        /**
+         * Grab my option based on $arg_page.
+         */
         $option = self::$wp_option->get_option( $arg_page );
 
         if ( false === $option ) {
-            // Exit stage right if there is no such option.
+
+            /**
+             * Exit stage right if there is no such option.
+             */
             self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page}). get_option() returns 'false'." );
             return $this;
+
         }
 
         if ( empty( $option ) ) {
-            // I found the option, but its empty. Okay.
+
+            /**
+             * I found the option, but its empty. Okay.
+             */
             self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page}). get_option() returns 'empty'." );
+
         }
 
-        // Now, let's work each named item in the name list.
+        /**
+         * Now, let's work each named item in the name list.
+         */
         foreach ( $arg_name_list as $name ) {
 
-            error_log( "Yes, I am here.");
-        
-            // For each named element for this option, let's set our in-cache values.
+            /**
+             * For each named element for this option, let's set our in-cache values.
+             */
             self::$array_registry->set( $name, $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : null );
 
-            // Show full details provided the attribute is NOT a password.
+            /**
+             * Show full details provided the attribute is NOT a password.
+             */
             false === strpos( $name, 'password' )
                 && self::$logger->log( self::$mask, "Set Registry. {$name} = {$value}" );
 
-            // Hide full details if the attribute is a password.
+            /**
+             * Hide full details if the attribute is a password.
+             */
             false !== strpos( $name, 'password' )
                 && self::$logger->log( self::$mask, "Set Registry. {$name} = " . str_repeat( '*', 8 ) );
         }
 
 
-        // We're done.
+        /**
+         * We're done.
+         */
         self::$logger->log( self::$mask, '-2-----------------------------------' );
         return $this;
     }
