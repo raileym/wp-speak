@@ -62,6 +62,18 @@ class Logger extends Basic {
     }
 
     /**
+     * The function print_r() simply isolates calls to this
+     * standard PHP function, nothing more, nothing less.
+     *
+     * @param array $arg_array to transform to a string.
+     */
+    public static function print_r( 
+        $arg_array ) {
+
+        return print_r($arg_array, true);
+    }
+
+    /**
      * The function write() is the explicit function for
      * writing to the log file. Set function to public
      * for unit-testing.

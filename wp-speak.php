@@ -171,7 +171,6 @@ if ( is_admin() )
 Registry::get_instance()
     ->set_logger(Logger::get_instance())
     ->set_mask(Logmask::MASK["log_registry"])
-    ->set_logger(Logger::get_instance())
     ->set_array_registry(Array_Registry::get_instance());
 
 Registry::get_instance()

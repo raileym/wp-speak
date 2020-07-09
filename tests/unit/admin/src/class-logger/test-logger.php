@@ -1,30 +1,24 @@
 <?php
+/**
+ * Testing for class Logger.
+ *
+ * The following tests include both nominal and error tests.
+ *
+ * @file
+ * @package tests
+ */
+
 namespace WP_Speak;
 
-// setting error logging to be active
-ini_set( 'log_errors', true );
-
-// setting the logging file in php.ini
-ini_set( 'error_log', 'mr-debug-log' );
-
-
 /**
- * OnAttributeTest Tests
+ * Testing for class Logger.
  */
-class test_logger extends \WP_UnitTestCase {
-
-    private $logger_arglist = array();
-
-    public function setUp() {
-        parent::setUp();
-    }
-
-
-    /*--------------------------------------------------------------*/
-
+class Test_Logger extends \WP_UnitTestCase {
 
     /**
-     * @test Nominal test for set_logger_mask.
+     * Nominal: Testing basic set_logger_mask()/get_logger_mask().
+     *
+     * @test
      */
     public function test_set_logger_mask_01() {
 
@@ -39,7 +33,9 @@ class test_logger extends \WP_UnitTestCase {
 
 
     /**
-     * @test Nominal test for write().
+     * Nominal: Testing single write() with dummy message.
+     *
+     * @test
      */
     public function test_write_01() {
 
@@ -60,7 +56,9 @@ class test_logger extends \WP_UnitTestCase {
 
 
     /**
-     * @test Nominal test for write().
+     * Nominal: Testing single write() with wrong mask.
+     *
+     * @test
      */
     public function test_write_02() {
 
@@ -82,7 +80,9 @@ class test_logger extends \WP_UnitTestCase {
 
 
     /**
-     * @test Nominal test for write().
+     * Nominal: Testing write() with an array of messages.
+     *
+     * @test
      */
     public function test_write_03() {
 
@@ -98,9 +98,6 @@ class test_logger extends \WP_UnitTestCase {
             $tgt_message[ $idx ] = "Dummy message-{$val}: " . __FUNCTION__;
         }
 
-        error_log( 'one' );
-        error_log( print_r( $tgt_message, true ) );
-
         Logger::write( $mask, $tgt_message, Logger::LOGGER_NO_PRINT );
 
         $errlog = Error::get_errlog();
@@ -111,7 +108,9 @@ class test_logger extends \WP_UnitTestCase {
 
 
     /**
-     * @test Nominal test for write().
+     * Nominal: Testing write() with multiple messages.
+     *
+     * @test
      */
     public function test_write_04() {
 
@@ -138,6 +137,8 @@ class test_logger extends \WP_UnitTestCase {
 
 
     /**
+     * Nominal: Testing write() with multiple messages printed to errlog.
+     *
      * @test Nominal test for write().
      */
     public function test_write_05() {
@@ -165,7 +166,9 @@ class test_logger extends \WP_UnitTestCase {
 
 
     /**
-     * @test Nominal test for write().
+     * Nominal: Testing write() for many messages, grouped, not printed.
+     *
+     * @test
      */
     public function test_write_06() {
 
@@ -195,6 +198,8 @@ class test_logger extends \WP_UnitTestCase {
     }
 
     /**
+     * Nominal: Testing write() with many messages, not printed, then printed.
+     *
      * @test Nominal test for write().
      */
     public function test_write_07() {
@@ -230,6 +235,8 @@ class test_logger extends \WP_UnitTestCase {
 
 
     /**
+     * Nominal: Testing write() for one message, printed.
+     *
      * @test Nominal test for write().
      */
     public function test_write_08() {
