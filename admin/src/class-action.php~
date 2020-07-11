@@ -1,0 +1,31 @@
+<?php
+/**
+ * Action defines the names for plugin actions.
+ *
+ * Action simply pulls together all the names
+ * of add_action() / do_action() behaviors for
+ * this plugin.
+ *
+ * @file
+ * @package admin
+ */
+
+namespace WP_Speak;
+
+/**
+ * Action defines the names for plugin actions.
+ */
+class Action
+{
+    private static $tag = "wp_speak_";
+
+    public static $init =
+        array(
+            'Example_Option'    => self::$tag."init_example_option",
+            'IBM_Watson_Option' => self::$tag."init_ibm_watson_option",
+            'Image_Option'      => self::$tag."init_image_option",
+            'Log_Option'        => self::$tag."init_log_option",
+            'Media_Option'      => self::$tag."init_media_option",
+            'Register_Option'   => self::$tag."init_register_option"
+        );
+}

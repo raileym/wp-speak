@@ -1,0 +1,31 @@
+<?php
+/**
+ * Filter defines the names for plugin filters.
+ *
+ * Filter simply pulls together all the names
+ * of add_filter() / do_filter() behaviors for
+ * this plugin.
+ *
+ * @file
+ * @package admin
+ */
+
+namespace WP_Speak;
+
+/**
+ * Filter defines the names for plugin filters.
+ */
+class Filter
+{
+    private static $tag = "wp_speak_";
+
+    public static $validate =
+        array(
+            'Example_Option'    => self::$tag."validate_example_option",
+            'IBM_Watson_Option' => self::$tag."validate_ibm_watson_option",
+            'Image_Option'      => self::$tag."validate_image_option",
+            'Log_Option'        => self::$tag."validate_log_option",
+            'Media_Option'      => self::$tag."validate_media_option",
+            'Register_Option'   => self::$tag."validate_register_option"
+        );
+}

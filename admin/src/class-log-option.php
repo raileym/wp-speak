@@ -33,9 +33,21 @@ class Log_Option extends Basic
 
     	self::$section_title = Admin::WPS_ADMIN . self::$section;
     	
-        add_action("admin_init", array(get_class(), "init")); 
-        add_action(Admin::WPS_ADMIN."init_log_option",           array(self::$registry, "init_log_registry"),   Callback::EXPECT_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
-        add_filter(Admin::WPS_ADMIN."validate_log_option",       array(self::$registry, "update_log_registry"), Callback::EXPECT_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
+        add_action(
+            "admin_init", 
+            array(get_class(), "init")); 
+
+        add_action(
+            Action::$init[get_called_class()],
+            array(self::$registry, "init_log_registry"),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
+
+        add_filter(
+            Filter::$validate[get_called_class()],
+            array(self::$registry, "update_log_registry"),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
 
 	}
 	
@@ -60,25 +72,28 @@ Choose which type(s) of information is displayed in the WP log.
 EOD;
 
         array_map( self::$add_settings_section, [
-            ["id"=>Admin::WPS_ADMIN."log", "title"=>"Debug Logs", "callback"=>array("WP_Speak\Callback", "section_p_callback"), "args"=>array( "paragraph" => $paragraph )]
+            ["id"=>Admin::WPS_ADMIN."log",
+             "title"=>"Debug Logs",
+             "callback"=>array("WP_Speak\Callback", "section_p_callback"),
+             "args"=>array( "paragraph" => $paragraph )]
         ]);
 
 
         array_map( self::$add_settings_field["log"], [
-            ["id"=>"log_admin",      "title"=>"Log ADMIN",      "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_cache",      "title"=>"Log CACHE",      "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_callback",   "title"=>"Log CALLBACK",   "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_copyright",  "title"=>"Log COPYRIGHT",  "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_debug",      "title"=>"Log DEBUG",      "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_example",    "title"=>"Log EXAMPLE",    "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_format",     "title"=>"Log FORMAT",     "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_ibm_watson", "title"=>"Log IBM WATSON", "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_image",      "title"=>"Log IMAGE",      "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_include",    "title"=>"Log INCLUDE",    "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_log",        "title"=>"Log LOG",        "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_media",      "title"=>"Log MEDIA",      "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_register",   "title"=>"Log REGISTER",   "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
-            ["id"=>"log_registry",   "title"=>"Log REGISTRY",   "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"), "args"=>array( )],
+            ["id"=>"log_admin",      "title"=>"Log ADMIN",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_cache",      "title"=>"Log CACHE",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_callback",   "title"=>"Log CALLBACK",   "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_copyright",  "title"=>"Log COPYRIGHT",  "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_debug",      "title"=>"Log DEBUG",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_example",    "title"=>"Log EXAMPLE",    "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_format",     "title"=>"Log FORMAT",     "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_ibm_watson", "title"=>"Log IBM WATSON", "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_image",      "title"=>"Log IMAGE",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_include",    "title"=>"Log INCLUDE",    "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_log",        "title"=>"Log LOG",        "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_media",      "title"=>"Log MEDIA",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_register",   "title"=>"Log REGISTER",   "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_registry",   "title"=>"Log REGISTRY",   "callback"=>Callback::CHECKBOX, "args"=>array( )],
         ]);
 
         register_setting(
@@ -89,7 +104,10 @@ EOD;
 
 // error_log("DO ACTION: " . Admin::WPS_ADMIN.__FUNCTION__);
 
-        do_action( Admin::WPS_ADMIN.__FUNCTION__, $page, Option::$OPTION_LIST[self::$section] ); 
+        do_action(
+            Action::$init[get_called_class()],
+            $page,
+            Option::$OPTION_LIST[self::$section] ); 
 
 // error_log("POST-DO ACTION: " . Admin::WPS_ADMIN.__FUNCTION__);
     }
@@ -107,18 +125,13 @@ EOD;
 
         if ( !isset($arg_input) )
         {
-// error_log("*** INPUT IS NOT SET ***");
-// error_log("APPLY FILTER: " . Admin::WPS_ADMIN.__FUNCTION__);
-// error_log( print_r(Option::$OPTION_LIST[self::$section], true) );
-            $results = apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
-// error_log("*** New RESULTS ***");
-// error_log( print_r($results, true) );
+            $results = apply_filters(
+                Filter::$validate[get_called_class()],
+                $output,
+                Option::$OPTION_LIST[self::$section]);
+
             return $results;
         }
-// error_log("**** arg_input ****");
-// error_log( print_r($arg_input, true) );
-// error_log("**** output ****");
-// error_log( print_r($output, true) );
 
         // Loop through each of the options sanitizing the data
         foreach( $arg_input as $key => $val )
@@ -129,11 +142,11 @@ EOD;
             }
         }
 
-// error_log("*** INPUT IS SET ***");
-// error_log("APPLY FILTER: " . Admin::WPS_ADMIN.__FUNCTION__);
-
         // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section] );
+        return apply_filters(
+                Filter::$validate[get_called_class()],
+                $output,
+                Option::$OPTION_LIST[self::$section] );
     }
 
 

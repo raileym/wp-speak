@@ -24,10 +24,21 @@ class Media_Option extends Basic
 
     	self::$section_title = Admin::WPS_ADMIN . self::$section;
     	
-        add_action("admin_init", array(get_class(), "init")); 
-        add_action(Admin::WPS_ADMIN."init_".self::$section,     array(self::$registry, "init_registry"),   Callback::EXPECT_NON_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
-        add_filter(Admin::WPS_ADMIN."validate_".self::$section, array(self::$registry, "update_registry"), Callback::EXPECT_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
+        add_action("admin_init", 
+                   array(get_class(), "init")); 
 
+        add_action(
+            Action::$init[get_called_class()],
+            array(self::$registry, "init_registry"),
+            Callback::EXPECT_NON_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
+
+        add_filter(
+            Filter::$validate[get_called_class()],
+            array(self::$registry, "update_registry"),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
+        
 	}
 	
     public function get_section() {
@@ -218,7 +229,10 @@ self::$registry->init_table_registry(self::$img_image_table);
             array(self::get_instance(), "validate_media_option")
         );
 
-        do_action( Admin::WPS_ADMIN.__FUNCTION__, $page, Option::$OPTION_LIST[self::$section] );
+        do_action(
+            Action::$init[get_called_class()],
+            $page,
+            Option::$OPTION_LIST[self::$section] );
     }
 
     public static function element_media_callback($arg_list)
@@ -374,7 +388,10 @@ EOF;
 
         if ( !isset($arg_input) )
         {
-            return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
+            return apply_filters(
+                Filter::$validate[get_called_class()],
+                $output,
+                Option::$OPTION_LIST[self::$section]);
         }
 
         // Loop through each of the options sanitizing the data
@@ -412,7 +429,10 @@ EOF;
         
         
          // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
+        return apply_filters(
+            Filter::$validate[get_called_class()],
+            $output,
+            Option::$OPTION_LIST[self::$section]);
 
         $master = json_decode($arg_input["media_files"], true);
         
@@ -451,7 +471,10 @@ EOF;
         }
         
         // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
+        return apply_filters(
+            Filter::$validate[get_called_class()],
+            $output,
+            Option::$OPTION_LIST[self::$section]);
     }
 
 
@@ -470,21 +493,21 @@ EOF;
 
 	public function set_image_table( $arg_image_table)
 	{
-		//assert( '!is_null($arg_registry)' );
+		assert( !is_null( $arg_image_table ) );
 		self::$image_table = $arg_image_table;
 		return $this;
 	}
 	
 	public function set_img_table( $arg_img_table)
 	{
-		//assert( '!is_null($arg_registry)' );
+		assert( !is_null( $arg_img_table ) );
 		self::$img_table = $arg_img_table;
 		return $this;
 	}
 	
 	public function set_img_image_table( $arg_img_image_table)
 	{
-		//assert( '!is_null($arg_registry)' );
+		assert( !is_null( $arg_img_image_table ) );
 		self::$img_image_table = $arg_img_image_table;
 		return $this;
 	}

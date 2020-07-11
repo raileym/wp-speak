@@ -53,14 +53,54 @@ class Registry extends Basic {
         $results = $arg_table->fetch_all();
 
         /**
+         * Fetch_all() returns an array of rows,
+         * where each row contains a single element for
+         * each table column. While each table row
+         * contains the primary key, each row
+         * also contains a special key that 
+         * uniquely identifies that row (aside from the
+         * primary key itself.
+         *
+         * This function returns a table's rows, but rather
+         * than return an array of rows indexed by the
+         * primary key or by index, it returns
+         * the row indexed by the special key that
+         * is included as a value in the row itself.
+         * 
+         * This function simply reshapes
+         * that array so that data can be retrieved
+         * using the special key.
+         */
+
+        /**
          * For all the rows fetched from the table,
-         * grab all the assorted data.
+         * grab all the assorted data. Row_list is
+         * a NEW list that I am creating from the
+         * rows returned from the database.
          */
         $row_list = array();
         foreach ( $results as $result ) {
+
+            /**
+             * $result[ $id ] IS that special key.
+             * The column name for that special key
+             * is $id, which is based on the name
+             * of the table.
+             *
+             * I am assigning the given row ($result)
+             * into the new row_list array at an
+             * index equal to that special key.
+             */
             $row_list[ $result[ $id ] ] = $result;
+
         }
 
+        /**
+         * At this point, $row_list contains
+         * the re-shaped contents of the table. I 
+         * am storing that entire row set into my
+         * in-process cache here.
+         */
         self::$array_registry->set( $tag, $row_list );
 
         return $this;
@@ -79,6 +119,7 @@ class Registry extends Basic {
         $arg_name_list ) {
 
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
+        self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
 
         /**
          * Grab my option based on $arg_page.
@@ -103,6 +144,10 @@ class Registry extends Basic {
             self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page}). get_option() returns 'empty'." );
 
         }
+
+        error_log( $arg_page );
+        error_log( 'MASK OPTIONS on init: ' . self::$logger->print_r( $option ) );
+        self::$logger->log( self::$mask, 'MASK OPTIONS on init: ' . self::$logger->print_r( $option ) );
 
         /**
          * Now, let's work each named item in the name list.
@@ -149,23 +194,51 @@ class Registry extends Basic {
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
         self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
 
+        /**
+         * Grab my option based on $arg_page.
+         */
         $option = self::$wp_option->get_option( $arg_page );
+
+        if ( false === $option ) {
+
+            /**
+             * Exit stage right if there is no such option.
+             */
+            self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page}). get_option() returns 'false'." );
+            return $this;
+
+        }
+
+        if ( empty( $option ) ) {
+
+            /**
+             * I found the option, but its empty. Okay.
+             */
+            self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page}). get_option() returns 'empty'." );
+
+        }
 
         self::$logger->log( self::$mask, 'MASK OPTIONS on init: ' . self::$logger->print_r( $option ) );
 
         foreach ( $arg_name_list as $name ) {
+
             if ( isset( $option[ $name ] ) && 0 !== $option[ $name ] ) {
+
                 self::$array_registry->set( $name, $value = $option[ $name ] );
                 self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = ON" );
+
             } else {
+
                 self::$array_registry->set( $name, $value = null );
                 self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = OFF" );
+
             }
         }
 
         self::$logger->log( self::$mask, '-3-----------------------------------' );
+
         return $this;
     }
 

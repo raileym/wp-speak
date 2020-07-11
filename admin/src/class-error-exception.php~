@@ -1,6 +1,0 @@
-<?php
-namespace WP_Speak;
-
-class Error_Exception extends \Exception {
-}
-

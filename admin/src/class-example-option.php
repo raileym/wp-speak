@@ -22,14 +22,16 @@ class Example_Option extends Basic
 
     	self::$section_title = Admin::WPS_ADMIN . self::$section;
     	
-        add_action("admin_init", array(get_class(), "init")); 
+        add_action("admin_init", array(get_called_class(), "init")); 
         
-        add_action(Admin::WPS_ADMIN."init_".self::$section,     
+        add_action(
+            Action::$init[get_called_class()],
             array(self::$registry, "init_registry"),   
             Callback::EXPECT_NON_DEFAULT_PRIORITY, 
             Callback::EXPECT_TWO_ARGUMENTS);
         
-        add_filter(Admin::WPS_ADMIN."validate_".self::$section, 
+        add_filter(
+            Filter::$validate[get_called_class()],
             array(self::$registry, "update_registry"), 
             Callback::EXPECT_DEFAULT_PRIORITY, 
             Callback::EXPECT_TWO_ARGUMENTS);
@@ -111,7 +113,11 @@ EOD;
             array(self::get_instance(), "validate_example_option")
         );
 
-        do_action( Admin::WPS_ADMIN.__FUNCTION__, self::$section_title, Option::$OPTION_LIST[self::$section] );
+        do_action(
+            Action::$init[get_called_class()],
+            self::$section_title,
+            Option::$OPTION_LIST[self::$section] );
+
     }
 
 
@@ -126,7 +132,10 @@ EOD;
 
         if ( !isset($arg_input) )
         {
-            return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
+            return apply_filters(
+                Filter::$validate[get_called_class()],
+                $output,
+                Option::$OPTION_LIST[self::$section]);
         }
 
         // Loop through each of the options sanitizing the data
@@ -139,7 +148,10 @@ EOD;
         }
 
         // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
+        return apply_filters(
+            Filter::$validate[get_called_class()],
+            $output,
+            Option::$OPTION_LIST[self::$section]);
     }
 
     public static function element_four_files_callback($arg_list)

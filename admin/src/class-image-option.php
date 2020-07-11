@@ -24,9 +24,21 @@ class Image_Option extends Basic
 
     	self::$section_title = Admin::WPS_ADMIN . self::$section;
     	
-        add_action("admin_init", array(get_class(), "init")); 
-        add_action(Admin::WPS_ADMIN."init_".self::$section,     array(self::$registry, "init_registry"),   Callback::EXPECT_NON_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
-        add_filter(Admin::WPS_ADMIN."validate_".self::$section, array(self::$registry, "update_registry"), Callback::EXPECT_DEFAULT_PRIORITY, Callback::EXPECT_TWO_ARGUMENTS);
+        add_action(
+            "admin_init",
+            array(get_class(), "init")); 
+
+        add_action(
+            Action::$init[get_called_class()],
+            array(self::$registry, "init_registry"),
+            Callback::EXPECT_NON_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
+
+        add_filter(
+            Filter::$validate[get_called_class()],
+            array(self::$registry, "update_registry"),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
 
 	}
 	
@@ -138,7 +150,11 @@ EOD;
             array(self::get_instance(), "validate_image_option")
         );
 
-        do_action( Admin::WPS_ADMIN.__FUNCTION__, $page, Option::$OPTION_LIST[self::$section] );
+        do_action(
+            Action::$init[get_called_class()],
+            $page, 
+            Option::$OPTION_LIST[self::$section] );
+
     }
 
     public static function element_image_callback($arg_list)
@@ -206,7 +222,10 @@ EOF;
 
         if ( !isset($arg_input) )
         {
-            return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST[self::$section]);
+            return apply_filters(
+                Filter::$validate[get_called_class()],
+                $output,
+                Option::$OPTION_LIST[self::$section]);
         }
 
         // Loop through each of the options sanitizing the data
@@ -236,7 +255,10 @@ EOF;
         
         
         // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST["image_option"]);
+        return apply_filters(
+            Filter::$validate[get_called_class()],
+            $output,
+            Option::$OPTION_LIST["image_option"]);
 
         $master = json_decode($arg_input["image_files"], true);
         
@@ -275,7 +297,10 @@ EOF;
         }
         
         // Return the new collection
-        return apply_filters( Admin::WPS_ADMIN.__FUNCTION__, $output, Option::$OPTION_LIST["image_option"]);
+        return apply_filters(
+            Filter::$validate[get_called_class()],
+            $output,
+            Option::$OPTION_LIST["image_option"]);
     }
 
 

@@ -10,6 +10,8 @@ class Callback extends Basic
 	const EXPECT_ONE_ARGUMENT   = 1;            /** For add_action: expect one argument */
 	const EXPECT_TWO_ARGUMENTS  = 2;            /** For add_action: expect two arguments */
 
+    const CHECKBOX = array("WP_Speak\Callback", "element_checkbox_callback");
+
     protected static $instance;
 
 	protected function __construct() { }

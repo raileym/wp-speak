@@ -146,8 +146,12 @@ require( dirname(__FILE__)."/admin/src/class-wp-option.php" );
 require( dirname(__FILE__)."/admin/src/class-add-settings-field.php" );
 require( dirname(__FILE__)."/admin/src/class-add-settings-section.php" );
 require( dirname(__FILE__)."/admin/src/class-db.php" );
+require( dirname(__FILE__)."/admin/src/class-sql.php" );
+require( dirname(__FILE__)."/admin/src/class-table.php" );
 require( dirname(__FILE__)."/admin/src/class-factory-table.php" );
 require( dirname(__FILE__)."/admin/src/class-callback.php" );
+require( dirname(__FILE__)."/admin/src/class-action.php" );
+require( dirname(__FILE__)."/admin/src/class-filter.php" );
 require( dirname(__FILE__)."/admin/src/class-ibm-watson-option.php" );
 require( dirname(__FILE__)."/admin/src/class-register-option.php" );
 require( dirname(__FILE__)."/admin/src/class-example-option.php" );
@@ -179,14 +183,25 @@ Registry::get_instance()
     ->set_mask(Logmask::$mask["log_registry"])
     ->set_array_registry(Array_Registry::get_instance());
 
-Registry::get_instance()
-    ->init_log_registry(Option::$OPTION_EXTENDED_TITLE["log_option"], Option::$OPTION_LIST["log_option"]);
 
 foreach (Option::$SECTIONS as $section) {
-    if ($section == "Log_Option") {
-        continue;
+
+    $section_lc = strtolower($section);
+
+    if ($section === "Log_Option") {
+
+        Registry::get_instance()->init_log_registry(
+            Option::$OPTION_EXTENDED_TITLE[$section_lc],
+            Option::$OPTION_LIST[$section_lc]);
+
+    } else {
+
+        Registry::get_instance()->init_registry(
+            Option::$OPTION_EXTENDED_TITLE[$section_lc],
+            Option::$OPTION_LIST[$section_lc]);
+
     }
-    Registry::get_instance()->init_registry(Option::$OPTION_EXTENDED_TITLE[strtolower($section)], Option::$OPTION_LIST[strtolower($section)]);
+
 }
 
 
@@ -211,10 +226,13 @@ Audio::get_instance()
     ->set_logger(Logger::get_instance())
     ->set_registry(Registry::get_instance());
 
+Table::get_instance()
+    ->set_db(DB::get_instance());
+
 Factory_Table::get_instance()
     ->set_logger(Logger::get_instance())
     ->set_registry(Registry::get_instance())
-    ->set_db(DB::get_instance());
+    ->set_table(Table::get_instance());
 
 $image_table     = Factory_Table::get_instance()->create('image');
 $img_table       = Factory_Table::get_instance()->create('img');
@@ -350,19 +368,15 @@ add_action("wp_enqueue_scripts",    "WP_Speak\wps_localize" );
 add_action("admin_enqueue_scripts", "WP_Speak\wps_localize" );
 
 
-// Registry::get_instance()->init_table_registry($img_table);
-// Registry::get_instance()->init_table_registry($image_table);
-// Registry::get_instance()->init_table_registry($img_image_table);
-        
-
 register_activation_hook(__FILE__,'WP_Speak\wp_speak_activate');
 function wp_speak_activate()
 {
      error_log("**** INSIDE ACTIVATION ****");
      
-     Factory_Table::get_instance()->install('image');
-     Factory_Table::get_instance()->install('img');
-     Factory_Table::get_instance()->install('img_image');
+     Factory_Table::get_instance()->create('image')->install();
+     Factory_Table::get_instance()->create('img')->install();
+     Factory_Table::get_instance()->create('img_image')->install();
+
 }
 
 register_deactivation_hook(__FILE__,'WP_Speak\wp_speak_deactivate');
@@ -370,9 +384,9 @@ function wp_speak_deactivate()
 {
     error_log("**** INSIDE (DE)ACTIVATION ****");
 
-    Factory_Table::get_instance()->uninstall('image');
-    Factory_Table::get_instance()->uninstall('img');
-    Factory_Table::get_instance()->uninstall('img_image');
+     Factory_Table::get_instance()->create('image')->uninstall();
+     Factory_Table::get_instance()->create('img')->uninstall();
+     Factory_Table::get_instance()->create('img_image')->uninstall();
 
 	foreach( Option::$OPTION_EXTENDED_TITLE as $title ) {
 	    delete_option($title);

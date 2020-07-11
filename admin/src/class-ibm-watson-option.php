@@ -8,11 +8,15 @@ class IBM_Watson_Option extends Basic
 	private static $add_settings_section;
 	private static $add_settings_field = array();
 	private static $section = "ibm_watson_option";    //"wp_speak_admin_ibm_watson_option"
-    private static $action = Admin::WPS_ADMIN."init";
-	private static $section_title;
+
+    private static $section_title;
+
+    private static $filter;
+
 	private static $fields = array (
             "wp_speak_admin_ibm_watson_option"
 	    );
+
 	private static $default_options = array(
             "ibm_watson_message"	    =>	"no message",
             "ibm_watson_user_name"	    =>	"no user name",
@@ -23,22 +27,23 @@ class IBM_Watson_Option extends Basic
 	protected function __construct() { 
 
     	self::$section_title = Admin::WPS_ADMIN . self::$section;
-    	self::$action        = Admin::WPS_ADMIN . "init_" . self::$section;
-    	self::$filter        = Admin::WPS_ADMIN . "validate_" . self::$section;
     	
         // Initialize this class upon admin_init.
-        add_action("admin_init",
-                   array(get_class(), "init")); 
+        add_action(
+            "admin_init",
+            array(get_class(), "init")); 
 
-        add_action(self::$action, 
-                   array(self::$registry, "init_registry"),
-                   Callback::EXPECT_NON_DEFAULT_PRIORITY,
-                   Callback::EXPECT_TWO_ARGUMENTS);
+        add_action(
+            Action::$init[get_called_class()],
+            array(self::$registry, "init_registry"),
+            Callback::EXPECT_NON_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
 
-        add_filter(self::$filter,
-                   array(self::$registry, "update_registry"),
-                   Callback::EXPECT_DEFAULT_PRIORITY,
-                   Callback::EXPECT_TWO_ARGUMENTS);
+        add_filter(
+            Filter::$validate[get_called_class()],
+            array(self::$registry, "update_registry"),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
 
 	}
 	
@@ -92,7 +97,12 @@ EOD;
             array(self::get_instance(), "validate_ibm_watson_option")
         );
 
-        do_action( self::$action, $page, Option::$OPTION_LIST[self::$section] );
+        error_log( get_called_class() );
+
+        do_action(
+            Action::$init[get_called_class()],
+            $page,
+            Option::$OPTION_LIST[self::$section] );
     }
 
     public function validate_ibm_watson_option( $arg_input )
@@ -106,7 +116,10 @@ EOD;
         
         if ( !isset($arg_input) )
         {
-            return apply_filters( self::$filter, $output, Option::$OPTION_LIST[self::$section]);
+            return apply_filters(
+                Filter::$validate[get_called_class()],
+                $output,
+                Option::$OPTION_LIST[self::$section]);
         }
 
         // Loop through each of the options sanitizing the data
@@ -185,7 +198,7 @@ EOD;
         
         // Return the new collection
         return apply_filters(
-            self::$filter,
+            Filter::$validate[get_called_class()],
             $output,
             Option::$OPTION_LIST[self::$section]);
     }

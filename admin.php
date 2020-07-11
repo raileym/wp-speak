@@ -25,10 +25,10 @@
 namespace WP_Speak;
 
 // setting error logging to be active.
-ini_set( 'log_errors', true );
+////ini_set( 'log_errors', true );
 
 // setting the logging file in php.ini.
-ini_set( 'error_log', 'mr-debug-log' );
+//ini_set( 'error_log', 'mr-debug-log' );
 
 
 // function exception_error_handler($errno, $errstr, $errfile, $errline ) {
