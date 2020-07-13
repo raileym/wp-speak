@@ -44,6 +44,7 @@ class Option
 	public static $OPTION_LIST =
 	    array(
 	        "log_option"       => array(
+                                    "log_registry",
                                     "log_admin",
                                     "log_cache",
                                     "log_copyright",
@@ -55,8 +56,7 @@ class Option
                                     "log_include",
                                     "log_log",
                                     "log_media",
-                                    "log_register",
-                                    "log_registry"
+                                    "log_register"
 		                        ),
 	        "ibm_watson_option"  => array(
                                     "ibm_watson_message",		// Dynamic Value ... not editable by user

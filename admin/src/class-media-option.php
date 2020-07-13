@@ -11,7 +11,6 @@ class Media_Option extends Basic
 	private static $img_image_table;
 	private static $add_settings_field = array();
 	private static $section = "media_option";
-	private static $section_title;
 	private static $fields = array (
             "media"
 	    );
@@ -22,8 +21,6 @@ class Media_Option extends Basic
 	
 	protected function __construct() { 
 
-    	self::$section_title = Admin::WPS_ADMIN . self::$section;
-    	
         add_action("admin_init", 
                    array(get_class(), "init")); 
 
@@ -50,11 +47,9 @@ class Media_Option extends Basic
      */
     public static function init($arg1)
     {
-        $page = Option::$OPTION_EXTENDED_TITLE[self::$section];
-
-        if( !get_option( $page ) )
+        if( !get_option( Registry::$title[ self::$section ] ) )
         {
-            update_option( $page, self::filter_default_options( self::$default_options ) );
+            update_option( Registry::$title[ self::$section ], self::filter_default_options( self::$default_options ) );
         }
 
         $paragraph = <<<EOD
@@ -209,9 +204,18 @@ EOD;
         /* Restore original Post Data */
         wp_reset_postdata();
  
-        $img_image_table = self::$img_image_table->fetch_all();
-        $image_table     = self::$image_table->fetch_all();
-        $img_table       = self::$img_table->fetch_all();
+        /**
+         * At this point, the three database tables, img, image, and 
+         * img_image, contain ALL of their relevant data based on the
+         * current website pages.
+         */
+        $img_image_table = self::init_table_registry( self::$img_image_table );
+        $image_table     = self::init_table_registry( self::$image_table );
+        $img_table       = self::init_table_registry( self::$img_table );
+
+        //$img_image_table = self::$img_image_table->fetch_all();
+        //$image_table     = self::$image_table->fetch_all();
+        //$img_table       = self::$img_table->fetch_all();
 
         $master = ["img"=>$img_table, "image"=>$image_table, "img_image"=>$img_image_table];
         
@@ -219,20 +223,89 @@ EOD;
             ["id"=>"media_files",  "title"=>"Media Files", "callback"=>array("WP_Speak\Media_Option", "element_media_callback"), "args"=>array( "master" => $master )]
         ]);
 
-self::$registry->init_table_registry(self::$img_table);
-self::$registry->init_table_registry(self::$image_table);
-self::$registry->init_table_registry(self::$img_image_table);
+        self::$array_registry->set( Registry::$title[ 'img_table' ],       self::init_table_registry( self::$img_table ) );
+        self::$array_registry->set( Registry::$title[ 'image_table' ],     self::init_table_registry( self::$image_table ) );
+        self::$array_registry->set( Registry::$title[ 'img_image_table' ], self::init_table_registry( self::$img_image_table ) );
+
+        //self::$registry->init_table_registry(self::$img_table_title,       self::$img_table);
+        //self::$registry->init_table_registry(self::$image_table_title,     self::$image_table);
+        //self::$registry->init_table_registry(self::$img_image_table_title, self::$img_image_table);
 
         register_setting(
-            $page,
-            $page,
+            Registry::$title[ self::$section ],
+            Registry::$title[ self::$section ],
             array(self::get_instance(), "validate_media_option")
         );
 
         do_action(
             Action::$init[get_called_class()],
-            $page,
+            Registry::$title[ self::$section ],
             Option::$OPTION_LIST[self::$section] );
+    }
+
+    /**
+     * The function init_table_registry() grabs all the values
+     * from the given table, and stores the values in-cache.
+     *
+     * @param string $arg_table is the db table to grab.
+     */
+    public static function init_table_registry(
+        $arg_table ) {
+
+        $id      = $arg_table->id();
+        $tag     = $arg_table->tag();
+        $results = $arg_table->fetch_all();
+
+        /**
+         * Fetch_all() returns an array of rows,
+         * where each row contains a single element for
+         * each table column. While each table row
+         * contains the primary key, each row
+         * also contains a special key that 
+         * uniquely identifies that row (aside from the
+         * primary key itself.
+         *
+         * This function returns a table's rows, but rather
+         * than return an array of rows indexed by the
+         * primary key or by index, it returns
+         * the row indexed by the special key that
+         * is included as a value in the row itself.
+         * 
+         * This function simply reshapes
+         * that array so that data can be retrieved
+         * using the special key.
+         */
+
+        /**
+         * For all the rows fetched from the table,
+         * grab all the assorted data. Row_list is
+         * a NEW list that I am creating from the
+         * rows returned from the database.
+         */
+        $row_list = array();
+        foreach ( $results as $result ) {
+
+            /**
+             * $result[ $id ] IS that special key.
+             * The column name for that special key
+             * is $id, which is based on the name
+             * of the table.
+             *
+             * I am assigning the given row ($result)
+             * into the new row_list array at an
+             * index equal to that special key.
+             */
+            $row_list[ $result[ $id ] ] = $result;
+
+        }
+
+        /**
+         * At this point, $row_list contains
+         * the re-shaped contents of the table. I 
+         * am storing that entire row set into my
+         * in-process cache here.
+         */
+        return $row_list;
     }
 
     public static function element_media_callback($arg_list)
@@ -241,17 +314,9 @@ self::$registry->init_table_registry(self::$img_image_table);
         
         $master = $arg_list["master"];
         $img_image_list  = $arg_list["master"]["img_image"];
+        $img_list        = $arg_list["master"]["img"];
+        $image_list      = $arg_list["master"]["image"];
         
-        $image_list = array();
-        foreach( $arg_list["master"]["image"] as $image ) {
-            $image_list[$image["image_id"]] = $image;
-        }
-
-        $img_list = array();
-        foreach( $arg_list["master"]["img"] as $img ) {
-            $img_list[$img["img_id"]] = $img;
-        }
-
         $master_json = json_encode($master);
         $html = "";
 
@@ -265,8 +330,6 @@ self::$registry->init_table_registry(self::$img_image_table);
             $img   = $img_list[   $img_id   ];
             $image = $image_list[ $image_id ];
 
-// error_log( print_r($img, true) );
-            
             if ( $img['status'] === "invalid" || $image['status'] === "invalid" || $img_image['status'] === "invalid" ) {
                 continue;
             }
@@ -379,12 +442,17 @@ EOF;
 
     public function validate_media_option( $arg_input )
     {
+        error_log( "**** VALIDATION ****");
+        error_log( "*** INPUT ***" );
+        error_log( print_r( $arg_input, true ) );
+
         self::$logger->log( self::$mask, "Validation: " . __FUNCTION__ );
         self::$logger->log( self::$mask, "Input");
         self::$logger->log( self::$mask, print_r( $arg_input, true ) );
 
         // Define the array for the updated options
         $output = array();
+        $output['media_files'] = array();
 
         if ( !isset($arg_input) )
         {
@@ -399,15 +467,19 @@ EOF;
         {
             if( isset ( $arg_input[$key] ) )
             {
-                $output[$key] = $arg_input[$key];
+                $output['media_files'][$key] = $arg_input[$key];
             }
         }
 
+        /**
+         * Now that I have sanitized the data, update
+         * the database tables of the same. I am ONLY
+         * updating the data that would change: ALT and
+         * USE_ALT.
+         */
         $element = "media_files";
         $total_cnt = $arg_input[$element . "_cnt"];
         
-// error_log( print_r($arg_input, true) );
-
         for ($cnt = 1; $cnt <= $total_cnt ; $cnt++ ) {
         
             $img_id     = $arg_input[ "{$element}_img_id_{$cnt}" ];
@@ -426,55 +498,12 @@ EOF;
             
         }
         
-        
-        
          // Return the new collection
         return apply_filters(
             Filter::$validate[get_called_class()],
             $output,
             Option::$OPTION_LIST[self::$section]);
 
-        $master = json_decode($arg_input["media_files"], true);
-        
-        foreach( $master["img_image"] as $img_image ) {
-        
-            $img   = $master["img"  ][ $img_image["img_id"] ];
-            $image = $master["image"][ $img_image["image_id"] ];
-            
-            if ( !self::$img_table->validate( $img ) ) {
-                add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
-                return;
-            }
-            
-            if ( !self::$image_table->validate( $image ) ) {
-                add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
-                return;
-            }
-            
-            $img_id = self::$img_table->insert($img);
-            if ( FALSE === $img_id ) {
-                add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
-                return;
-            }
-
-            $image_id = self::$image_table->insert($image);
-            if ( FALSE === $image_id ) {
-                add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
-                return;
-            }
-
-            $img_image_id = self::$img_image_table->insert( array("img_id" => $img_id, "image_id" => $image_id) );
-            if ( FALSE === $img_image_id ) {
-                add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
-                return;
-            }
-        }
-        
-        // Return the new collection
-        return apply_filters(
-            Filter::$validate[get_called_class()],
-            $output,
-            Option::$OPTION_LIST[self::$section]);
     }
 
 
@@ -523,7 +552,7 @@ EOF;
 	{
 		//assert( '!is_null($arg_registry)' );
 		foreach(self::$fields as $field) {
-            self::$add_settings_field[$field] = $arg_add_settings_field->create(self::$section_title, Admin::WPS_ADMIN.$field);
+            self::$add_settings_field[$field] = $arg_add_settings_field->create(Registry::$title[ self::$section ], Admin::WPS_ADMIN.$field);
 		}
 		return $this;
 	}

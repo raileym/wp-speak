@@ -1,24 +1,31 @@
 <?php
 namespace WP_Speak;
 
-class Array_Registry extends Abstract_Registry
+class Array_Registry extends Basic
 {
-    private $data = array();
+    protected static $instance;
+
+    private static $data;
+
+    protected function __construct() { 
+        self::$data = array();
+    }
 
     public function set($arg_key, $arg_value)
     {
-        $this->_data[$arg_key] = $arg_value;
+        self::$data[$arg_key] = $arg_value;
         return $this;
     }
 
     public function get($arg_key)
     {
-        return isset($this->_data[$arg_key]) ? $this->_data[$arg_key] : null;
+        return isset(self::$data[$arg_key]) ? self::$data[$arg_key] : null;
     }
 
     public function dump()
     {
-        error_log(print_r($this->_data, true));
+        error_log("*************** DUMP:ARRAY_REGISTRY ******************");
+        error_log(print_r(self::$data, true));
         return true;
     }
 }

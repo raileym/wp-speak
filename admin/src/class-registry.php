@@ -18,6 +18,18 @@ namespace WP_Speak;
  */
 class Registry extends Basic {
 
+    public static $title = [
+        'img_table'         => 'wp_speak_admin_img_table',
+        'image_table'       => 'wp_speak_admin_image_table',
+        'img_image_table'   => 'wp_speak_admin_img_image_table',
+        "log_option"        => "wp_speak_admin_log_option",
+        "ibm_watson_option" => "wp_speak_admin_ibm_watson_option",
+        "register_option"   => "wp_speak_admin_register_option",
+        "media_option"      => "wp_speak_admin_media_option",
+        "image_option"      => "wp_speak_admin_image_option",
+        "example_option"    => "wp_speak_admin_example_option",
+    ];
+
     /**
      * $instance supports the Singleton creation design.
      *
@@ -26,85 +38,10 @@ class Registry extends Basic {
     protected static $instance;
 
     /**
-     * $array_registry is a handle to an array of registries.
-     *
-     * @var Array_Registry $array_registry.
-     */
-    private static $array_registry;
-
-
-    /**
      * This version of the constructor supports the Singleton
      * creation design.
      */
-    protected function __construct() {     }
-
-    /**
-     * The function init_table_registry() grabs all the values
-     * from the given table, and stores the values in-cache.
-     *
-     * @param string $arg_table is the db table to grab.
-     */
-    public function init_table_registry(
-        $arg_table ) {
-
-        $id      = $arg_table->id();
-        $tag     = $arg_table->tag();
-        $results = $arg_table->fetch_all();
-
-        /**
-         * Fetch_all() returns an array of rows,
-         * where each row contains a single element for
-         * each table column. While each table row
-         * contains the primary key, each row
-         * also contains a special key that 
-         * uniquely identifies that row (aside from the
-         * primary key itself.
-         *
-         * This function returns a table's rows, but rather
-         * than return an array of rows indexed by the
-         * primary key or by index, it returns
-         * the row indexed by the special key that
-         * is included as a value in the row itself.
-         * 
-         * This function simply reshapes
-         * that array so that data can be retrieved
-         * using the special key.
-         */
-
-        /**
-         * For all the rows fetched from the table,
-         * grab all the assorted data. Row_list is
-         * a NEW list that I am creating from the
-         * rows returned from the database.
-         */
-        $row_list = array();
-        foreach ( $results as $result ) {
-
-            /**
-             * $result[ $id ] IS that special key.
-             * The column name for that special key
-             * is $id, which is based on the name
-             * of the table.
-             *
-             * I am assigning the given row ($result)
-             * into the new row_list array at an
-             * index equal to that special key.
-             */
-            $row_list[ $result[ $id ] ] = $result;
-
-        }
-
-        /**
-         * At this point, $row_list contains
-         * the re-shaped contents of the table. I 
-         * am storing that entire row set into my
-         * in-process cache here.
-         */
-        self::$array_registry->set( $tag, $row_list );
-
-        return $this;
-    }
+    protected function __construct() { }
 
     /**
      * The function init_registry() is grabbing all the DB
@@ -118,6 +55,7 @@ class Registry extends Basic {
         $arg_page,
         $arg_name_list ) {
 
+        self::$logger->log( self::$mask, "************** init_registry **********************");
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
         self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
 
@@ -145,9 +83,9 @@ class Registry extends Basic {
 
         }
 
-        error_log( $arg_page );
-        error_log( 'MASK OPTIONS on init: ' . self::$logger->print_r( $option ) );
         self::$logger->log( self::$mask, 'MASK OPTIONS on init: ' . self::$logger->print_r( $option ) );
+
+        $name_list = array();
 
         /**
          * Now, let's work each named item in the name list.
@@ -157,13 +95,16 @@ class Registry extends Basic {
             /**
              * For each named element for this option, let's set our in-cache values.
              */
-            self::$array_registry->set( $name, $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : null );
+            //self::$array_registry->set( $name, $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : null );
+            $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : null;
+
+            $name_list[ $name ] = $value;
 
             /**
              * Show full details provided the attribute is NOT a password.
              */
             false === strpos( $name, 'password' )
-                && self::$logger->log( self::$mask, "Set Registry. {$name} = {$value}" );
+                  && self::$logger->log( self::$mask, "Set Registry. {$name} = " . print_r( $value, true ) );
 
             /**
              * Hide full details if the attribute is a password.
@@ -173,10 +114,11 @@ class Registry extends Basic {
         }
 
 
+        self::$array_registry->set( $arg_page, $name_list );
+
         /**
          * We're done.
          */
-        self::$logger->log( self::$mask, '-2-----------------------------------' );
         return $this;
     }
 
@@ -191,6 +133,7 @@ class Registry extends Basic {
         $arg_page,
         $arg_name_list ) {
 
+        self::$logger->log( self::$mask, "***************** init_log_registry *******************");
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
         self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
 
@@ -220,24 +163,33 @@ class Registry extends Basic {
 
         self::$logger->log( self::$mask, 'MASK OPTIONS on init: ' . self::$logger->print_r( $option ) );
 
+        $name_list = array();
+
         foreach ( $arg_name_list as $name ) {
+
+            /**
+             * For each named element for this option, let's set our in-cache values.
+             */
+            //self::$array_registry->set( $name, $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : 0 );
 
             if ( isset( $option[ $name ] ) && 0 !== $option[ $name ] ) {
 
-                self::$array_registry->set( $name, $value = $option[ $name ] );
+                //self::$array_registry->set( $name, $value = $option[ $name ] );
+                $name_list[ $name ] = $option[ $name ];
                 self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = ON" );
 
             } else {
 
-                self::$array_registry->set( $name, $value = null );
+                //self::$array_registry->set( $name, $value = 0 );
+                $name_list[ $name ] = 0;
                 self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = OFF" );
 
             }
         }
 
-        self::$logger->log( self::$mask, '-3-----------------------------------' );
+        self::$array_registry->set( $arg_page, $name_list );
 
         return $this;
     }
@@ -259,7 +211,6 @@ class Registry extends Basic {
             false !== strpos( $name, 'password' ) && self::$logger->log( self::$mask, "Update Registry. {$name} = " . str_repeat( '*', 8 ) );
         }
 
-        self::$logger->log( self::$mask, '-4-----------------------------------' );
         return $arg_output;
     }
 
@@ -291,20 +242,9 @@ class Registry extends Basic {
             }
         }
 
-        self::$logger->log( self::$mask, '-5-----------------------------------' );
         return $arg_output;
     }
 
-
-    /**
-     * The function set_array_registry sets the instance handle for the array_registry.
-     *
-     * @param Array_Registry $arg_array_registry is a handle to an array_registry instance.
-     */
-    public function set_array_registry( Array_Registry $arg_array_registry ) {
-        self::$array_registry = $arg_array_registry;
-        return $this;
-    }
 
 }
 

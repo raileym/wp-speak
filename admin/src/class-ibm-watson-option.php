@@ -97,8 +97,6 @@ EOD;
             array(self::get_instance(), "validate_ibm_watson_option")
         );
 
-        error_log( get_called_class() );
-
         do_action(
             Action::$init[get_called_class()],
             $page,

@@ -32,7 +32,7 @@ class Logger extends Basic {
      *
      * @var uint $logger_mask.
      */
-    private static $logger_mask = 0;
+    private static $logger_mask = 0;//0x2000 | 0x0800;//Logmask::$mask['log_registry'];
 
     /**
      * This constructor supports the Singleton creation design.

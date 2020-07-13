@@ -11,7 +11,6 @@ class Image_Option extends Basic
 	private static $img_image_table;
 	private static $add_settings_field = array();
 	private static $section = "image_option";
-	private static $section_title;
 	private static $fields = array (
             "image"
 	    );
@@ -22,8 +21,6 @@ class Image_Option extends Basic
 	
 	protected function __construct() { 
 
-    	self::$section_title = Admin::WPS_ADMIN . self::$section;
-    	
         add_action(
             "admin_init",
             array(get_class(), "init")); 
@@ -136,13 +133,16 @@ EOD;
         /* Restore original Post Data */
         wp_reset_postdata();
  
-        $image_table     = self::$image_table->fetch_all();
+        $image_table     = self::init_table_registry( self::$image_table );
+        //$image_table     = self::$image_table->fetch_all();
 
         $master = ["image"=>$image_table];
         
         array_map( self::$add_settings_field["image"], [
             ["id"=>"image_files",  "title"=>"Image Files", "callback"=>array("WP_Speak\Image_Option", "element_image_callback"), "args"=>array( "master" => $master )]
         ]);
+
+        self::$array_registry->set( Registry::$title[ 'image_table' ], self::init_table_registry( self::$image_table ) );
 
         register_setting(
             $page,
@@ -157,14 +157,76 @@ EOD;
 
     }
 
+    /**
+     * The function init_table_registry() grabs all the values
+     * from the given table, and stores the values in-cache.
+     *
+     * @param string $arg_table is the db table to grab.
+     */
+    public static function init_table_registry(
+        $arg_table ) {
+
+        $id      = $arg_table->id();
+        $tag     = $arg_table->tag();
+        $results = $arg_table->fetch_all();
+
+        /**
+         * Fetch_all() returns an array of rows,
+         * where each row contains a single element for
+         * each table column. While each table row
+         * contains the primary key, each row
+         * also contains a special key that 
+         * uniquely identifies that row (aside from the
+         * primary key itself.
+         *
+         * This function returns a table's rows, but rather
+         * than return an array of rows indexed by the
+         * primary key or by index, it returns
+         * the row indexed by the special key that
+         * is included as a value in the row itself.
+         * 
+         * This function simply reshapes
+         * that array so that data can be retrieved
+         * using the special key.
+         */
+
+        /**
+         * For all the rows fetched from the table,
+         * grab all the assorted data. Row_list is
+         * a NEW list that I am creating from the
+         * rows returned from the database.
+         */
+        $row_list = array();
+        foreach ( $results as $result ) {
+
+            /**
+             * $result[ $id ] IS that special key.
+             * The column name for that special key
+             * is $id, which is based on the name
+             * of the table.
+             *
+             * I am assigning the given row ($result)
+             * into the new row_list array at an
+             * index equal to that special key.
+             */
+            $row_list[ $result[ $id ] ] = $result;
+
+        }
+
+        /**
+         * At this point, $row_list contains
+         * the re-shaped contents of the table. I 
+         * am storing that entire row set into my
+         * in-process cache here.
+         */
+        return $row_list;
+    }
+
     public static function element_image_callback($arg_list)
     {
         $max_width = Admin::WORDWRAP_WIDTH;
         
-        $image_list = array();
-        foreach( $arg_list["master"]["image"] as $image ) {
-            $image_list[$image["image_id"]] = $image;
-        }
+        $image_list      = $arg_list["master"]["image"];
 
         $html = "";
 
@@ -219,6 +281,7 @@ EOF;
 
         // Define the array for the updated options
         $output = array();
+        $output['image_files'] = array();
 
         if ( !isset($arg_input) )
         {
@@ -233,7 +296,7 @@ EOF;
         {
             if( isset ( $arg_input[$key] ) )
             {
-                $output[$key] = $arg_input[$key];
+                $output['image_files'][$key] = $arg_input[$key];
             }
         }
 
@@ -349,7 +412,7 @@ EOF;
 	{
 		//assert( '!is_null($arg_registry)' );
 		foreach(self::$fields as $field) {
-            self::$add_settings_field[$field] = $arg_add_settings_field->create(self::$section_title, Admin::WPS_ADMIN.$field);
+            self::$add_settings_field[$field] = $arg_add_settings_field->create(Registry::$title[ self::$section ], Admin::WPS_ADMIN.$field);
 		}
 		return $this;
 	}

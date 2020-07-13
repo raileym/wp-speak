@@ -39,9 +39,16 @@ class Log_Option extends Basic
 
         add_action(
             Action::$init[get_called_class()],
-            array(self::$registry, "init_log_registry"),
+            array(self::$registry, "init_registry"),
             Callback::EXPECT_DEFAULT_PRIORITY,
             Callback::EXPECT_TWO_ARGUMENTS);
+
+
+        add_action(
+            Action::$init[get_called_class()],
+            array(get_class(), 'set_log_value'),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_ZERO_ARGUMENTS);
 
         add_filter(
             Filter::$validate[get_called_class()],
@@ -51,6 +58,13 @@ class Log_Option extends Basic
 
 	}
 	
+    public static function set_log_value() {
+
+        self::$array_registry->dump();
+        $values = self::$array_registry->get( self::$section_title );
+
+    }
+    
     public function get_section() {
         return self::$section;
     }
@@ -102,14 +116,11 @@ EOD;
             array(self::get_instance(), "validate_log_option")
         );
 
-// error_log("DO ACTION: " . Admin::WPS_ADMIN.__FUNCTION__);
-
         do_action(
             Action::$init[get_called_class()],
             $page,
             Option::$OPTION_LIST[self::$section] ); 
 
-// error_log("POST-DO ACTION: " . Admin::WPS_ADMIN.__FUNCTION__);
     }
 
 

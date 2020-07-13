@@ -184,22 +184,26 @@ Registry::get_instance()
     ->set_array_registry(Array_Registry::get_instance());
 
 
+Registry::get_instance()->init_log_registry(
+    Option::$OPTION_EXTENDED_TITLE['log_option'],
+    Option::$OPTION_LIST['log_option']);
+
 foreach (Option::$SECTIONS as $section) {
 
     $section_lc = strtolower($section);
 
     if ($section === "Log_Option") {
 
-        Registry::get_instance()->init_log_registry(
-            Option::$OPTION_EXTENDED_TITLE[$section_lc],
-            Option::$OPTION_LIST[$section_lc]);
+        //Registry::get_instance()->init_log_registry(
+        //    Option::$OPTION_EXTENDED_TITLE[$section_lc],
+        //    Option::$OPTION_LIST[$section_lc]);
 
     } else {
 
         Registry::get_instance()->init_registry(
             Option::$OPTION_EXTENDED_TITLE[$section_lc],
             Option::$OPTION_LIST[$section_lc]);
-
+        
     }
 
 }
@@ -269,6 +273,7 @@ if ( is_admin() )
     Log_Option::get_instance()
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
+        ->set_array_registry(Array_Registry::get_instance())
         ->set_add_settings_section(Add_Settings_Section::get_instance())
         ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_log"]);
@@ -279,6 +284,7 @@ if ( is_admin() )
         ->set_img_image_table($img_image_table)
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
+        ->set_array_registry(Array_Registry::get_instance())
         ->set_add_settings_section(Add_Settings_Section::get_instance())
         ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_media"]);

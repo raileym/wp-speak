@@ -32,6 +32,13 @@ class Basic {
 	protected static $registry;
 
 	/**
+	 * $registry is a handle to an registry instance.
+	 *
+	 * @var Array_Registry $array_registry.
+	 */
+	protected static $array_registry;
+
+	/**
 	 * $logger is a handle to an logger instance.
 	 *
 	 * @var Logger $logger.
@@ -99,5 +106,16 @@ class Basic {
 		self::$registry = $arg_registry;
 		return $this;
 	}
+
+
+    /**
+     * The function set_array_registry sets the instance handle for the array_registry.
+     *
+     * @param Array_Registry $arg_array_registry is a handle to an array_registry instance.
+     */
+    public function set_array_registry( Array_Registry $arg_array_registry ) {
+        self::$array_registry = $arg_array_registry;
+        return $this;
+    }
 
 }
