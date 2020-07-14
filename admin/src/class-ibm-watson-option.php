@@ -5,11 +5,16 @@ class IBM_Watson_Option extends Basic
 {
     protected static $instance;
 
+    /**
+     * $mask is the local (protected) copy of mask.
+     *
+     * @var int $mask
+     */
+    protected static $mask;
+
 	private static $add_settings_section;
 	private static $add_settings_field = array();
 	private static $section = "ibm_watson_option";    //"wp_speak_admin_ibm_watson_option"
-
-    private static $section_title;
 
     private static $filter;
 
@@ -26,12 +31,10 @@ class IBM_Watson_Option extends Basic
 	
 	protected function __construct() { 
 
-    	self::$section_title = Admin::WPS_ADMIN . self::$section;
-    	
         // Initialize this class upon admin_init.
         add_action(
             "admin_init",
-            array(get_class(), "init")); 
+            array(get_called_class(), "init")); 
 
         add_action(
             Action::$init[get_called_class()],
@@ -56,12 +59,14 @@ class IBM_Watson_Option extends Basic
      */
     public static function init($arg1)
     {
-        $page = Option::$OPTION_EXTENDED_TITLE[self::$section];
+        self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
-        // If the IBM Watson Options don't exist, create them.
-        if( !get_option( $page ) )
+        $option = self::$wp_option->get( WP_Option::$option[ get_called_class() ] );
+
+        if( !$option )
         {
-            update_option( $page, self::filter_default_options( self::$default_options ) );
+            self::$wp_option->update( WP_Option::$option[ get_called_class() ], self::filter_default_options( self::$default_options ) );
+            $option = self::$wp_option->get( WP_Option::$option[ get_called_class() ] );
         }
 
 
@@ -73,34 +78,34 @@ EOD;
             self::$add_settings_section, [
                 ["id"=>ADMIN::WPS_ADMIN."ibm_watson", 
                  "title"=>"IBM Watson Options",
-                 "callback"=>array("WP_Speak\Callback", "section_p_callback"),
+                 "callback" =>Callback::PARAGRAPH,
                  "args"=>array( "paragraph" => $paragraph )]
             ]);
-
+        
 
         array_map(
             self::$add_settings_field["ibm_watson"], [
                 ["id"=>"ibm_watson_user_name",
                  "title"=>"User Name",
-                 "callback"=>array("WP_Speak\Callback", "element_input_callback"),
+                 "callback"=>Callback::INPUT,
                  "args"=>array( "label" => "ex: 20-chars, alphanumeric" )],
 
                 ["id"=>"ibm_watson_user_password",
                  "title"=>"User Password",
-                 "callback"=>array("WP_Speak\Callback", "element_input_callback"),
+                 "callback"=>Callback::INPUT,
                  "args"=>array( "label" => "ex: 20-chars, alphanumeric" )]
             ]);
 
         register_setting(
-            $page,
-            $page,
+            WP_Option::$option[ get_called_class() ],
+            WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_ibm_watson_option")
         );
 
         do_action(
             Action::$init[get_called_class()],
-            $page,
-            Option::$OPTION_LIST[self::$section] );
+            get_called_class(),
+            $option);
     }
 
     public function validate_ibm_watson_option( $arg_input )
@@ -129,10 +134,6 @@ EOD;
             }
         }
 
-        $options = get_option( Option::$OPTION_EXTENDED_TITLE["debug_option"] );
-
-        $ibm_watson_domain = get_site_url();
-        
         add_settings_error( 
             'ibm_watson_user_name',
             'User Name',
@@ -157,42 +158,9 @@ EOD;
             'Definitely an incorrect password entered!',
             'success' );
 
-        if ( false ) {
-            
-            if ( isset($arg_input["ibm_watson_user_name"], $arg_input["ibm_watson_user_password"], $ibm_watson_domain) ) {
-                
-//             $response = Comm::get_instance()->ibm_watson_user($arg_input["ibm_watson_user_name"], $arg_input["ibm_watson_user_password"], $ibm_watson_domain);
-//             $options["show_comm"] && self::$logger->log( self::$mask, "Admin Register: ".print_r($response, TRUE));
-// 
-//             if ($response["status"] && "200" == $response["wp_speak_code"])
-//             {
-//                 $output["is_ibm_watsoned"]    = TRUE;
-//                 $output["ibm_watson_message"] = $response["wp_speak_message"];
-//                 $output["status_name"]      = $response["wp_speak_status_name"];
-//                 $output["ibm_watson_domain"]  = $ibm_watson_domain;
-//             }
-//             else
-//             {
-//                 $output["is_ibm_watsoned"]    = FALSE;
-//                 $output["ibm_watson_message"] = $response["wp_speak_message"];
-//                 $output["status_name"]      = NULL;
-//                 $output["ibm_watson_domain"]  = $ibm_watson_domain;
-//             }
-
-            }
-            else
-            {
-                $output["is_ibm_watsoned"]    = FALSE;
-                $output["ibm_watson_message"] = "Domain Not Registered";
-                $output["status_name"]      = NULL;
-                $output["ibm_watson_domain"]  = $ibm_watson_domain;
-            }
-        } else {
-            $output["is_ibm_watsoned"]    = TRUE;
-            $output["ibm_watson_message"] = "Register Message blah blah";
-            $output["status_name"]        = "Status Name blah blah";
-            $output["ibm_watson_domain"]  = "Register Domain blah blah";
-        }
+        $output["ibm_watson_message"] = "Register Message blah blah";
+        $output["status_name"]        = "Status Name blah blah";
+        $output["ibm_watson_domain"]  = "Register Domain blah blah";
         
         // Return the new collection
         return apply_filters(

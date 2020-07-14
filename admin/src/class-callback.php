@@ -10,13 +10,23 @@ class Callback extends Basic
 	const EXPECT_ONE_ARGUMENT   = 1;            /** For add_action: expect one argument */
 	const EXPECT_TWO_ARGUMENTS  = 2;            /** For add_action: expect two arguments */
 
-    const CHECKBOX = array("WP_Speak\Callback", "element_checkbox_callback");
+    const CHECKBOX  = array("WP_Speak\Callback", "element_checkbox_callback");
+    const PARAGRAPH = array("WP_Speak\Callback", "section_paragraph_callback");
+    const INPUT     = array("WP_Speak\Callback", "element_input_callback");
+    const TEXTAREA  = array("WP_Speak\Callback", "element_textarea_callback");
 
     protected static $instance;
 
+    /**
+     * $mask is the local (protected) copy of mask.
+     *
+     * @var int $mask
+     */
+    protected static $mask;
+
 	protected function __construct() { }
 		
-    public static function section_p_callback($arg_list)
+    public static function section_paragraph_callback($arg_list)
     {
         $html = (isset($arg_list["paragraph"])) ? "<p>".wordwrap($arg_list['paragraph'], Admin::WORDWRAP_WIDTH, "<br/>")."</p>" : "";
 
@@ -36,6 +46,7 @@ class Callback extends Basic
     public static function element_checkbox_callback($arg_list)
     {
         $checked = self::get_page_option($arg_list["page"], $arg_list["element"], array("action"=>"checkbox", "value"=>1));
+        //$checked = "checked";
 
         $html = "<input type='checkbox' id='{$arg_list['element']}' name='{$arg_list['page']}[{$arg_list['element']}]' value=1 {$checked} />";
         $html .= (isset($arg_list["label"])) ? "<label for='{$arg_list['element']}'>{$arg_list['label']}</label>" : "";
@@ -83,7 +94,8 @@ class Callback extends Basic
 
     public static function get_page_option($arg_page, $arg_option_name, $arg_command)
     {
-        $option = get_option($arg_page);
+        //$option = get_option( $arg_page );
+        $option = self::$wp_option->get($arg_page);
 
         if ( !isset( $option[$arg_option_name] ))
         {

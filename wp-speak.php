@@ -185,23 +185,17 @@ Registry::get_instance()
 
 
 Registry::get_instance()->init_log_registry(
-    Option::$OPTION_EXTENDED_TITLE['log_option'],
+    'WP_Speak\Log_Option',
     Option::$OPTION_LIST['log_option']);
 
 foreach (Option::$SECTIONS as $section) {
 
     $section_lc = strtolower($section);
 
-    if ($section === "Log_Option") {
-
-        //Registry::get_instance()->init_log_registry(
-        //    Option::$OPTION_EXTENDED_TITLE[$section_lc],
-        //    Option::$OPTION_LIST[$section_lc]);
-
-    } else {
+    if ($section !== "Log_Option") {
 
         Registry::get_instance()->init_registry(
-            Option::$OPTION_EXTENDED_TITLE[$section_lc],
+            'WP_Speak\\'.$section,
             Option::$OPTION_LIST[$section_lc]);
         
     }
@@ -250,6 +244,7 @@ if ( is_admin() )
         ->set_mask(Logmask::$mask["log_admin"]);
 
     IBM_Watson_Option::get_instance()
+        ->set_wp_option(WP_Option::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
         ->set_add_settings_section(Add_Settings_Section::get_instance())
@@ -257,6 +252,7 @@ if ( is_admin() )
         ->set_mask(Logmask::$mask["log_ibm_watson"]);
 
     Register_Option::get_instance()
+        ->set_wp_option(WP_Option::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
         ->set_add_settings_section(Add_Settings_Section::get_instance())
@@ -264,6 +260,7 @@ if ( is_admin() )
         ->set_mask(Logmask::$mask["log_register"]);
 
     Example_Option::get_instance()
+        ->set_wp_option(WP_Option::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
         ->set_add_settings_section(Add_Settings_Section::get_instance())
@@ -271,6 +268,7 @@ if ( is_admin() )
         ->set_mask(Logmask::$mask["log_example"]);
 
     Log_Option::get_instance()
+        ->set_wp_option(WP_Option::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
         ->set_array_registry(Array_Registry::get_instance())
@@ -279,6 +277,7 @@ if ( is_admin() )
         ->set_mask(Logmask::$mask["log_log"]);
 
     Media_Option::get_instance()
+        ->set_wp_option(WP_Option::get_instance())
         ->set_image_table($image_table)
         ->set_img_table($img_table)
         ->set_img_image_table($img_image_table)
@@ -290,6 +289,7 @@ if ( is_admin() )
         ->set_mask(Logmask::$mask["log_media"]);
 
     Image_Option::get_instance()
+        ->set_wp_option(WP_Option::get_instance())
         ->set_image_table($image_table)
         ->set_img_table($img_table)
         ->set_img_image_table($img_image_table)

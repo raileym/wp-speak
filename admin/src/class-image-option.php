@@ -5,6 +5,13 @@ class Image_Option extends Basic
 {
     protected static $instance;
 
+    /**
+     * $mask is the local (protected) copy of mask.
+     *
+     * @var int $mask
+     */
+    protected static $mask;
+
 	private static $add_settings_section;
 	private static $image_table;
 	private static $img_table;
@@ -48,11 +55,14 @@ class Image_Option extends Basic
      */
     public static function init($arg1)
     {
-        $page = Option::$OPTION_EXTENDED_TITLE[self::$section];
+        self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
-        if( !get_option( $page ) )
+        $option = self::$wp_option->get( WP_Option::$option[ get_called_class() ] );
+
+        if( !$option )
         {
-            update_option( $page, self::filter_default_options( self::$default_options ) );
+            self::$wp_option->update( WP_Option::$option[ get_called_class() ], self::filter_default_options( self::$default_options ) );
+            $option = self::$wp_option->get( WP_Option::$option[ get_called_class() ] );
         }
 
         $paragraph = <<<EOD
@@ -60,24 +70,18 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis euismod ut nisl ne
 EOD;
 
         array_map( self::$add_settings_section, [
-            ["id"=>Admin::WPS_ADMIN."image", "title"=>"Image Files", "callback"=>array("WP_Speak\Callback", "section_p_callback"), "args"=>array( "paragraph" => $paragraph )]
+            ["id"=>Admin::WPS_ADMIN."image",
+             "title"=>"Image Files",
+             "callback"=>Callback::PARAGRAPH,
+             "args"=>array( "paragraph" => $paragraph )]
         ]);
 
-
-//         if ( !self::$img_table->update_all( 'status', 'invalid' ) ) {
-//             add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
-//             return;
-//         }
 
         if ( !self::$image_table->update_all( 'status', 'invalid' ) ) {
             add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
             return;
         }
 
-//         if ( !self::$img_image_table->update_all( 'status', 'invalid' ) ) {
-//             add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
-//             return;
-//         }
 
         // The Loop
         $args = array(
@@ -142,18 +146,18 @@ EOD;
             ["id"=>"image_files",  "title"=>"Image Files", "callback"=>array("WP_Speak\Image_Option", "element_image_callback"), "args"=>array( "master" => $master )]
         ]);
 
-        self::$array_registry->set( Registry::$title[ 'image_table' ], self::init_table_registry( self::$image_table ) );
+        self::$array_registry->set( WP_Option::$option[ 'image_table' ], self::init_table_registry( self::$image_table ) );
 
         register_setting(
-            $page,
-            $page,
+            WP_Option::$option[ get_called_class() ],
+            WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_image_option")
         );
 
         do_action(
             Action::$init[get_called_class()],
-            $page, 
-            Option::$OPTION_LIST[self::$section] );
+            get_called_class(),
+            $option );
 
     }
 
@@ -275,9 +279,9 @@ EOF;
 
     public function validate_image_option( $arg_input )
     {
-        self::$logger->log( self::$mask, "Validation: " . __FUNCTION__ );
-        self::$logger->log( self::$mask, "Input");
-        self::$logger->log( self::$mask, print_r( $arg_input, true ) );
+        //self::$logger->log( self::$mask, "Validation: " . __FUNCTION__ );
+        //self::$logger->log( self::$mask, "Input");
+        //self::$logger->log( self::$mask, print_r( $arg_input, true ) );
 
         // Define the array for the updated options
         $output = array();
@@ -404,7 +408,7 @@ EOF;
     public function set_add_settings_section($arg_add_settings_section)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$add_settings_section = $arg_add_settings_section->create(Option::$OPTION_EXTENDED_TITLE[self::$section]);;
+		self::$add_settings_section = $arg_add_settings_section->create( WP_Option::$option[ get_called_class() ] );
 		return $this;
 	}
 	
@@ -412,7 +416,7 @@ EOF;
 	{
 		//assert( '!is_null($arg_registry)' );
 		foreach(self::$fields as $field) {
-            self::$add_settings_field[$field] = $arg_add_settings_field->create(Registry::$title[ self::$section ], Admin::WPS_ADMIN.$field);
+            self::$add_settings_field[$field] = $arg_add_settings_field->create( WP_Option::$option[ get_called_class() ], Admin::WPS_ADMIN.$field);
 		}
 		return $this;
 	}

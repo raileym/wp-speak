@@ -21,15 +21,14 @@ class Option
             "Register_Option"
         );
 
-	public static $OPTION_EXTENDED_TITLE =
-	    array(
-	        "log_option"        => "wp_speak_admin_log_option",
-	        "ibm_watson_option" => "wp_speak_admin_ibm_watson_option",
-	        "register_option"   => "wp_speak_admin_register_option",
-	        "media_option"      => "wp_speak_admin_media_option",
-	        "image_option"      => "wp_speak_admin_image_option",
-	        "example_option"    => "wp_speak_admin_example_option",
-	    );
+	public static $OPTION_EXTENDED_TITLE = array(
+        "log_option"        => "wp_speak_admin_log_option",
+        "ibm_watson_option" => "wp_speak_admin_ibm_watson_option",
+        "register_option"   => "wp_speak_admin_register_option",
+        "media_option"      => "wp_speak_admin_media_option",
+        "image_option"      => "wp_speak_admin_image_option",
+        "example_option"    => "wp_speak_admin_example_option",
+    );
 	    
 	public static $OPTION_TITLE =
 	    array(
@@ -86,5 +85,6 @@ class Option
                                     "four_files"
 		                        )
 	    );
+
 }
 ?>

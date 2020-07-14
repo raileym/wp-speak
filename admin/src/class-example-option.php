@@ -5,10 +5,16 @@ class Example_Option extends Basic
 {
     protected static $instance;
 
+    /**
+     * $mask is the local (protected) copy of mask.
+     *
+     * @var int $mask
+     */
+    protected static $mask;
+
 	private static $add_settings_section;
 	private static $add_settings_field = array();
 	private static $section = "example_option";
-	private static $section_title;
 	private static $fields = array (
 	        "example_group_of_fields"
 	    );
@@ -20,9 +26,9 @@ class Example_Option extends Basic
 
 	protected function __construct() { 
 
-    	self::$section_title = Admin::WPS_ADMIN . self::$section;
-    	
-        add_action("admin_init", array(get_called_class(), "init")); 
+        add_action(
+            "admin_init",
+            array(get_called_class(), "init")); 
         
         add_action(
             Action::$init[get_called_class()],
@@ -47,9 +53,14 @@ class Example_Option extends Basic
      */
     public static function init($arg1)
     {
-        if( !get_option( self::$section_title ) )
+        self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
+
+        $option = self::$wp_option->get( WP_Option::$option [ get_called_class() ] );
+
+        if( !$option )
         {
-            update_option( self::$section_title, self::filter_default_options( self::$default_options ) );
+            self::$wp_option->update( WP_Option::$option[ get_called_class() ], self::filter_default_options( self::$default_options ) );
+            $option = self::$wp_option->get( WP_Option::$option [ get_called_class() ] );
         }
 
         $paragraph = <<<EOD
@@ -63,13 +74,14 @@ tincidunt augue id, tempus elit. Nullam sapien est, gravida nec luctus non, rhon
 justo, ultricies non efficitur vitae, interdum in tortor.
 EOD;
 
-        array_map( self::$add_settings_section, [
-            ["id"       =>Admin::WPS_ADMIN."example_group_of_fields", 
-             "title"    =>"ONE Files", 
-             "callback" =>array("WP_Speak\Callback", "section_p_callback"), 
-             "args"     =>array( "paragraph" => $paragraph )]
-        ]);
-
+        array_map(
+            self::$add_settings_section, [
+                ["id"       =>Admin::WPS_ADMIN."example_group_of_fields", 
+                 "title"    =>"ONE Files", 
+                 "callback" =>Callback::PARAGRAPH,
+                 "args"     =>array( "paragraph" => $paragraph )]
+            ]);
+        
 
         $description_one_files = <<<EOD
 <strong>Here is some description that explains one_files.</strong>
@@ -88,17 +100,17 @@ EOD;
         array_map( self::$add_settings_field["example_group_of_fields"], [
             ["id"=>"example_one",   
              "title"=>"ONE-ONE Files",     
-             "callback"=>array("WP_Speak\Callback", "element_textarea_callback"),   
+             "callback"=>Callback::TEXTAREA,
              "args"=>array( "description" => $description_one_files )],
              
             ["id"=>"example_two",   
              "title"=>"TWO-TWO Files",     
-             "callback"=>array("WP_Speak\Callback", "element_checkbox_callback"),   
+             "callback"=>Callback::CHECKBOX,
              "args"=>array( )],
              
             ["id"=>"example_three", 
              "title"=>"THREE-THREE Files", 
-             "callback"=>array("WP_Speak\Callback", "element_input_callback"),
+             "callback"=>Callback::INPUT,
              "args"=>array( )],
              
             ["id"=>"example_four",  
@@ -108,15 +120,15 @@ EOD;
         ]);
 
         register_setting(
-            self::$section_title,
-            self::$section_title,
+            WP_Option::$option[ get_called_class() ],
+            WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_example_option")
         );
 
         do_action(
             Action::$init[get_called_class()],
-            self::$section_title,
-            Option::$OPTION_LIST[self::$section] );
+            get_called_class(),
+            $option );
 
     }
 
@@ -164,20 +176,12 @@ EOD;
     public static function filter_default_options($arg_default_options)
     {
         return $arg_default_options;
-        
-        $defaults = array(
-            "css_header_files"			=>	"",
-            "javascript_header_files"	=>	"",
-            "javascript_footer_files"	=>	""
-        );
-
-        return $defaults;
     }
 
     public function set_add_settings_section($arg_add_settings_section)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$add_settings_section = $arg_add_settings_section->create(self::$section_title);;
+		self::$add_settings_section = $arg_add_settings_section->create( WP_Option::$option[ get_called_class() ]);;
 		return $this;
 	}
 	
@@ -186,7 +190,7 @@ EOD;
 		//assert( '!is_null($arg_registry)' );
 		foreach(self::$fields as $field) {
             self::$add_settings_field[$field] = $arg_add_settings_field->create(
-                self::$section_title, 
+                WP_Option::$option[ get_called_class() ], 
                 Admin::WPS_ADMIN.$field);
 		}
 		return $this;

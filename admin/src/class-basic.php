@@ -18,13 +18,6 @@ namespace WP_Speak;
 class Basic {
 
 	/**
-	 * $mask is a bitmask specific to a class.
-	 *
-	 * @var int $mask.
-	 */
-	protected static $mask;
-
-	/**
 	 * $registry is a handle to an registry instance.
 	 *
 	 * @var Registry $registry.
@@ -83,7 +76,7 @@ class Basic {
 	 * @param int $arg_mask is the integer mask specific to the binding class.
 	 */
 	public function set_mask( $arg_mask ) {
-		self::$mask = $arg_mask;
+		static::$mask = $arg_mask;
 		return $this;
 	}
 

@@ -60,6 +60,13 @@ class Admin extends Basic
     protected static $instance;
 
     /**
+     * $mask is the local (protected) copy of mask.
+     *
+     * @var int $mask
+     */
+    protected static $mask;
+
+    /**
      * HTML representation of the WP_Speak logo (left, center, or right)
      * 
      * @var string

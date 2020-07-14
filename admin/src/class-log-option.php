@@ -5,10 +5,16 @@ class Log_Option extends Basic
 {
     protected static $instance;
 
+    /**
+     * $mask is the local (protected) copy of mask.
+     *
+     * @var int $mask
+     */
+    protected static $mask;
+
 	private static $add_settings_section;
 	private static $add_settings_field = array();
 	private static $section = "log_option";
-	private static $section_title;
 	private static $fields = array (
 	        "log"
 	    );
@@ -31,8 +37,6 @@ class Log_Option extends Basic
 
 	protected function __construct() { 
 
-    	self::$section_title = Admin::WPS_ADMIN . self::$section;
-    	
         add_action(
             "admin_init", 
             array(get_class(), "init")); 
@@ -43,25 +47,51 @@ class Log_Option extends Basic
             Callback::EXPECT_DEFAULT_PRIORITY,
             Callback::EXPECT_TWO_ARGUMENTS);
 
-
         add_action(
             Action::$init[get_called_class()],
-            array(get_class(), 'set_log_value'),
+            array(get_class(), 'init_log_mask'),
             Callback::EXPECT_DEFAULT_PRIORITY,
             Callback::EXPECT_ZERO_ARGUMENTS);
 
+        add_action(
+            Action::$validate[get_called_class()],
+            array(get_class(), 'update_log_mask'),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_ONE_ARGUMENT);
+
         add_filter(
             Filter::$validate[get_called_class()],
-            array(self::$registry, "update_log_registry"),
+            array(self::$registry, "update_registry"),
             Callback::EXPECT_DEFAULT_PRIORITY,
             Callback::EXPECT_TWO_ARGUMENTS);
 
 	}
 	
-    public static function set_log_value() {
+    public static function init_log_mask() {
 
-        self::$array_registry->dump();
-        $values = self::$array_registry->get( self::$section_title );
+        $log_mask = self::$array_registry->get( get_called_class() );
+
+        self::$logger->set_logger_mask( 0 );
+
+        foreach($log_mask as $log=>$mask) {
+            if ( $mask ) {
+                self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $log ] );
+            }
+        }
+
+    }
+    
+    public static function update_log_mask($arg_log_mask) {
+
+        $log_mask = $arg_log_mask;
+
+        self::$logger->set_logger_mask( 0 );
+
+        foreach($log_mask as $log=>$mask) {
+            if ( $mask ) {
+                self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $log ] );
+            }
+        }
 
     }
     
@@ -74,12 +104,16 @@ class Log_Option extends Basic
      */
     public static function init()
     {
-        $page = Option::$OPTION_EXTENDED_TITLE[self::$section];
+        self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
-        if( !get_option( $page ) )
+        $option = self::$wp_option->get( WP_Option::$option[ get_called_class() ] );
+
+        if( !$option )
         {
-            update_option( $page, self::filter_default_options( self::$default_options ) );
+            self::$wp_option->update( WP_Option::$option[ get_called_class() ], self::filter_default_options( self::$default_options ) );
+            $option = self::$wp_option->get( WP_Option::$option[ get_called_class() ] );
         }
+
 
         $paragraph = <<<EOD
 Choose which type(s) of information is displayed in the WP log.
@@ -88,7 +122,7 @@ EOD;
         array_map( self::$add_settings_section, [
             ["id"=>Admin::WPS_ADMIN."log",
              "title"=>"Debug Logs",
-             "callback"=>array("WP_Speak\Callback", "section_p_callback"),
+             "callback"=>Callback::PARAGRAPH,
              "args"=>array( "paragraph" => $paragraph )]
         ]);
 
@@ -111,15 +145,15 @@ EOD;
         ]);
 
         register_setting(
-            $page,
-            $page,
+            WP_Option::$option[ get_called_class() ],
+            WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_log_option")
         );
 
         do_action(
             Action::$init[get_called_class()],
-            $page,
-            Option::$OPTION_LIST[self::$section] ); 
+            get_called_class(),
+            $option );
 
     }
 
@@ -154,10 +188,17 @@ EOD;
         }
 
         // Return the new collection
-        return apply_filters(
-                Filter::$validate[get_called_class()],
-                $output,
-                Option::$OPTION_LIST[self::$section] );
+        $output = apply_filters(
+            Filter::$validate[get_called_class()],
+            $output,
+            Option::$OPTION_LIST[self::$section] );
+        
+
+        do_action(
+            Action::$validate[get_called_class()],
+            $output);
+
+        return $output;
     }
 
 
@@ -167,31 +208,12 @@ EOD;
     public static function filter_default_options($arg_default_options)
     {
         return $arg_default_options;
-        
-        $defaults = array(
-            "log_admin"      => 0,
-            "log_cache"      => 0,
-            "log_callback"   => 0,
-            "log_copyright"  => 0,
-            "log_debug"      => 0,
-            "log_example"    => 0,
-            "log_format"     => 0,
-            "log_ibm_watson" => 0,
-            "log_image"      => 0,
-            "log_include"    => 0,
-            "log_log"        => 0,
-            "log_media"      => 0,
-            "log_register"   => 0,
-            "log_registry"   => 0
-        );
-
-        return $defaults;
     }
 
     public function set_add_settings_section($arg_add_settings_section)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$add_settings_section = $arg_add_settings_section->create(Option::$OPTION_EXTENDED_TITLE[self::$section]);;
+		self::$add_settings_section = $arg_add_settings_section->create( WP_Option::$option[ get_called_class() ] );
 		return $this;
 	}
 	
@@ -199,7 +221,8 @@ EOD;
 	{
 		//assert( '!is_null($arg_registry)' );
 		foreach(self::$fields as $field) {
-            self::$add_settings_field[$field] = $arg_add_settings_field->create(self::$section_title, Admin::WPS_ADMIN.$field);
+            self::$add_settings_field[$field] = $arg_add_settings_field->create( WP_Option::$option[ get_called_class() ], Admin::WPS_ADMIN.$field);
+            //self::$add_settings_field[$field] = $arg_add_settings_field->create( get_called_class(), Admin::WPS_ADMIN.$field);
 		}
 		return $this;
 	}
