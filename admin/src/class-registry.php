@@ -28,6 +28,13 @@ class Registry extends Basic {
     /**
      * $mask is the local (protected) copy of mask.
      *
+     * @var int $data
+     */
+    protected static $data = array();
+
+    /**
+     * $mask is the local (protected) copy of mask.
+     *
      * @var int $mask
      */
     protected static $mask;
@@ -37,6 +44,30 @@ class Registry extends Basic {
      * creation design.
      */
     protected function __construct() { }
+
+
+    public function set(
+        $arg_key,
+        $arg_value)
+    {
+        self::$data[$arg_key] = $arg_value;
+        return $this;
+    }
+
+
+    public function get(
+        $arg_key)
+    {
+        return isset(self::$data[$arg_key]) ? self::$data[$arg_key] : null;
+    }
+
+
+    public function dump()
+    {
+        error_log("*************** DUMP:ARRAY_REGISTRY ******************");
+        error_log(print_r(self::$data, true));
+        return true;
+    }
 
     /**
      * The function init_registry() is grabbing all the DB
@@ -81,7 +112,7 @@ class Registry extends Basic {
         self::$logger->log( self::$mask, 'From OPTIONS on init: ' . self::$logger->print_r( $option ) );
 
 
-        self::$array_registry->set( WP_Option::$option[ $arg_page ], $option );
+        $this->set( WP_Option::$option[ $arg_page ], $option );
 
         /**
          * We're done.
@@ -137,18 +168,18 @@ class Registry extends Basic {
             /**
              * For each named element for this option, let's set our in-cache values.
              */
-            self::$array_registry->set( $name, $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : 0 );
+            $this->set( $name, $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : 0 );
 
             if ( isset( $option[ $name ] ) && 0 !== $option[ $name ] ) {
 
-                self::$array_registry->set( $name, $value = $option[ $name ] );
+                $this->set( $name, $value = $option[ $name ] );
                 $name_list[ $name ] = $option[ $name ];
                 self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = ON" );
 
             } else {
 
-                self::$array_registry->set( $name, $value = 0 );
+                $this->set( $name, $value = 0 );
                 $name_list[ $name ] = 0;
                 self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = OFF" );
@@ -156,7 +187,7 @@ class Registry extends Basic {
             }
         }
 
-        self::$array_registry->set( $arg_page, $name_list );
+        $this->set( $arg_page, $name_list );
 
         return $this;
     }
@@ -175,7 +206,7 @@ class Registry extends Basic {
         self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
 
         foreach ( $arg_name_list as $name ) {
-            self::$array_registry->set( $name, $value = ( isset( $arg_output[ $name ] ) ) ? $arg_output[ $name ] : null );
+            $this->set( $name, $value = ( isset( $arg_output[ $name ] ) ) ? $arg_output[ $name ] : null );
             false === strpos( $name, 'password' ) && self::$logger->log( self::$mask, "Update Registry. {$name} = " . print_r($value, true) );
             false !== strpos( $name, 'password' ) && self::$logger->log( self::$mask, "Update Registry. {$name} = " . str_repeat( '*', 8 ) );
         }
@@ -201,11 +232,11 @@ class Registry extends Basic {
 
         foreach ( $arg_name_list as $name ) {
             if ( isset( $arg_output[ $name ] ) ) {
-                self::$array_registry->set( $name, $value = $arg_output[ $name ] );
+                $this->set( $name, $value = $arg_output[ $name ] );
                 self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Update Registry. {$name} = ON" );
             } else {
-                self::$array_registry->set( $name, $value = 'OFF' );
+                $this->set( $name, $value = 'OFF' );
                 self::$logger->log( self::$mask, "Update Registry. {$name} = OFF" );
                 self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::$mask[ $name ] );
             }

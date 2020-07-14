@@ -244,9 +244,9 @@ EOD;
              "args"=>array( "master" => $master )]
         ]);
         
-        self::$array_registry->set( WP_Option::$option[ 'img_table' ],       self::init_table_registry( self::$img_table ) );
-        self::$array_registry->set( WP_Option::$option[ 'image_table' ],     self::init_table_registry( self::$image_table ) );
-        self::$array_registry->set( WP_Option::$option[ 'img_image_table' ], self::init_table_registry( self::$img_image_table ) );
+        self::$registry->set( WP_Option::$option[ 'img_table' ],       self::init_table_registry( self::$img_table ) );
+        self::$registry->set( WP_Option::$option[ 'image_table' ],     self::init_table_registry( self::$image_table ) );
+        self::$registry->set( WP_Option::$option[ 'img_image_table' ], self::init_table_registry( self::$img_image_table ) );
 
         //self::$registry->init_table_registry(self::$img_table_title,       self::$img_table);
         //self::$registry->init_table_registry(self::$image_table_title,     self::$image_table);

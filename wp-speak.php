@@ -159,7 +159,6 @@ require( dirname(__FILE__)."/admin/src/class-log-option.php" );
 require( dirname(__FILE__)."/admin/src/class-media-option.php" );
 require( dirname(__FILE__)."/admin/src/class-image-option.php" );
 require( dirname(__FILE__)."/admin/src/abstract-registry.php" );
-require( dirname(__FILE__)."/admin/src/class-array-registry.php" );
 require( dirname(__FILE__)."/admin/src/class-registry.php" );
 require( dirname(__FILE__)."/admin/src/class-logger.php" );
 // require( dirname(__FILE__)."/includes/classes/audio.php" );
@@ -180,8 +179,7 @@ WP_Option::get_instance()
 Registry::get_instance()
     ->set_wp_option(WP_Option::get_instance())
     ->set_logger(Logger::get_instance())
-    ->set_mask(Logmask::$mask["log_registry"])
-    ->set_array_registry(Array_Registry::get_instance());
+    ->set_mask(Logmask::$mask["log_registry"]);
 
 
 Registry::get_instance()->init_log_registry(
@@ -271,7 +269,6 @@ if ( is_admin() )
         ->set_wp_option(WP_Option::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
-        ->set_array_registry(Array_Registry::get_instance())
         ->set_add_settings_section(Add_Settings_Section::get_instance())
         ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_log"]);
@@ -283,7 +280,6 @@ if ( is_admin() )
         ->set_img_image_table($img_image_table)
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
-        ->set_array_registry(Array_Registry::get_instance())
         ->set_add_settings_section(Add_Settings_Section::get_instance())
         ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_media"]);

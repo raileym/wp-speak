@@ -146,7 +146,7 @@ EOD;
             ["id"=>"image_files",  "title"=>"Image Files", "callback"=>array("WP_Speak\Image_Option", "element_image_callback"), "args"=>array( "master" => $master )]
         ]);
 
-        self::$array_registry->set( WP_Option::$option[ 'image_table' ], self::init_table_registry( self::$image_table ) );
+        self::$registry->set( WP_Option::$option[ 'image_table' ], self::init_table_registry( self::$image_table ) );
 
         register_setting(
             WP_Option::$option[ get_called_class() ],

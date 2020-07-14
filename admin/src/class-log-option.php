@@ -69,7 +69,7 @@ class Log_Option extends Basic
 	
     public static function init_log_mask() {
 
-        $log_mask = self::$array_registry->get( get_called_class() );
+        $log_mask = self::$registry->get( get_called_class() );
 
         self::$logger->set_logger_mask( 0 );
 
