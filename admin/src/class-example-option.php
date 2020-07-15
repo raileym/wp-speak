@@ -63,6 +63,18 @@ class Example_Option extends Basic
             $option = self::$wp_option->get( get_called_class() );
         }
 
+
+		self::$add_settings_section = self::$wp_settings->create_add_settings_section(
+            get_called_class() );
+
+
+		foreach(self::$fields as $field) {
+            self::$add_settings_field[$field] = self::$wp_settings->create_add_settings_field(
+                get_called_class(),
+                Admin::WPS_ADMIN.$field);
+		}
+
+
         $paragraph = <<<EOD
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis euismod ut nisl nec tincidunt. Donec quis tempus dui. 
 Nam venenatis ullamcorper metus, at semper velit. Pellentesque habitant morbi tristique senectus et netus et 
@@ -119,7 +131,7 @@ EOD;
              "args"=>array( "description" => $description_four_files )],
         ]);
 
-        register_setting(
+        self::$wp_settings->register_setting(
             WP_Option::$option[ get_called_class() ],
             WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_example_option")
@@ -178,25 +190,6 @@ EOD;
         return $arg_default_options;
     }
 
-    public function set_add_settings_section($arg_add_settings_section)
-	{
-		//assert( '!is_null($arg_registry)' );
-		self::$add_settings_section = $arg_add_settings_section->create(
-            get_called_class() );
-		return $this;
-	}
-	
-    public function set_add_settings_field($arg_add_settings_field)
-	{
-		//assert( '!is_null($arg_registry)' );
-		foreach(self::$fields as $field) {
-            self::$add_settings_field[$field] = $arg_add_settings_field->create(
-                get_called_class(),
-                Admin::WPS_ADMIN.$field);
-		}
-		return $this;
-	}
-	
 	public function set_db(DB $arg_db)
 	{
 		//assert( '!is_null($arg_logger)' );

@@ -65,6 +65,18 @@ class Image_Option extends Basic
             $option = self::$wp_option->get( get_called_class() );
         }
 
+
+		self::$add_settings_section = self::$wp_settings->create_add_settings_section(
+            get_called_class() );
+
+
+		foreach(self::$fields as $field) {
+            self::$add_settings_field[$field] = self::$wp_settings->create_add_settings_field(
+                get_called_class(),
+                Admin::WPS_ADMIN.$field);
+		}
+
+
         $paragraph = <<<EOD
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis euismod ut nisl nec tincidunt. Donec quis tempus dui. Nam venenatis ullamcorper metus, at semper velit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus interdum egestas aliquam. Etiam efficitur, dolor et dignissim sagittis, ante nunc pellentesque nulla, ut tempus diam sapien lacinia dui. Curabitur lobortis urna a faucibus volutpat. Sed eget risus pharetra, porta risus et, fermentum ligula. Mauris sed hendrerit ex, sed vulputate lorem. Duis in lobortis justo. Aenean mattis odio tortor, sit amet fermentum orci tempus ut. Donec vitae elit facilisis, tincidunt augue id, tempus elit. Nullam sapien est, gravida nec luctus non, rhoncus vitae magna. Fusce dolor justo, ultricies non efficitur vitae, interdum in tortor.
 EOD;
@@ -148,7 +160,7 @@ EOD;
 
         self::$registry->set( WP_Option::$option[ 'image_table' ], self::init_table_registry( self::$image_table ) );
 
-        register_setting(
+        self::$wp_settings->register_setting(
             WP_Option::$option[ get_called_class() ],
             WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_image_option")
@@ -405,25 +417,6 @@ EOF;
 		return $this;
 	}
 		
-    public function set_add_settings_section($arg_add_settings_section)
-	{
-		//assert( '!is_null($arg_registry)' );
-		self::$add_settings_section = $arg_add_settings_section->create(
-            get_called_class() );
-		return $this;
-	}
-	
-    public function set_add_settings_field($arg_add_settings_field)
-	{
-		//assert( '!is_null($arg_registry)' );
-		foreach(self::$fields as $field) {
-            self::$add_settings_field[$field] = $arg_add_settings_field->create(
-                get_called_class(),
-                Admin::WPS_ADMIN.$field);
-		}
-		return $this;
-	}
-	
 	public function set_db(DB $arg_db)
 	{
 		//assert( '!is_null($arg_logger)' );

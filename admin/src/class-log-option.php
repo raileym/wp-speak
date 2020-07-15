@@ -115,6 +115,17 @@ class Log_Option extends Basic
         }
 
 
+		self::$add_settings_section = self::$wp_settings->create_add_settings_section(
+            get_called_class() );
+
+
+		foreach(self::$fields as $field) {
+            self::$add_settings_field[$field] = self::$wp_settings->create_add_settings_field(
+                get_called_class(),
+                Admin::WPS_ADMIN.$field);
+		}
+
+
         $paragraph = <<<EOD
 Choose which type(s) of information is displayed in the WP log.
 EOD;
@@ -144,7 +155,7 @@ EOD;
             ["id"=>"log_registry",   "title"=>"Log REGISTRY",   "callback"=>Callback::CHECKBOX, "args"=>array( )],
         ]);
 
-        register_setting(
+        self::$wp_settings->register_setting(
             WP_Option::$option[ get_called_class() ],
             WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_log_option")
@@ -210,25 +221,6 @@ EOD;
         return $arg_default_options;
     }
 
-    public function set_add_settings_section($arg_add_settings_section)
-	{
-		//assert( '!is_null($arg_registry)' );
-		self::$add_settings_section = $arg_add_settings_section->create(
-            get_called_class() );
-		return $this;
-	}
-	
-    public function set_add_settings_field($arg_add_settings_field)
-	{
-		//assert( '!is_null($arg_registry)' );
-		foreach(self::$fields as $field) {
-            self::$add_settings_field[$field] = $arg_add_settings_field->create(
-                get_called_class(),
-                Admin::WPS_ADMIN.$field);
-		}
-		return $this;
-	}
-	
 	public function set_db(DB $arg_db)
 	{
 		//assert( '!is_null($arg_logger)' );

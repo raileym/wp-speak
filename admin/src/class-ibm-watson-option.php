@@ -14,12 +14,13 @@ class IBM_Watson_Option extends Basic
 
 	private static $add_settings_section;
 	private static $add_settings_field = array();
+
 	private static $section = "ibm_watson_option";    //"wp_speak_admin_ibm_watson_option"
 
     private static $filter;
 
 	private static $fields = array (
-            "wp_speak_admin_ibm_watson_option"
+            "ibm_watson"
 	    );
 
 	private static $default_options = array(
@@ -70,6 +71,17 @@ class IBM_Watson_Option extends Basic
         }
 
 
+		self::$add_settings_section = self::$wp_settings->create_add_settings_section(
+            get_called_class() );
+
+        
+		foreach(self::$fields as $field) {
+            self::$add_settings_field[$field] = self::$wp_settings->create_add_settings_field(
+                get_called_class(),
+                Admin::WPS_ADMIN.$field);
+		}
+
+
         $paragraph = <<<EOD
 Fill-in the details for your registration.
 EOD;
@@ -96,7 +108,7 @@ EOD;
                  "args"=>array( "label" => "ex: 20-chars, alphanumeric" )]
             ]);
 
-        register_setting(
+        self::$wp_settings->register_setting(
             WP_Option::$option[ get_called_class() ],
             WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_ibm_watson_option")
@@ -179,26 +191,6 @@ EOD;
         
     }
 
-    public function set_add_settings_section(
-        $arg_add_settings_section) {
-
-		//assert( '!is_null($arg_registry)' );
-		self::$add_settings_section = $arg_add_settings_section->create(
-            get_called_class() );
-		return $this;
-	}
-	
-    public function set_add_settings_field(
-        $arg_add_settings_field) {
-
-		//assert( '!is_null($arg_registry)' );
-		$field   = "ibm_watson";
-		self::$add_settings_field[$field] = $arg_add_settings_field->create(
-            get_called_class(),
-            Admin::WPS_ADMIN.$field);
-		return $this;
-	}
-	
 }
 
 ?>

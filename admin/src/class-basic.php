@@ -41,6 +41,14 @@ class Basic {
 
 
 	/**
+	 * $wp_settings is a handle to the Wordpress Settings API.
+	 *
+	 * @var WP_Settings $wp_settings.
+	 */
+	protected static $wp_settings;
+
+
+	/**
 	 * The function get_instance serves the role of returning an instance.
 	 * This function supports the Singleton creation pattern.
 	 */
@@ -80,6 +88,17 @@ class Basic {
 	 */
 	public function set_wp_option( WP_Option $arg_wp_option ) {
 		self::$wp_option = $arg_wp_option;
+		return $this;
+	}
+
+	/**
+	 * The function set_wp_settings sets the instance handle for access
+     * to the Wordpress Settings API.
+	 *
+	 * @param Logger $arg_wp_settings is a handle to a WP_Settings instance.
+	 */
+	public function set_wp_settings( WP_Settings $arg_wp_settings ) {
+		self::$wp_settings = $arg_wp_settings;
 		return $this;
 	}
 

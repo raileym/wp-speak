@@ -143,8 +143,9 @@ require( dirname(__FILE__)."/admin/src/class-option.php" );
 require( dirname(__FILE__)."/admin/src/class-logmask.php" );
 require( dirname(__FILE__)."/admin/src/class-basic.php" );
 require( dirname(__FILE__)."/admin/src/class-wp-option.php" );
-require( dirname(__FILE__)."/admin/src/class-add-settings-field.php" );
-require( dirname(__FILE__)."/admin/src/class-add-settings-section.php" );
+require( dirname(__FILE__)."/admin/src/class-wp-settings.php" );
+//require( dirname(__FILE__)."/admin/src/class-add-settings-field.php" );
+//require( dirname(__FILE__)."/admin/src/class-add-settings-section.php" );
 require( dirname(__FILE__)."/admin/src/class-db.php" );
 require( dirname(__FILE__)."/admin/src/class-sql.php" );
 require( dirname(__FILE__)."/admin/src/class-table.php" );
@@ -178,6 +179,7 @@ WP_Option::get_instance()
 
 Registry::get_instance()
     ->set_wp_option(WP_Option::get_instance())
+    ->set_wp_settings(WP_Settings::get_instance())
     ->set_logger(Logger::get_instance())
     ->set_mask(Logmask::$mask["log_registry"]);
 
@@ -206,11 +208,7 @@ Callback::get_instance()
     ->set_registry(Registry::get_instance())
     ->set_mask(Logmask::$mask["log_callback"]);
 
-Add_Settings_Field::get_instance()
-    ->set_logger(Logger::get_instance())
-    ->set_registry(Registry::get_instance());
-
-Add_Settings_Section::get_instance()
+WP_Settings::get_instance()
     ->set_logger(Logger::get_instance())
     ->set_registry(Registry::get_instance());
 
@@ -237,62 +235,57 @@ $img_image_table = Factory_Table::get_instance()->create('img_image');
 if ( is_admin() )
 {
     Admin::get_instance()
+        ->set_wp_settings(WP_Settings::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
         ->set_mask(Logmask::$mask["log_admin"]);
 
     IBM_Watson_Option::get_instance()
         ->set_wp_option(WP_Option::get_instance())
+        ->set_wp_settings(WP_Settings::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_ibm_watson"]);
 
     Register_Option::get_instance()
         ->set_wp_option(WP_Option::get_instance())
+        ->set_wp_settings(WP_Settings::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_register"]);
 
     Example_Option::get_instance()
         ->set_wp_option(WP_Option::get_instance())
+        ->set_wp_settings(WP_Settings::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_example"]);
 
     Log_Option::get_instance()
         ->set_wp_option(WP_Option::get_instance())
+        ->set_wp_settings(WP_Settings::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_log"]);
 
     Media_Option::get_instance()
         ->set_wp_option(WP_Option::get_instance())
+        ->set_wp_settings(WP_Settings::get_instance())
         ->set_image_table($image_table)
         ->set_img_table($img_table)
         ->set_img_image_table($img_image_table)
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_media"]);
 
     Image_Option::get_instance()
         ->set_wp_option(WP_Option::get_instance())
+        ->set_wp_settings(WP_Settings::get_instance())
         ->set_image_table($image_table)
         ->set_img_table($img_table)
         ->set_img_image_table($img_image_table)
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
-        ->set_add_settings_section(Add_Settings_Section::get_instance())
-        ->set_add_settings_field(Add_Settings_Field::get_instance())
         ->set_mask(Logmask::$mask["log_image"]);
 
     Admin::init();

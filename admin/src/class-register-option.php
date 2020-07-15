@@ -16,7 +16,7 @@ class Register_Option extends Basic
 	private static $add_settings_field = array();
 	private static $section = "register_option";    //"wp_speak_admin_register_option"
     private static $fields = array (
-            "wp_speak_admin_register_option"
+            "register"
 	    );
 	private static $default_options = array(
             "wp_speak_home"		     =>	"No home",
@@ -70,6 +70,18 @@ class Register_Option extends Basic
         }
 
 
+
+		self::$add_settings_section = self::$wp_settings->create_add_settings_section(
+            get_called_class() );
+
+
+		foreach(self::$fields as $field) {
+            self::$add_settings_field[$field] = self::$wp_settings->create_add_settings_field(
+                get_called_class(),
+                Admin::WPS_ADMIN.$field);
+		}
+
+
         $paragraph = <<<EOD
 Fill-in the details for your registration.
 EOD;
@@ -105,7 +117,7 @@ EOD;
              "args"=>array( "label" => "ex: http://wp-speak.com" )]
         ]);
         
-        register_setting(
+        self::$wp_settings->register_setting(
             WP_Option::$option[ get_called_class() ],
             WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_register_option")
@@ -168,25 +180,6 @@ EOD;
         return $arg_default_options;
     }
 
-    public function set_add_settings_section($arg_add_settings_section)
-	{
-		//assert( '!is_null($arg_registry)' );
-		self::$add_settings_section = $arg_add_settings_section->create(
-            get_called_class() );
-		return $this;
-	}
-	
-    public function set_add_settings_field($arg_add_settings_field)
-	{
-		//assert( '!is_null($arg_registry)' );
-		$section = "wp_speak_admin_register_option";
-		$field   = "register";
-		self::$add_settings_field[$field] = $arg_add_settings_field->create(
-            get_called_class(),
-            Admin::WPS_ADMIN.$field);
-		return $this;
-	}
-	
 	public function set_db(DB $arg_db)
 	{
 		//assert( '!is_null($arg_logger)' );
