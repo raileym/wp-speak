@@ -35,7 +35,7 @@ class Add_Settings_Field extends Basic
             $use_list[self::IDX_TITLE]    = $arg_list["title"];
 //            $use_list[self::IDX_CALLBACK] = array($arg_list["class"], $arg_list["callback"]);
             $use_list[self::IDX_CALLBACK] = $arg_list["callback"];
-            $use_list[self::IDX_PAGE]     = $use_page;
+            $use_list[self::IDX_PAGE]     = WP_Option::$option[ $use_page ];
             $use_list[self::IDX_SECTION]  = $use_section;
             $use_list[self::IDX_ARGS]     = $arg_list["args"];
 

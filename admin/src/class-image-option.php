@@ -57,12 +57,12 @@ class Image_Option extends Basic
     {
         self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
-        $option = self::$wp_option->get( WP_Option::$option[ get_called_class() ] );
+        $option = self::$wp_option->get( get_called_class() );
 
         if( !$option )
         {
-            self::$wp_option->update( WP_Option::$option[ get_called_class() ], self::filter_default_options( self::$default_options ) );
-            $option = self::$wp_option->get( WP_Option::$option[ get_called_class() ] );
+            self::$wp_option->update( get_called_class(), self::filter_default_options( self::$default_options ) );
+            $option = self::$wp_option->get( get_called_class() );
         }
 
         $paragraph = <<<EOD
@@ -408,7 +408,8 @@ EOF;
     public function set_add_settings_section($arg_add_settings_section)
 	{
 		//assert( '!is_null($arg_registry)' );
-		self::$add_settings_section = $arg_add_settings_section->create( WP_Option::$option[ get_called_class() ] );
+		self::$add_settings_section = $arg_add_settings_section->create(
+            get_called_class() );
 		return $this;
 	}
 	
@@ -416,7 +417,9 @@ EOF;
 	{
 		//assert( '!is_null($arg_registry)' );
 		foreach(self::$fields as $field) {
-            self::$add_settings_field[$field] = $arg_add_settings_field->create( WP_Option::$option[ get_called_class() ], Admin::WPS_ADMIN.$field);
+            self::$add_settings_field[$field] = $arg_add_settings_field->create(
+                get_called_class(),
+                Admin::WPS_ADMIN.$field);
 		}
 		return $this;
 	}

@@ -35,7 +35,7 @@ class Add_Settings_Section extends Basic
             $use_list[self::_ID]       = $arg_list["id"];
             $use_list[self::_TITLE]    = $arg_list["title"];
             $use_list[self::_CALLBACK] = function() use ($use_callback, $use_args) { return $use_callback( $use_args ); };
-            $use_list[self::_PAGE]     = $use_page;
+            $use_list[self::_PAGE]     = WP_Option::$option[ $use_page ];
 
             call_user_func_array("add_settings_section", $use_list);
             

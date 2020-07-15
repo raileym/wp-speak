@@ -27,7 +27,6 @@ class Test_Registry extends TestCase {
 
     private static $logger;
     private static $wp_option;
-    private static $array_registry;
     private static $table;
 
 
@@ -41,8 +40,6 @@ class Test_Registry extends TestCase {
 		self::$logger         = $this->createMock(Logger::class);
 
 		self::$wp_option      = $this->createMock(WP_Option::class);
-
-		self::$array_registry = $this->createMock(Array_Registry::class);
 
 		self::$table          = $this->createMock(Table::class);
 
@@ -64,7 +61,7 @@ class Test_Registry extends TestCase {
                      );
         
         self::$wp_option->expects($this->once())
-                        ->method('get_option')
+                        ->method('get')
                         ->with('bogus')
                         ->willReturn(false);
         
@@ -137,21 +134,21 @@ class Test_Registry extends TestCase {
                             'fake-03'=> 'FAKE-03', 
                             'fake-04'=> 'FAKE-04'));
         
-        self::$array_registry->expects($this->exactly(4))
-                             ->method('set')
-                             ->willReturn('Dont care')
-                             ->withConsecutive(
-                                 ['fake-01', 'FAKE-01'],
-                                 ['fake-02', 'FAKE-02'],
-                                 ['fake-03', 'FAKE-03'],
-                                 ['fake-04', 'FAKE-04']
-                             );
-        
         $registry = Registry::get_instance()
                   ->set_array_registry( self::$array_registry )
                   ->set_wp_option( self::$wp_option )
                   ->set_logger( self::$logger )
                   ->set_mask(Logmask::$mask['log_registry']);
+        
+        $registry->expects($this->exactly(4))
+                 ->method('set')
+                 ->willReturn('Dont care')
+                 ->withConsecutive(
+                     ['fake-01', 'FAKE-01'],
+                     ['fake-02', 'FAKE-02'],
+                     ['fake-03', 'FAKE-03'],
+                     ['fake-04', 'FAKE-04']
+                 );
         
         $registry->init_registry('fake', 
                                  array('fake-01', 

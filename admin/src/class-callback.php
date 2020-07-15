@@ -95,7 +95,7 @@ class Callback extends Basic
     public static function get_page_option($arg_page, $arg_option_name, $arg_command)
     {
         //$option = get_option( $arg_page );
-        $option = self::$wp_option->get($arg_page);
+        $option = self::$wp_option->get( $arg_page );
 
         if ( !isset( $option[$arg_option_name] ))
         {

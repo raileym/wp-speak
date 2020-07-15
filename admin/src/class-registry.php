@@ -81,14 +81,13 @@ class Registry extends Basic {
         $arg_page,
         $arg_name_list ) {
 
-        self::$logger->log( self::$mask, '************** init_registry **********************');
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
         self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
 
         /**
          * Grab my option based on $arg_page.
          */
-        $option = self::$wp_option->get( WP_Option::$option[ $arg_page ] );
+        $option = self::$wp_option->get( $arg_page );
 
         if ( false === $option ) {
 
@@ -112,7 +111,7 @@ class Registry extends Basic {
         self::$logger->log( self::$mask, 'From OPTIONS on init: ' . self::$logger->print_r( $option ) );
 
 
-        $this->set( WP_Option::$option[ $arg_page ], $option );
+        $this->set( $arg_page, $option );
 
         /**
          * We're done.
@@ -131,14 +130,13 @@ class Registry extends Basic {
         $arg_page,
         $arg_name_list ) {
 
-        self::$logger->log( self::$mask, '***************** init_log_registry *******************');
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
         self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
 
         /**
          * Grab my option based on $arg_page.
          */
-        $option = self::$wp_option->get( WP_Option::$option[ $arg_page ] );
+        $option = self::$wp_option->get( $arg_page );
 
         if ( false === $option ) {
 

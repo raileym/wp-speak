@@ -50,9 +50,9 @@ class WP_Option extends Basic
         $arg_option ) {
 
         assert( null !== $arg_option );
-        assert( in_array( $arg_option, self::$option ) );
+        assert( array_key_exists( $arg_option, self::$option ) );
 
-        return get_option( $arg_option );
+        return get_option( self::$option[ $arg_option ] );
     }
     
     /**
@@ -69,9 +69,9 @@ class WP_Option extends Basic
 
         assert( null !== $arg_option );
         assert( null !== $arg_value );
-        assert( in_array( $arg_option, self::$option ) );
+        assert( array_key_exists( $arg_option, self::$option ) );
         
-        return update_option( $arg_option , $arg_value );
+        return update_option( self::$option[ $arg_option ], $arg_value );
     }
     
 }
