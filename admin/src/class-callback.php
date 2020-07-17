@@ -46,7 +46,6 @@ class Callback extends Basic
     public static function element_checkbox_callback($arg_list)
     {
         $checked = self::get_page_option($arg_list["page"], $arg_list["element"], array("action"=>"checkbox", "value"=>1));
-        //$checked = "checked";
 
         $html = "<input type='checkbox' id='{$arg_list['element']}' name='{$arg_list['page']}[{$arg_list['element']}]' value=1 {$checked} />";
         $html .= (isset($arg_list["label"])) ? "<label for='{$arg_list['element']}'>{$arg_list['label']}</label>" : "";
@@ -94,8 +93,7 @@ class Callback extends Basic
 
     public static function get_page_option($arg_page, $arg_option_name, $arg_command)
     {
-        //$option = get_option( $arg_page );
-        $option = self::$wp_option->get( $arg_page );
+        $option = get_option($arg_page);
 
         if ( !isset( $option[$arg_option_name] ))
         {

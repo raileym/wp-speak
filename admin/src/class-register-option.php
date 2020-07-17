@@ -19,13 +19,13 @@ class Register_Option extends Basic
             "register"
 	    );
 	private static $default_options = array(
-            "wp_speak_home"		     =>	"No home",
-            "is_registered"			 =>	"Not registered",
+            "register_home"		     =>	"No home",
+            "register_is_registered" =>	"Not registered",
             "register_message"		 =>	"No message",
             "register_user_name"	 =>	"No user name",
             "register_user_password" =>	"No user password",
-            "shorturl_home"			 =>	"No shorturl",
-            "status_name"			 =>	"No status"
+            "register_shorturl_home" =>	"No shorturl",
+            "register_status_name"	 =>	"No status"
         );
 
 
@@ -36,6 +36,17 @@ class Register_Option extends Basic
             "admin_init",
             array(get_class(), "init")); 
 
+	}
+	
+    public function get_section() {
+        return self::$section;
+    }
+    
+    /**
+     *	Orchestrates the creation of the Register Panel
+     */
+    public static function init($arg1)
+    {
         add_action(
             Action::$init[get_called_class()],
             array(self::$registry, "init_registry"),
@@ -48,17 +59,6 @@ class Register_Option extends Basic
             Callback::EXPECT_DEFAULT_PRIORITY,
             Callback::EXPECT_TWO_ARGUMENTS);
         
-	}
-	
-    public function get_section() {
-        return self::$section;
-    }
-    
-    /**
-     *	Orchestrates the creation of the Register Panel
-     */
-    public static function init($arg1)
-    {
         self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
         $option = self::$wp_option->get( get_called_class() );
@@ -106,13 +106,13 @@ EOD;
              "callback"=>Callback::INPUT,
              "args"=>array( "label" => "ex: 20-chars, alphanumeric" )],
 
-            ["id"=>"shorturl_home",
+            ["id"=>"register_shorturl_home",
              "title"=>"ShortURL Home",
              "callback"=>Callback::INPUT,
              "args"=>array( "label" => "ex: http://wps.io" )],
 
-            ["id"=>"wp_speak_home",
-             "title"=>"WP_Speak Home",
+            ["id"=>"register_home",
+             "title"=>"Home",
              "callback"=>Callback::INPUT,
              "args"=>array( "label" => "ex: http://wp-speak.com" )]
         ]);
@@ -126,7 +126,7 @@ EOD;
         do_action(
             Action::$init[get_called_class()],
             get_called_class(),
-            $option );
+            Option::$OPTION_LIST[self::$section] );
     }
 
     public function validate_register_option( $arg_input )
@@ -155,21 +155,25 @@ EOD;
             }
         }
 
-        add_settings_error( 'register_user_name', 'User Name', 'Incorrect user name entered!', 'error' );
-        add_settings_error( 'register_user_password', 'User Password', 'Incorrect password entered!', 'warning' );
-        add_settings_error( 'register_user_password', 'User Password', 'Incorrect password entered!', 'info' );
-        add_settings_error( 'register_user_password', 'User Password', 'Incorrect password entered!', 'success' );
+        self::$wp_settings->add_settings_error( 'register_user_name', 'User Name', 'Incorrect user name entered!', 'error' );
+        self::$wp_settings->add_settings_error( 'register_user_password', 'User Password', 'Incorrect password entered!', 'warning' );
+        self::$wp_settings->add_settings_error( 'register_user_password', 'User Password', 'Incorrect password entered!', 'info' );
+        self::$wp_settings->add_settings_error( 'register_user_password', 'User Password', 'Incorrect password entered!', 'success' );
 
-        $output["is_registered"]    = TRUE;
-        $output["register_message"] = "Register Message blah blah";
-        $output["status_name"]      = "Status Name blah blah";
-        $output["register_domain"]  = "Register Domain blah blah";
+        $output["register_is_registered"] = TRUE;
+        $output["register_message"]       = "Register Message blah blah";
+        $output["register_status_name"]   = "Status Name blah blah";
+        $output["register_domain"]        = "Register Domain blah blah";
 
+        //error_log("ABOVE");
         // Return the new collection
-        return apply_filters(
+        $output = apply_filters(
             Filter::$validate[get_called_class()],
             $output,
             Option::$OPTION_LIST[self::$section]);
+        //error_log("BELOW");
+
+        return $output;
     }
 
     /**

@@ -53,6 +53,7 @@ class Basic {
 	 * This function supports the Singleton creation pattern.
 	 */
 	public static function get_instance() {
+        //error_log(" ");
 		if ( is_null( static::$instance ) ) {
 			$class            = get_called_class();
 			static::$instance = new $class();
@@ -67,6 +68,7 @@ class Basic {
 	 * @param Logger $arg_logger is a handle to a Logger instance.
 	 */
 	public function set_logger( Logger $arg_logger ) {
+        //error_log( get_called_class() . ": " . __FUNCTION__ );
 		self::$logger = $arg_logger;
 		return $this;
 	}
@@ -77,6 +79,7 @@ class Basic {
 	 * @param int $arg_mask is the integer mask specific to the binding class.
 	 */
 	public function set_mask( $arg_mask ) {
+        //error_log( get_called_class() . ": " . __FUNCTION__ );
 		static::$mask = $arg_mask;
 		return $this;
 	}
@@ -87,6 +90,7 @@ class Basic {
 	 * @param Logger $arg_wp_option is a handle to a WP_Option instance.
 	 */
 	public function set_wp_option( WP_Option $arg_wp_option ) {
+        //error_log( get_called_class() . ": " . __FUNCTION__ );
 		self::$wp_option = $arg_wp_option;
 		return $this;
 	}
@@ -98,6 +102,7 @@ class Basic {
 	 * @param Logger $arg_wp_settings is a handle to a WP_Settings instance.
 	 */
 	public function set_wp_settings( WP_Settings $arg_wp_settings ) {
+        //error_log( get_called_class() . ": " . __FUNCTION__ );
 		self::$wp_settings = $arg_wp_settings;
 		return $this;
 	}
@@ -108,6 +113,7 @@ class Basic {
 	 * @param Registry $arg_registry is a handle to a Registry instance.
 	 */
 	public function set_registry( Registry $arg_registry ) {
+        //error_log( get_called_class() . ": " . __FUNCTION__ );
 		self::$registry = $arg_registry;
 		return $this;
 	}

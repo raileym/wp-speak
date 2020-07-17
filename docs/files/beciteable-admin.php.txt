@@ -1,0 +1,1323 @@
+<?php
+/**
+ * beciteable-admin.php - Creates admin page, validates entries, and manages settings
+ *
+ * Copyright (C) 2014 Malcolm Railey <malcolm@beciteable.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @author    Malcolm Railey <malcolm@beciteable.com>
+ * @copyright Malcolm Railey 2014
+ * @license   http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link      http://beciteable.com
+ * @version   1.0
+ * @filesource
+ */
+
+
+interface Beciteable_Admin
+{
+	/** Qualifies references that are scoped globally */
+	const BCA_ADMIN = "beciteable_admin_";
+	
+	
+	
+	/** For add_action: use default priority of 10 */
+	const EXPECT_DEFAULT_PRIORITY = 10;
+
+	/** For add_action: expect zero arguments */
+	const EXPECT_ZERO_ARGUMENTS = 0;
+
+	/** For add_action: expect one argument */
+	const EXPECT_ONE_ARGUMENT = 1;
+
+	/** For add_action: expect two arguments */
+	const EXPECT_TWO_ARGUMENTS = 2;
+
+
+
+	public function init_page();
+	public function display_page_callback( $arg_active_tab );
+
+	public function init_cache_option();
+	public function init_debug_option() ;
+	public function init_format_option();
+	public function init_log_option();
+	public function init_register_option() ;
+	public function init_copyright_option() ;
+
+	public function cache_section_callback();
+	public function debug_section_callback();
+	public function format_section_callback();
+	public function log_section_callback();
+	public function register_section_callback();
+	public function copyright_section_callback();
+
+	public function default_cache_option();
+	public function default_debug_option();
+	public function default_format_option();
+	public function default_log_option();
+	public function default_register_option();
+	public function default_copyright_option();
+
+	public function validate_cache_option( $arg_input );
+	public function validate_debug_option( $arg_input );
+	public function validate_format_option( $arg_input );
+	public function validate_log_option( $arg_input );
+	public function validate_register_option( $arg_input );
+	public function validate_copyright_option( $arg_input );
+
+	public function checkbox_callback($arg_list);
+	public function radio_element_callback($arg_list);
+	public function select_element_callback($arg_list);
+	public function get_callback($arg_list);
+	public function get_page_option($arg_page, $arg_option_name, $arg_command);
+}
+
+
+
+// Class set-up motivated in part by Christopher Davis's discussion
+// of the same.
+//
+// See http://wptip.me/classes-in-wordpress-plugins-themes
+//
+// See http://code.tutsplus.com/tutorials/the-complete-guide-to-the-wordpress-settings-api-part-1-what-it-is-why-it-matters--wp-24060
+//
+
+if ( is_admin() )
+{
+	/**
+	 * Beciteable_AdminImpl is a concrete class that orchestrates the creation
+	 * of the Beciteable admin page, the application of validation routines, and 
+	 * the registration of settings.
+	 */
+	class Beciteable_AdminImpl implements Beciteable_Admin
+	{
+		/**
+		 * For the Singleton
+		 * 
+		 * @var Beciteable_AdminImpl
+		 */
+		private static $_instance;
+
+		/**
+		 * HTML representation of the Beciteable logo (left, center, or right)
+		 * 
+		 * @var string
+		 */
+		private static $_logo;
+
+		/**
+		 * HTML representation of the Beciteable tagline
+		 * 
+		 * @var string
+		 */
+		private static $_tagline;
+
+
+		/**
+		 * Singleton
+		 */
+		public static function get_instance()
+		{
+			is_null(self::$_instance) && self::$_instance = new self;
+			return self::$_instance;
+		}
+
+		/**
+		 * Per Singleton
+		 */
+		private function __construct() { }
+
+		
+		/**
+		 * Generate HTML that expresses the look of the Beciteable
+		 * logo, positioned left, center, or right.
+		 *
+		 * @param string $arg_position    left, center, or right
+		 * @return string                 HTML Representation
+		 */
+		public static function print_logo($arg_position)
+		{
+			return<<<EOD
+<div class="bca-site-title-box">
+	<div class="bca-site-title bca-site-{$arg_position}">
+		<div class="bca-site-logo">
+		<img src="http://beciteable.com/images/beciteable-logo-orange-on-white-75x76.png">
+		</div>
+		<div class="bca-site-tagline">
+		be<span class="bca-site-dot">·</span><span class="bca-site-cite">cite</span><span class="bca-site-dot">·</span>able
+		</div>
+	</div>
+	<div class="bca-site-break"></div>
+</div>
+EOD;
+		}
+
+
+		/**
+		 * Generate HTML that expresses the look of the Beciteable tagline.
+		 */
+		public static function print_tagline()
+		{
+			return<<<EOD
+Be<span class="bca-dot">•</span>cite<span class="bca-dot">•</span>able
+EOD;
+		}
+
+
+		/**
+		 * Primary routine that sets up all callbacks for add_action and add_filter.
+		 */
+		public static function init()
+		{
+			self::$_logo = self::print_logo("center");
+			self::$_tagline = self::print_tagline();
+
+			add_action("admin_menu", array(self::get_instance(), "init_page"));
+
+			// Order is significant.  Do the Log activities first so that we
+			// can self report as we go along in this class.
+			//
+			add_action("admin_init", array(self::get_instance(), "init_log_option"));
+			add_action("admin_init", array(self::get_instance(), "init_debug_option"));
+			add_action("admin_init", array(self::get_instance(), "init_cache_option"));
+			add_action("admin_init", array(self::get_instance(), "init_format_option"));
+			add_action("admin_init", array(self::get_instance(), "init_register_option"));
+			add_action("admin_init", array(self::get_instance(), "init_copyright_option"));
+
+			add_action(self::BCA_ADMIN."init_log_option",           array(Beciteable_RegistryImpl::get_instance(), "init_log_registry"),   self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_action(self::BCA_ADMIN."init_cache_option",         array(Beciteable_RegistryImpl::get_instance(), "init_registry"),       self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_action(self::BCA_ADMIN."init_debug_option",         array(Beciteable_RegistryImpl::get_instance(), "init_registry"),       self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_action(self::BCA_ADMIN."init_format_option",        array(Beciteable_RegistryImpl::get_instance(), "init_registry"),       self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_action(self::BCA_ADMIN."init_register_option",      array(Beciteable_RegistryImpl::get_instance(), "init_registry"),       self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_action(self::BCA_ADMIN."init_copyright_option",     array(Beciteable_RegistryImpl::get_instance(), "init_copyright"),      self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+
+			add_filter(self::BCA_ADMIN."validate_log_option",       array(Beciteable_RegistryImpl::get_instance(), "update_log_registry"), self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_filter(self::BCA_ADMIN."validate_cache_option",     array(Beciteable_RegistryImpl::get_instance(), "update_registry"),     self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_filter(self::BCA_ADMIN."validate_debug_option",     array(Beciteable_RegistryImpl::get_instance(), "update_registry"),     self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_filter(self::BCA_ADMIN."validate_format_option",    array(Beciteable_RegistryImpl::get_instance(), "update_registry"),     self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_filter(self::BCA_ADMIN."validate_register_option",  array(Beciteable_RegistryImpl::get_instance(), "update_registry"),     self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+			add_filter(self::BCA_ADMIN."validate_copyright_option", array(Beciteable_RegistryImpl::get_instance(), "update_copyright"),    self::BCA_EXPECT_DEFAULT_PRIORITY, self::EXPECT_TWO_ARGUMENTS);
+		}
+
+
+		public function init_page()
+		{
+			add_options_page(
+				"Be•cite•able Options",  // The value used to populate the browser"s title bar when the menu page is active
+				self::$_tagline,         // The text of the menu in the administrator's sidebar
+				"administrator",         // What roles are able to access the menu
+				"beciteable_admin",      // The ID used to bind submenu items to this menu
+				array(self::get_instance(), "display_page_callback")	// The callback function used to render this menu
+			);
+
+
+			// Build my Comm Object.  Would like a better approach, but
+			// am going to stick to exposing these Factory Operations until
+			// I decide otherwise.
+			//
+			Beciteable_StorageImpl::get_instance()
+				->set_logger(Beciteable_LoggerImpl::get_instance());
+
+			Beciteable_UrlImpl::get_instance()
+				->set_http(Beciteable_HttpImpl::get_instance())
+				->set_json(Beciteable_JsonImpl::get_instance())
+				->set_logger(Beciteable_LoggerImpl::get_instance())
+				->set_registry(Beciteable_ArrayRegistryImpl::get_instance());
+
+			Beciteable_CommImpl::get_instance()
+				->set_http(Beciteable_HttpImpl::get_instance())
+				->set_json(Beciteable_JsonImpl::get_instance())
+				->set_logger(Beciteable_LoggerImpl::get_instance())
+				->set_registry(Beciteable_ArrayRegistryImpl::get_instance())
+				->set_storage(Beciteable_StorageImpl::get_instance())
+				->set_url(Beciteable_UrlImpl::get_instance())
+				->set_validate(Beciteable_ValidateImpl::get_instance());
+		}
+
+
+		public function display_page_callback( $arg_active_tab = null )
+		{
+			$logo = self::$_logo;
+			$tagline = self::$_tagline;
+
+			if( isset( $_GET[ "tab" ] ) )
+			{
+				$arg_active_tab = $_GET[ "tab" ];
+			}
+
+			$option = get_option(Beciteable_Option::$REGISTER);
+
+			// TBD: Use array for these values
+			//
+			$active_tab["cache_option"]     = "";
+			$active_tab["debug_option"]     = "";
+			$active_tab["format_option"]    = "";
+			$active_tab["log_option"]       = "";
+			$active_tab["register_option"]  = "";
+			$active_tab["copyright_option"] = "";
+
+			switch($arg_active_tab)
+			{
+				case "copyright_option":
+
+					ob_start();
+					settings_fields( Beciteable_Option::$COPYRIGHT );
+					do_settings_sections( Beciteable_Option::$COPYRIGHT );
+					$active_tab["copyright_option"] = "nav-tab-active";
+					$settings_section = ob_get_clean();
+					break;
+
+				case "register_option":
+
+					ob_start();
+					settings_fields( Beciteable_Option::$REGISTER );
+					do_settings_sections( Beciteable_Option::$REGISTER );
+					$active_tab["register_option"] = "nav-tab-active";
+					$settings_section = ob_get_clean();
+					break;
+
+				case "format_option":
+
+					ob_start();
+					settings_fields( Beciteable_Option::$FORMAT );
+					do_settings_sections( Beciteable_Option::$FORMAT );
+					$active_tab["format_option"] = "nav-tab-active";
+					$settings_section = ob_get_clean();
+					break;
+
+				case "cache_option":
+
+					ob_start();
+					settings_fields( Beciteable_Option::$CACHE );
+					do_settings_sections( Beciteable_Option::$CACHE );
+					$active_tab["cache_option"] = "nav-tab-active";
+					$settings_section = ob_get_clean();
+					break;
+
+				case "log_option":
+
+					ob_start();
+					settings_fields( Beciteable_Option::$LOG );
+					do_settings_sections( Beciteable_Option::$LOG );
+					$active_tab["log_option"] = "nav-tab-active";
+					$settings_section = ob_get_clean();
+					break;
+
+				case "debug_option":
+				default:
+
+					ob_start();
+					settings_fields( Beciteable_Option::$DEBUG );
+					do_settings_sections( Beciteable_Option::$DEBUG );
+					$active_tab["debug_option"] = "nav-tab-active";
+					$settings_section = ob_get_clean();
+			}
+
+
+			ob_start();
+			settings_errors(NULL, NULL, TRUE);
+			$settings_errors = ob_get_clean();
+
+
+			ob_start();
+			submit_button();
+			$submit_button = ob_get_clean();
+
+			if ($option["is_registered"])
+			{
+				$status = "<div class='bca-register-status bca-is-registered'>{$option['register_message']}: {$option['status_name']}</div>";
+			}
+			else
+			{
+				$status = "<div class='bca-register-status'>{$option['register_message']}</div>";
+			}
+
+			echo<<<EOD
+<!-- Create a header in the default WordPress 'wrap' container -->
+<div class="wrap">
+
+	<!-- Add the icon to the page -->
+	{$logo}
+    <h2>{$tagline} Options</h2>
+
+    <!-- Make a call to the WordPress function for rendering errors when settings are saved. -->
+    {$settings_errors}
+
+	<h2 class="nav-tab-wrapper">
+		<a href="?page=beciteable_admin&tab=debug_option" class="nav-tab {$active_tab['debug_option']}">Debug Options</a>
+		<a href="?page=beciteable_admin&tab=register_option" class="nav-tab {$active_tab['register_option']}">Register Options</a>
+		<a href="?page=beciteable_admin&tab=format_option" class="nav-tab {$active_tab['format_option']}">Format Options</a>
+		<a href="?page=beciteable_admin&tab=log_option" class="nav-tab {$active_tab['log_option']}">Log Options</a>
+		<a href="?page=beciteable_admin&tab=cache_option" class="nav-tab {$active_tab['cache_option']}">Cache Options</a>
+		<a href="?page=beciteable_admin&tab=copyright_option" class="nav-tab {$active_tab['copyright_option']}">Copyright Options</a>
+	</h2>
+
+	<!-- Create the form that will be used to render our options -->
+	<form method="post" action="options.php">
+		{$settings_section}
+		{$submit_button}
+	</form>
+</div><!-- /.wrap -->
+<script type="text/javascript">
+jQuery(document).ready(function() {
+	jQuery("{$status}").insertBefore("form");
+});
+</script>
+EOD;
+
+		}
+
+
+// -------------------------------------------------------------------------------------------------
+
+
+		public function init_copyright_option()
+		{
+			$page = Beciteable_Option::$COPYRIGHT;
+
+			if( FALSE == get_option( $page ) )
+			{
+				add_option( $page, apply_filters( self::BCA_ADMIN."default_copyright_option", $this->default_copyright_option() ) );
+			}
+
+
+			// Author Section
+			//
+			$section = "author_section";
+			add_settings_section(
+				self::BCA_ADMIN.$section,
+				"Author Settings",
+				array(self::get_instance(), $section."_callback"),
+				$page
+			);
+
+			$name = "copyright_author";
+			$description =<<<EOD
+Please provide the name -- your point-of-contact -- as it should appear in your Copyright Notice.
+This name will be updated in your Notice when you save your citation.
+EOD;
+			add_settings_field(
+				$name,
+				"Copyright Author",
+				array(self::get_instance(), "get_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"description" => $description
+				)
+			);
+
+			$name = "copyright_email";
+			$description =<<<EOD
+Please provide the email address as it should appear in your Copyright Notice so that others can
+contact you regarding your Notice. Like your name above, your email address will be updated in your
+Notice when you save your citation.
+EOD;
+			add_settings_field(
+				$name,
+				"Copyright E-mail Address",
+				array(self::get_instance(), "get_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"description" => $description
+				)
+			);
+
+
+			// Notice Section
+			//
+			$section = "notice_section";
+			add_settings_section(
+				self::BCA_ADMIN.$section,
+				"Notice Settings",
+				array(self::get_instance(), $section."_callback"),
+				$page
+			);
+
+			$name = "use_default_notice";
+			$description =<<<EOD
+Please choose whether to use a default Copyright Notice or a custom Notice.  This
+Notice will appear in the HTML header section of each web page that includes
+your citation. Select either default Copyright Notice or the custom Notice.
+EOD;
+			add_settings_field(
+				$name,
+				"Use Default Notice",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"description" => $description
+				)
+			);
+
+
+			register_setting(
+				$page,
+				$page,
+				array(self::get_instance(), "validate_copyright_option")
+			);
+
+			do_action( self::BCA_ADMIN.__FUNCTION__, $page, Beciteable_Option::$COPYRIGHT_LIST );
+		}
+
+
+		public function init_cache_option()
+		{
+			$page = Beciteable_Option::$CACHE;
+
+			if( FALSE == get_option( $page ) )
+			{
+				add_option( $page, apply_filters( self::BCA_ADMIN."default_cache_option", $this->default_cache_option() ) );
+			}
+
+
+			// Cache Section
+			//
+			$section = "cache_section";
+			add_settings_section(
+				self::BCA_ADMIN.$section,
+				"Cache Settings",
+				array(self::get_instance(), $section."_callback"),
+				$page
+			);
+
+			$name = "use_cache_shorturl";
+			add_settings_field(
+				$name,
+				"Use SHORTURL CACHE",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+
+
+			register_setting(
+				$page,
+				$page,
+				array(self::get_instance(), "validate_cache_option")
+			);
+
+			do_action( self::BCA_ADMIN.__FUNCTION__, $page, Beciteable_Option::$CACHE_LIST );
+		}
+
+
+		public function init_debug_option()
+		{
+			$page = Beciteable_Option::$DEBUG;
+
+			if( FALSE == get_option( $page ) )
+			{
+				add_option( $page, apply_filters( self::BCA_ADMIN."default_debug_option", $this->default_debug_option() ) );
+			}
+
+
+			// Debug Section
+			//
+			$section = "debug_section";
+			add_settings_section(
+				self::BCA_ADMIN.$section,
+				"Debug",
+				array(self::get_instance(), $section."_callback"),
+				$page
+			);
+
+			$name = "expand_shorturl";
+			add_settings_field(
+				$name,
+				"Expand SHORTURL",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+	
+			$name = "show_iframe";
+			add_settings_field(
+				$name,
+				"Show IFRAME",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+	
+			$name = "show_comm";
+			add_settings_field(
+				$name,
+				"Show COMM",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+
+
+			register_setting(
+				$page,
+				$page,
+				array(self::get_instance(), "validate_debug_option")
+			);
+
+			do_action( self::BCA_ADMIN.__FUNCTION__, $page, Beciteable_Option::$DEBUG_LIST );
+		}
+
+
+		public function init_log_option()
+		{
+			$page = Beciteable_Option::$LOG;
+
+			if( FALSE == get_option( $page ) )
+			{
+				add_option( $page, apply_filters( self::BCA_ADMIN."default_log_option", $this->default_debug_option() ) );
+			}
+
+
+			// Debug Log Section
+			//
+			$section = "log_section";
+			add_settings_section(
+				self::BCA_ADMIN.$section,
+				"Debug Logs",
+				array(self::get_instance(), $section."_callback"),
+				$page
+			);
+
+			$name = "log_admin";
+			add_settings_field(
+				$name,
+				"Log ADMIN",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+	
+			$name = "log_cache";
+			add_settings_field(
+				$name,
+				"Log CACHE",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+	
+			$name = "log_comm";
+			add_settings_field(
+				$name,
+				"Log COMM",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+
+			$name = "log_custom";
+			add_settings_field(
+				$name,
+				"Log CUSTOM",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+
+			$name = "log_enqueue";
+			add_settings_field(
+				$name,
+				"Log ENQUEUE",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+
+			$name = "log_precache";
+			add_settings_field(
+				$name,
+				"Log PRE-CACHE",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				self::BCA_ADMIN.$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+
+			register_setting(
+				$page,
+				$page,
+				array(self::get_instance(), "validate_log_option")
+			);
+
+			do_action( self::BCA_ADMIN.__FUNCTION__, $page, Beciteable_Option::$LOG_LIST ); 
+		}
+
+
+
+
+		public function init_format_option()
+		{
+			$page = Beciteable_Option::$FORMAT;
+
+			// If the Register Options don't exist, create them.
+			if( FALSE == get_option( $page ) )
+			{
+				add_option( $page, apply_filters( self::BCA_ADMIN."default_format_option", $this->default_format_option() ) );
+			}
+
+			$section = "format_section";
+			add_settings_section(
+				$section,          			// ID used to identify this section and with which to register options
+				"Format Options",
+				array(self::get_instance(), $section."_callback"), // Callback used to render the description of the section
+				$page						// Page on which to add this section of options
+			);
+
+			$name = "use_shorturl";
+			add_settings_field(
+				$name,
+				"Use SHORTURL",                          
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"label"	=> "Use URL Shortening for references to citations."
+				)
+			);
+
+			$name = "use_powered_by";
+			add_settings_field(
+				$name,
+				"Use POWERED BY",                          
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"label"	=> "Add Powered By Cite Reference to the bottom of your citations."
+				)
+			);
+
+			$name = "use_grey_logo";
+			add_settings_field(
+				$name,
+				"Use GREY LOGO",                          
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"label"	=> "Use the Grey CITE Logo."
+
+				)
+			);
+
+			$name = "use_extended_copyright";
+			add_settings_field(
+				$name,
+				"Use GREY LOGO",                          
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"label"	=> "Add the extended version of Cite references."
+
+				)
+			);
+
+			$name = "textarea_element";
+			add_settings_field(
+				$name,
+				"Textarea Element",                       
+				array(self::get_instance(), "get_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+
+			$name = "checkbox_element";
+			add_settings_field(
+				$name,
+				"Checkbox Element",
+				array(self::get_instance(), "checkbox_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"label"	=> "This is an example of a checkbox"
+				)
+			);
+
+			$name = "radio_element";
+			add_settings_field(
+				$name,
+				"Radio Button Elements",
+				array(self::get_instance(), "radio_element_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+
+			$name = "select_element";
+			add_settings_field(
+				$name,
+				"Select Element",
+				array(self::get_instance(), "select_element_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name
+				)
+			);
+
+
+			register_setting(
+				$page,
+				$page,
+				array(self::get_instance(), "validate_format_option")
+			);
+
+			do_action( self::BCA_ADMIN.__FUNCTION__, $page, Beciteable_Option::$FORMAT_LIST );
+		}
+
+
+		public function init_register_option()
+		{
+			$page = Beciteable_Option::$REGISTER;
+
+			// If the Register Options don't exist, create them.
+			if( FALSE == get_option( $page ) )
+			{
+				add_option( $page, apply_filters( self::BCA_ADMIN."default_register_option", $this->default_register_option() ) );
+			}
+
+			$section = "register_section";
+			add_settings_section(
+				$section,
+				"Register Options",
+				array(self::get_instance(), $section."_callback"),
+				$page
+			);   
+
+			$name = "register_user_name";
+			add_settings_field(
+				$name,
+				"Register User Name",                        
+				array(self::get_instance(), "get_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"label"	=> "ex: 20-chars, alphanumeric"
+				)
+			);
+
+			$name = "register_user_password";
+			add_settings_field(
+				$name,
+				"Register User Password",                       
+				array(self::get_instance(), "get_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"label"	=> "ex: 12-chars, alphanumeric"
+				)
+			);
+
+			$name = "shorturl_home";
+			add_settings_field(
+				$name,
+				"ShortURL Home",                        
+				array(self::get_instance(), "get_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"label"	=> "ex: http://bca.io"
+				)
+			);
+
+			$name = "beciteable_home";
+			add_settings_field(
+				$name,
+				"Beciteable Home",                        
+				array(self::get_instance(), "get_callback"),
+				$page,
+				$section,
+				array(
+					"page"	=> $page,
+					"name"	=> $name,
+					"label"	=> "ex: http://beciteable.com"
+				)
+			);
+
+
+			register_setting(
+				$page,
+				$page,
+				array(self::get_instance(), "validate_register_option")
+			);
+
+			do_action( self::BCA_ADMIN.__FUNCTION__, $page, Beciteable_Option::$REGISTER_LIST );
+		}
+
+
+// -------------------------------------------------------------------------------------------------
+
+
+		/* ------------------------------------------------------------------------ *
+		 * Section Callbacks
+		 * ------------------------------------------------------------------------ */
+
+		public function debug_section_callback()
+		{
+			echo<<<EOD
+<p>Select which type of additional messages you want displayed
+when using the BECITEABLE API.</p>
+EOD;
+		}
+
+
+		public function log_section_callback()
+		{
+			echo "<p>Choose which type(s) of information is displayed in the WP log.</p>";
+		}
+
+
+		public function cache_section_callback()
+		{
+			echo "<p>Choose whether to engage certain cache(s).</p>";
+		}
+
+
+		public function register_section_callback()
+		{
+			echo "<p>Provide the URL to the social networks you\"d like to display.</p>";
+		}
+
+
+		public function format_section_callback()
+		{
+			echo "<p>Provides examples of the five basic element types.</p>";
+		}
+
+
+// -------------------------------------------------------------------------------------------------
+
+
+		/**
+		 * Provides default values for the Cache Options.
+		 */
+		public function default_cache_option()
+		{
+			$defaults = array(
+				"use_cache_shorturl"	=>	""
+			);
+
+			return $defaults;
+		}
+
+
+		/**
+		 * Provides default values for the Debug Options.
+		 */
+		public function default_debug_option()
+		{
+			$defaults = array(
+				"expand_shorturl"		=>	"",
+				"show_iframe"			=>	"",
+				"show_comm"				=>	""
+			);
+
+			return $defaults;
+		}
+
+
+		/**
+		 * Provides default values for the Debug Options.
+		 */
+		public function default_log_option()
+		{
+			$defaults = array(
+				"log_admin"				=>	1,
+				"log_cache"				=>	"",
+				"log_precache"			=>	"",
+				"log_custom"			=>	"",
+				"log_comm"				=>	"",
+				"log_enqueue"			=>	""
+			);
+
+			return $defaults;
+		}
+
+
+		/**
+		 * Provides default values for the Format Options.
+		 */
+		public function default_format_option()
+		{
+			$defaults = array(
+				"input_example"		=>	"",
+				"textarea_example"	=>	"",
+				"checkbox_example"	=>	"",
+				"radio_example"		=>	"",
+				"time_options"		=>	"default"
+			);
+
+			return $defaults;
+		}
+
+
+		/**
+		 * Provides default values for the Register Options.
+		 */
+		public function default_register_option()
+		{
+			$defaults = array(
+				"register_user_name"	 =>	"",
+				"register_user_password" =>	"",
+				"shorturl_home"			 =>	"",
+				"beciteable_home"		 =>	""
+			);
+
+			return $defaults;
+		}
+
+
+// -------------------------------------------------------------------------------------------------
+
+
+		/**
+		 * Validate values for Cache Options.
+		 */
+		public function validate_cache_option( $arg_input )
+		{
+			// Define the array for the updated options
+			$output = array();
+
+			if ( !isset($arg_input) )
+			{
+				return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$CACHE_LIST);
+			}
+
+			// Loop through each of the options sanitizing the data
+			foreach( $arg_input as $key => $val )
+			{
+				if( isset ( $arg_input[$key] ) )
+				{
+					$output[$key] = $arg_input[$key];
+					//$output[$key] = esc_url_raw( strip_tags( stripslashes( $arg_input[$key] ) ) );
+				}
+			}
+	
+			// Return the new collection
+			return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$CACHE_LIST);
+		}
+
+		/**
+		 * Validate values for Debug Options.
+		 */
+		public function validate_debug_option( $arg_input )
+		{
+			// Define the array for the updated options
+			$output = array();
+
+			if ( !isset($arg_input) )
+			{
+				return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$LOG_LIST);
+			}
+
+			// Loop through each of the options sanitizing the data
+			foreach( $arg_input as $key => $val )
+			{
+				if( isset ( $arg_input[$key] ) )
+				{
+					$output[$key] = $arg_input[$key];
+				}
+			}
+	
+			// Return the new collection
+			return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$LOG_LIST);
+		}
+
+
+		/**
+		 * Validate values for Debug Options.
+		 */
+		public function validate_log_option( $arg_input )
+		{
+			// Define the array for the updated options
+			$output = array();
+
+			if ( !isset($arg_input) )
+			{
+				return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$LOG_LIST);
+			}
+
+			// Loop through each of the options sanitizing the data
+			foreach( $arg_input as $key => $val )
+			{
+				if( isset ( $arg_input[$key] ) )
+				{
+					$output[$key] = $arg_input[$key];
+				}
+			}
+	
+			// Return the new collection
+			return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$LOG_LIST );
+		}
+
+
+		/**
+		 * Validate values for Format Options.
+		 */
+		public function validate_format_option( $arg_input )
+		{
+			// Create our array for storing the validated options
+			$output = array();
+	
+			if ( !isset($arg_input) )
+			{
+				return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$FORMAT_LIST);
+			}
+
+			// Loop through each of the incoming options
+			foreach( $arg_input as $key => $value )
+			{
+				// Check to see if the current option has a value. If so, process it.
+				if( isset( $arg_input[$key] ) )
+				{
+					// Strip all HTML and PHP tags and properly handle quoted strings
+					$output[$key] = $arg_input[$key];
+					//$output[$key] = strip_tags( stripslashes( $arg_input[ $key ] ) );
+				}
+			}
+	
+			// Return the array processing any additional functions filtered by this action
+			return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$FORMAT_LIST);
+		}
+
+
+		/**
+		 * Validate values for Register Options.
+		 */
+		public function validate_register_option( $arg_input )
+		{
+			// Define the array for the updated options
+			$output = array();
+
+			if ( !isset($arg_input) )
+			{
+				return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$REGISTER_LIST);
+			}
+
+			// Loop through each of the options sanitizing the data
+			foreach( $arg_input as $key => $val )
+			{
+				if( isset ( $arg_input[$key] ) )
+				{
+					$output[$key] = $arg_input[$key];
+				}
+			}
+	
+			$options = get_option(Beciteable_Option::$DEBUG);
+
+			$register_domain = get_site_url();
+			if ( isset($arg_input["register_user_name"], $arg_input["register_user_password"], $register_domain) ) {
+
+				$response = Beciteable_CommImpl::get_instance()->register_user($arg_input["register_user_name"], $arg_input["register_user_password"], get_site_url());
+				$options["show_comm"] && Beciteable_LoggerImpl::get_instance()->log(BECITEABLE_LOGMASK_ADMIN, "Admin Register: ".print_r($response, TRUE));
+
+				if ($response["status"] && "200" == $response["beciteable_code"])
+				{
+					$output["is_registered"]    = TRUE;
+					$output["register_message"] = $response["beciteable_message"];
+					$output["status_name"]      = $response["beciteable_status_name"];
+				}
+				else
+				{
+					$output["is_registered"]    = FALSE;
+					$output["register_message"] = $response["beciteable_message"];
+					$output["status_name"]      = NULL;
+				}
+
+			}
+			else
+			{
+				$output["is_registered"]    = FALSE;
+				$output["register_message"] = "Domain Not Registered";
+				$output["status_name"]      = NULL;
+			}
+
+		// add_settings_error(
+		//     Beciteable_Option::$REGISTER, // whatever you registered in register_setting
+		//     "a_code_here", // doesn't really mater
+		//     __($output["register_message"].": ".$output["status_name"], "wpse"),
+		//     "error" // error or notice works to make things pretty
+		// );
+
+			// Return the new collection
+			return apply_filters( self::BCA_ADMIN.__FUNCTION__, $output, Beciteable_Option::$REGISTER_LIST);
+		}
+
+
+// -------------------------------------------------------------------------------------------------
+
+
+		public function checkbox_callback($arg_list)
+		{
+			$checked = $this->get_page_option($arg_list["page"], $arg_list["name"], array("action"=>"checkbox", "value"=>1));
+
+			$html = "<input type='checkbox' id='{$arg_list['name']}' name='{$arg_list['page']}[{$arg_list['name']}]' value='1' {$checked} />";
+			$html .= (isset($arg_list["label"])) ? "<label for='{$arg_list['name']}'>{$arg_list['label']}</label>" : "";
+	
+			echo $html;
+		}
+
+
+		public function radio_element_callback($arg_list)
+		{
+			$checked[1] = $this->get_page_option($arg_list["page"], $arg_list["name"], array("action"=>"checkbox", "value"=>1));
+			$checked[2] = $this->get_page_option($arg_list["page"], $arg_list["name"], array("action"=>"checkbox", "value"=>2));
+
+			$html = "<input type='radio' id='{$arg_list['name']}_one' name='{$arg_list['page']}[{$arg_list['name']}]' value='1' {$checked[1]} />";
+			$html .= "<label for='{$arg_list['name']}_one'>Option One</label>";
+	
+			$html .= "<input type='radio' id='{$arg_list['name']}_two' name='{$arg_list['page']}[{$arg_list['name']}]' value='2' {$checked[2]} />";
+			$html .= "<label for='{$arg_list['name']}_two'>Option Two</label>";
+	
+			echo $html;
+		}
+
+
+		public function select_element_callback($arg_list)
+		{
+			$selected["never"] = $this->get_page_option($arg_list["page"], $arg_list["name"], array("action"=>"select", "value"=>"never"));
+			$selected["sometimes"] = $this->get_page_option($arg_list["page"], $arg_list["name"], array("action"=>"select", "value"=>"sometimes"));
+			$selected["always"] = $this->get_page_option($arg_list["page"], $arg_list["name"], array("action"=>"select", "value"=>"always"));
+
+			$html = "<select id='{$arg_list['name']}' name='{$arg_list['page']}[{$arg_list['name']}]'>";
+				$html .= "<option value='default'>Select a time option...</option>";
+				$html .= "<option value='never' {$selected['never']}>Never</option>";
+				$html .= "<option value='sometimes' {$selected['sometimes']}>Sometimes</option>";
+				$html .= "<option value='always' {$selected['always']}>Always</option>";
+			$html .= "</select>";
+	
+			echo $html;
+		}
+
+
+		public function get_callback($arg_list)
+		{
+			$value = $this->get_page_option($arg_list["page"], $arg_list["name"], array("action"=>"get"));
+
+			$html = "<input type='text' id='{$arg_list['name']}' name='{$arg_list['page']}[{$arg_list['name']}]' value='{$value}' />";
+			$html .= (isset($arg_list["label"])) ? "<label for='{$arg_list['name']}'>{$arg_list['label']}</label>" : "";
+	
+			echo $html;
+
+		}
+
+
+		public function get_page_option($arg_page, $arg_option_name, $arg_command)
+		{
+			$option = get_option($arg_page);
+			if ( !isset( $option[$arg_option_name] ))
+			{
+				return NULL;
+			}
+
+			switch ($arg_command["action"])
+			{
+				case "checkbox":
+
+					return checked($arg_command["value"], $option[$arg_option_name], FALSE);
+
+				case "select":
+
+					return selected($option[$arg_option_name], $arg_command["value"], FALSE);
+
+				default:
+				case "get":
+
+					return $option[$arg_option_name];
+			}
+		}
+	} // end beciteable_admin_display
+
+
+	// Set up my Admin Page.  Everything happens on init.
+	//
+	Beciteable_LoggerImpl::get_instance()->log(BECITEABLE_LOGMASK_ADMIN, "====================================");
+	Beciteable_AdminImpl::init();
+
+} // end-if (is_admin())
+?>
+

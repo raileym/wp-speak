@@ -19,9 +19,9 @@ class Example_Option extends Basic
 	        "example_group_of_fields"
 	    );
 	private static $default_options = array(
-            "css_header_files"			=>	"",
-            "javascript_header_files"	=>	"",
-            "javascript_footer_files"	=>	""
+            "example_one"	=>	"",
+            "example_two"	=>	"",
+            "example_thre"	=>	""
         );
 
 	protected function __construct() { 
@@ -30,6 +30,17 @@ class Example_Option extends Basic
             "admin_init",
             array(get_called_class(), "init")); 
         
+	}
+	
+    public function get_section() {
+        return self::$section;
+    }
+    
+    /**
+     *	Orchestrates the creation of the Media Panel
+     */
+    public static function init($arg1)
+    {
         add_action(
             Action::$init[get_called_class()],
             array(self::$registry, "init_registry"),   
@@ -42,17 +53,6 @@ class Example_Option extends Basic
             Callback::EXPECT_DEFAULT_PRIORITY, 
             Callback::EXPECT_TWO_ARGUMENTS);
 
-	}
-	
-    public function get_section() {
-        return self::$section;
-    }
-    
-    /**
-     *	Orchestrates the creation of the Media Panel
-     */
-    public static function init($arg1)
-    {
         self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
         $option = self::$wp_option->get( get_called_class() );
@@ -131,7 +131,9 @@ EOD;
              "args"=>array( "description" => $description_four_files )],
         ]);
 
-        self::$wp_settings->register_setting(
+        register_setting(
+            //get_called_class(),
+            //get_called_class(),
             WP_Option::$option[ get_called_class() ],
             WP_Option::$option[ get_called_class() ],
             array(self::get_instance(), "validate_example_option")
@@ -140,7 +142,7 @@ EOD;
         do_action(
             Action::$init[get_called_class()],
             get_called_class(),
-            $option );
+            Option::$OPTION_LIST[self::$section] );
 
     }
 

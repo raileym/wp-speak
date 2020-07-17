@@ -1,0 +1,143 @@
+<?php
+namespace WP_Speak;
+
+function wps_enqueue_speak_scripts() {
+    $params = array(
+      'url'      => admin_url('admin-ajax.php'),
+      'audio'    => wp_create_nonce('audio-hWLv9nsqfN6UtyVyVzsL'),
+      'speak'    => "https://".$_SERVER['SERVER_NAME']."/speak/",
+      'name'     => 'malcolm'
+    );
+    wp_localize_script("wps-main", 'AJAX', $params );
+}
+add_action("wp_enqueue_scripts",    "WP_Speak\wps_enqueue_speak_scripts");
+add_action("admin_enqueue_scripts", "WP_Speak\wps_enqueue_speak_scripts");
+
+
+// The calleee (privileged) responds to the ajax request,
+// checking credentials.
+//
+function wps_speak_callback() {
+
+    check_ajax_referer( 'audio-hWLv9nsqfN6UtyVyVzsL', 'audio' );
+
+    $file  = $_POST['file'];
+
+error_log("Yes, this file/function is loaded and fired.");
+
+    $response = array();
+    $response["name"] = "malcolm";
+    $response["file"] = $file;   https://wp-speak.com/wp-speak-audio/123/
+    $response["mp3"]  = "https://".$_SERVER['SERVER_NAME']."/wp-speak-audio/".$file."?audio=".$_POST['audio'];
+error_log($response["mp3"]);
+//         $response["mp3"]  = "https://".$_SERVER['SERVER_NAME']."/speak/?file=".$file."&audio=".$_POST['audio'];
+
+    $words = "<speak version='1.0' xmlns='www.w3.org/2001/10/synthesis' xml:lang='en-US'>".$_POST['words']."</speak>";
+
+    $extension = "mp3";
+    $mime_type = "audio/mpeg, audio/x-mpeg, audio/x-mpeg-3, audio/mpeg3";
+
+    if(file_exists(ABSPATH . "audio/".$file.".mp3")) {
+        //$data["ibm"] = file_get_contents(ABSPATH . "audio/".$file.".mp3");
+        $response["status"] = "cached";
+        echo json_encode($response);
+        wp_die();
+    }
+
+    $words = str_replace(array("\\'",'\\"'), array("'",'"'), $words);
+    
+    file_put_contents(ABSPATH . "audio/".$file.".txt", $words);
+
+    // $data = array("text" => "{$words}");                                                                    
+    $data = array("text" => $words, "voice" => "en-US_AllisonVoice");                                                                    
+    $data_string = json_encode($data);
+
+error_log("And now, I am making that 'call' to IBM Watson.");
+
+    $ch = curl_init();
+    // See https://cloud.ibm.com/docs/services/text-to-speech?topic=text-to-speech-voices#voices
+    // And check out the corresponding demo. MichaelV2 actually sounds reasonable.
+    //        
+//        curl_setopt($ch, CURLOPT_URL, "https://stream.watsonplatform.net/text-to-speech/api/v1/synthesize?voice=en-US_AllisonV2Voice");
+    
+    // Newer URL
+    // https://api.us-south.text-to-speech.watson.cloud.ibm.com/instances/866a24a9-30b7-468f-ad74-ecc9004afdf0
+    //
+    // Newer API
+    // JG6tQ0Fp3Ag3RmOGkc_eYy6zD6QoWmyMxTg-hsu1VIdW
+    
+    // OLDER URLs
+    //        curl_setopt($ch, CURLOPT_URL, "https://stream.watsonplatform.net/text-to-speech/api/v1/synthesize?voice=en-US_MichaelV2Voice");
+    //        curl_setopt($ch, CURLOPT_URL, "https://stream.watsonplatform.net/text-to-speech/api/v1/synthesize?voice=en-US_AllisonVoice");
+    curl_setopt($ch, CURLOPT_URL, "https://api.us-south.text-to-speech.watson.cloud.ibm.com/instances/866a24a9-30b7-468f-ad74-ecc9004afdf0/v1/synthesize?voice=en-US_MichaelV2Voice");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json',
+        'Accept: audio/wav'
+        ));
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);                                                                  
+    curl_setopt($ch, CURLOPT_VERBOSE, 0); 
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 866a24a9-30b7-468f-ad74-ecc9004afdf0
+
+    // USERPWD is not used
+    //        curl_setopt($ch, CURLOPT_USERPWD, "d78823b1-b67b-495b-8dd5-adb6e3b15bc4:nI5tnzXSp5tV");
+    
+    // APIKEY instead
+    curl_setopt($ch, CURLOPT_USERPWD, "apikey:JG6tQ0Fp3Ag3RmOGkc_eYy6zD6QoWmyMxTg-hsu1VIdW");
+
+    $output = curl_exec ($ch);
+    curl_close ($ch);
+
+error_log("And finally, I write that file locally.");
+
+    file_put_contents(ABSPATH . "audio/".$file.".mp3", $output);
+
+    $response["status"] = "new";
+    echo json_encode($response);
+
+    wp_die();
+}
+
+add_action( 'wp_ajax_wps_speak',         'WP_Speak\wps_speak_callback'  );
+add_action( 'wp_ajax_nopriv_wps_speak',  'WP_Speak\wps_speak_callback'  ); 
+
+
+
+function wp_speak_getfile() {
+
+error_log("nonce: " . get_query_var( 'audio' ) );
+error_log("file:  " . get_query_var( 'wp-speak-audio' ) );
+
+    $nonce = get_query_var( 'audio' );
+
+    //$nonce = $_GET['audio'];
+    if ( ! wp_verify_nonce( $nonce, 'audio-hWLv9nsqfN6UtyVyVzsL' ) ) {
+        error_log("nonce is not correct. Exit stage right." );
+        exit; // Get out of here, the nonce is rotten!
+    }
+
+    //
+    // See https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#say-as_element
+    //
+    function return_file($file) {
+        $mime_type = "audio/mpeg, audio/x-mpeg, audio/x-mpeg-3, audio/mpeg3";
+
+        header('Content-type: {$mime_type}');
+        header('Content-length: ' . filesize($file));
+        header('Content-Disposition: filename="' . $file);
+        header('X-Pad: avoid browser bug');
+        header('Cache-Control: no-cache');
+        readfile($file);
+    }
+
+    $file = get_query_var( 'wp-speak-audio' );
+    //$file  = $_GET['wp-speak-audio'];
+
+    if(file_exists(ABSPATH . "audio/".$file.".mp3")) {
+        return_file(ABSPATH . "audio/".$file.".mp3");
+        exit;
+    }
+
+    exit;
+}

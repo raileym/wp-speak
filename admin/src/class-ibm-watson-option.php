@@ -24,30 +24,19 @@ class IBM_Watson_Option extends Basic
 	    );
 
 	private static $default_options = array(
-            "ibm_watson_message"	    =>	"no message",
-            "ibm_watson_user_name"	    =>	"no user name",
-            "ibm_watson_user_password"  =>	"no user password"
-        );
+        "ibm_watson_message"	   => "no message",
+        "ibm_watson_user_name"	   => "no user name",
+        "ibm_watson_user_password" => "no user password",
+        "ibm_watson_status_name"   => "no status",
+        "ibm_watson_domain"        => "no domain"
+    );
 
 	
 	protected function __construct() { 
 
-        // Initialize this class upon admin_init.
         add_action(
             "admin_init",
             array(get_called_class(), "init")); 
-
-        add_action(
-            Action::$init[get_called_class()],
-            array(self::$registry, "init_registry"),
-            Callback::EXPECT_NON_DEFAULT_PRIORITY,
-            Callback::EXPECT_TWO_ARGUMENTS);
-
-        add_filter(
-            Filter::$validate[get_called_class()],
-            array(self::$registry, "update_registry"),
-            Callback::EXPECT_DEFAULT_PRIORITY,
-            Callback::EXPECT_TWO_ARGUMENTS);
 
 	}
 	
@@ -60,6 +49,18 @@ class IBM_Watson_Option extends Basic
      */
     public static function init($arg1)
     {
+        add_action(
+            Action::$init[get_called_class()],
+            array(self::$registry, "init_registry"),
+            Callback::EXPECT_NON_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
+
+        add_filter(
+            Filter::$validate[get_called_class()],
+            array(self::$registry, "update_registry"),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
+
         self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
         $option = self::$wp_option->get( get_called_class() );
@@ -146,33 +147,33 @@ EOD;
             }
         }
 
-        add_settings_error( 
+        self::$wp_settings->add_settings_error( 
             'ibm_watson_user_name',
             'User Name',
             'Definitely an incorrect user name entered!',
             'error' );
 
-        add_settings_error(
+        self::$wp_settings->add_settings_error(
             'ibm_watson_user_password',
             'User Password',
             'Definitely an incorrect password entered!',
             'warning' );
 
-        add_settings_error(
+        self::$wp_settings->add_settings_error(
             'ibm_watson_user_password',
             'User Password',
             'Definitely an incorrect password entered!',
             'info' );
 
-        add_settings_error(
+        self::$wp_settings->add_settings_error(
             'ibm_watson_user_password',
             'User Password',
             'Definitely an incorrect password entered!',
             'success' );
 
-        $output["ibm_watson_message"] = "Register Message blah blah";
-        $output["status_name"]        = "Status Name blah blah";
-        $output["ibm_watson_domain"]  = "Register Domain blah blah";
+        $output["ibm_watson_message"]     = "Register Message blah blah";
+        $output["ibm_watson_status_name"] = "Status Name blah blah";
+        $output["ibm_watson_domain"]      = "Register Domain blah blah";
         
         // Return the new collection
         return apply_filters(

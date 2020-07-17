@@ -183,25 +183,24 @@ Registry::get_instance()
     ->set_logger(Logger::get_instance())
     ->set_mask(Logmask::$mask["log_registry"]);
 
+Log_Option::get_instance()
+    ->set_wp_option(WP_Option::get_instance())
+    ->set_wp_settings(WP_Settings::get_instance())
+    ->set_logger(Logger::get_instance())
+    ->set_registry(Registry::get_instance())
+    ->set_mask(Logmask::$mask["log_log"]);
 
-Registry::get_instance()->init_log_registry(
-    'WP_Speak\Log_Option',
-    Option::$OPTION_LIST['log_option']);
-
+/*
 foreach (Option::$SECTIONS as $section) {
 
     $section_lc = strtolower($section);
 
-    if ($section !== "Log_Option") {
-
-        Registry::get_instance()->init_registry(
-            'WP_Speak\\'.$section,
-            Option::$OPTION_LIST[$section_lc]);
-        
-    }
+    Registry::get_instance()->init_registry(
+        $section_lc,
+        Option::$OPTION_LIST[$section_lc]);
 
 }
-
+*/
 
 Callback::get_instance()
     ->set_logger(Logger::get_instance())
@@ -261,12 +260,14 @@ if ( is_admin() )
         ->set_registry(Registry::get_instance())
         ->set_mask(Logmask::$mask["log_example"]);
 
+    /*
     Log_Option::get_instance()
         ->set_wp_option(WP_Option::get_instance())
         ->set_wp_settings(WP_Settings::get_instance())
         ->set_logger(Logger::get_instance())
         ->set_registry(Registry::get_instance())
         ->set_mask(Logmask::$mask["log_log"]);
+    */
 
     Media_Option::get_instance()
         ->set_wp_option(WP_Option::get_instance())

@@ -30,7 +30,7 @@ class Registry extends Basic {
      *
      * @var int $data
      */
-    protected static $data = array();
+    protected static $data;// = array();
 
     /**
      * $mask is the local (protected) copy of mask.
@@ -43,7 +43,9 @@ class Registry extends Basic {
      * This version of the constructor supports the Singleton
      * creation design.
      */
-    protected function __construct() { }
+    protected function __construct() { 
+        self::$data = array();
+    }
 
 
     public function set(
@@ -62,9 +64,11 @@ class Registry extends Basic {
     }
 
 
-    public function dump()
+    public function dump(
+        $arg_class,
+        $arg_function )
     {
-        error_log("*************** DUMP:ARRAY_REGISTRY ******************");
+        error_log("******** {$arg_class}->{$arg_function}(): DUMP:ARRAY_REGISTRY ********");
         error_log(print_r(self::$data, true));
         return true;
     }
@@ -80,6 +84,10 @@ class Registry extends Basic {
     public function init_registry(
         $arg_page,
         $arg_name_list ) {
+
+        //ob_start();
+        //debug_print_backtrace();
+        //error_log(ob_get_clean());
 
         self::$logger->log( self::$mask, __FUNCTION__ . "({$arg_page})" );
         self::$logger->log( self::$mask, __FUNCTION__ . self::$logger->print_r( $arg_name_list ) );
@@ -111,7 +119,37 @@ class Registry extends Basic {
         self::$logger->log( self::$mask, 'From OPTIONS on init: ' . self::$logger->print_r( $option ) );
 
 
+        /**
+         * Cache the ENTIRE option set under the page name.
+         */
         $this->set( $arg_page, $option );
+
+
+        /**
+         * Now, cache each named item from the name list, as set in the option set.
+         */
+        foreach ( $arg_name_list as $name ) {
+
+            /**
+             * For each named element for this option, let's set our in-cache values.
+             */
+            $this->set( $name, $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : null );
+
+            /**
+             * Show full details provided the attribute is NOT a password.
+             */
+            false === strpos( $name, 'password' )
+                  && self::$logger->log( self::$mask, "Set Registry. {$name} = " . print_r($value, true) );
+
+            /**
+             * Hide full details if the attribute is a password.
+             */
+            false !== strpos( $name, 'password' )
+                && self::$logger->log( self::$mask, "Set Registry. {$name} = " . str_repeat( '*', 8 ) );
+        }
+
+
+        //self::$registry->dump( get_called_class(), __FUNCTION__ );
 
         /**
          * We're done.
@@ -159,33 +197,24 @@ class Registry extends Basic {
 
         self::$logger->log( self::$mask, 'MASK OPTIONS on init: ' . self::$logger->print_r( $option ) );
 
-        $name_list = array();
-
         foreach ( $arg_name_list as $name ) {
-
-            /**
-             * For each named element for this option, let's set our in-cache values.
-             */
-            $this->set( $name, $value = ( isset( $option[ $name ] ) ) ? $option[ $name ] : 0 );
 
             if ( isset( $option[ $name ] ) && 0 !== $option[ $name ] ) {
 
                 $this->set( $name, $value = $option[ $name ] );
-                $name_list[ $name ] = $option[ $name ];
-                self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $name ] );
+                //self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = ON" );
 
             } else {
 
-                $this->set( $name, $value = 0 );
-                $name_list[ $name ] = 0;
-                self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::$mask[ $name ] );
+                $this->set( $name, $value = null );
+                //self::$logger->set_logger_mask( self::$logger->get_logger_mask() & ~Logmask::$mask[ $name ] );
                 self::$logger->log( self::$mask, "Set Registry. {$name} = OFF" );
 
             }
         }
 
-        $this->set( $arg_page, $name_list );
+        //$this->set( $arg_page, $name_list );
 
         return $this;
     }

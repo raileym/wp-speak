@@ -1,0 +1,194 @@
+
+/* ****************************************************************************
+ * HTML CSS - WP Admin
+ * ****************************************************************************
+ */
+.form-table th
+{
+    padding:				4px 10px 4px 30px;
+    vertical-align:			middle;
+    width:					150px;
+}
+
+.form-table td
+{
+    font-size:				12px;
+    margin-bottom:			0;
+    padding:				4px 10px;
+}
+
+form h3
+{
+    margin:                 2em 0 0 0;
+}
+
+input[type="checkbox"], input[type="radio"]
+{
+    margin:					0 5px 0 0;
+    padding:				0;
+    vertical-align:			middle;
+}
+
+/* Using this to make em entries stand-out within notices */
+p em
+{
+	font-weight:			bold;
+}
+
+label
+{
+    margin:                 0 20px 0 0;
+}
+
+
+
+
+/* ****************************************************************************
+ * BCA CSS - WP Admin
+ * ****************************************************************************
+ */
+.wps-hide
+{
+	display:			    none;
+}
+
+/* Re-shapes the look of a setting entry (drops left column) */
+.wps-notice th,
+.wps-uploads th,
+.wps-includes th
+{
+	display:				none;
+}
+
+/**
+ * use this CSS to highlight author, date, and e-mail for
+ * Copyright Notices
+ */
+.wps-notice em
+{
+	font-weight:			bold;
+	font-style:				normal;
+	font-size:				110%;
+}
+.wps-notice td, 
+.wps-uploads td, 
+.wps-includes td 
+{
+	padding:				4px 0;
+}
+
+#copyright_email,
+#copyright_author,
+#copyright_date,
+#short_notice
+{
+	width:					200px;
+	padding:				0 0 0 5px;
+	height:					2em;
+	background:				rgba(0,255,0,0.1);
+	border:					1px solid darkgreen;
+}
+
+#custom_notice,
+#default_notice,
+#gpl3_notice,
+#mit_notice,
+textarea.wps-uploads,
+textarea.wps-includes
+{
+	border-top:				2px solid black;
+	border-bottom:			2px solid black;
+	margin:					10px 0;
+	padding:				10px;
+	max-width:				500px;
+}
+
+.wps-register-status
+{
+	margin:					2em 0 0 3em;
+	background:				pink;
+	border:					4px solid red;
+	height:					fit-content;
+	width:					300px;
+	color:					black;
+	font-size:				140%;
+	font-weight:			normal;
+	padding:				10px;
+	text-align:				center;
+}
+.wps-register-status.wps-is-registered
+{
+	background:				green;
+	border:					4px solid darkgreen;
+	color:					white;
+}
+
+
+
+
+
+
+
+/* ****************************************************************************
+ * COLORS - WP Admin - REMOVE LATER
+ * ****************************************************************************
+ */
+#copyright_email,
+#copyright_author,
+#copyright_date,
+#short_notice
+{
+	background:				rgba(0,255,0,0.1);
+	border-color:			darkgreen;
+}
+#custom_notice,
+#default_notice,
+#gpl3_notice,
+#mit_notice,
+textarea.wps-uploads,
+textarea.wps-includes
+{
+	border-top-color:		black;
+	border-bottom-color:	black;
+}
+.wps-register-status
+{
+	background:				pink;
+	border-color:			red;
+	color:					black;
+}
+.wps-register-status.wps-is-registered
+{
+	background:				green;
+	border:					4px solid darkgreen;
+	color:					white;
+}
+
+
+.wps-test-div {
+    border: 1px solid black;
+}
+
+.wps-audio-label {
+    font-weight:bold;
+    margin:1em;
+    font-size:120%;
+}
+
+.wps-audio-content {
+    font-weight:bold;
+    margin:1em 1em 1em 2em;
+    font-size:120%;
+    color:grey;
+    width: 85%;
+}
+.wps-audio-panel {
+    width:50%;
+}
+.wps-audio-choice {
+    padding:0.2em;
+    width: 90%;
+}
+.wps-audio-choice.wps-selected {
+    background-color: rgba(137,83,221,0.2);
+}

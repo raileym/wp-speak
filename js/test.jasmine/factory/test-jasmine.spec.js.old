@@ -1,0 +1,47 @@
+var $          = require('jquery'),
+    Factory    = require('../../src/factory/test-jasmine.js').default,
+    rewiremock = require('../../src/ctns-rewiremock.js');
+
+describe("factory/test-jasmine", function () {
+     
+    describe("Basics - mocking require", function () {
+
+        var factory;
+        
+        // Setup
+        beforeEach(function () {
+        
+            const mock = rewiremock.getMock('model/submit');
+            const mock2 = rewiremock.proxy(() => require('model/submit'), {
+               'dep1': { name: 'override' },
+               'dep2': { onlyDump: 'stubs' }  
+            });
+
+//             rewiremock.proxy('model/submit')
+//                 .callThrough() 
+//                 .with({
+//                     onlyOneMethod : function() { return "Good job!"; }
+//                 })
+    
+//             rewiremock('dependency').with(stub);
+//             rewiremock(() => require('dependency')).with(stub);
+            rewiremock.enable(); 
+ 
+            factory  = new Factory({});
+
+        });
+
+        it("should default to 'ctns-hide'", function () {
+//                 expect(factory.$el.hasClass("ctns-hide")).toBe(true);
+        });
+
+        // Teardown
+        afterEach(function () {
+        
+            rewiremock.disable();
+            
+        });
+
+    });
+
+});

@@ -13,11 +13,11 @@ class Option
 
 	public static $SECTIONS = 
 	    array(
+            "Log_Option",
 			"Image_Option",
 			"Media_Option",
             "Example_Option",
             "IBM_Watson_Option",
-            "Log_Option",
             "Register_Option"
         );
 
@@ -58,19 +58,21 @@ class Option
                                     "log_register"
 		                        ),
 	        "ibm_watson_option"  => array(
-                                    "ibm_watson_message",		// Dynamic Value ... not editable by user
-                                    "ibm_watson_user_name",
-                                    "ibm_watson_user_password"
+                "ibm_watson_message",		// Dynamic Value ... not editable by user
+                "ibm_watson_user_name",
+                "ibm_watson_user_password",
+                "ibm_watson_status_name",
+                "ibm_watson_domain"
 		                        ),
 	        "register_option"  => array(
-                                    "wp_speak_home",
-                                    "is_registered",		// Dynamic Value ... not editable by user
+                                    "register_home",
+                                    "register_is_registered",		// Dynamic Value ... not editable by user
                                     "register_domain",
                                     "register_message",		// Dynamic Value ... not editable by user
                                     "register_user_name",
                                     "register_user_password",
-                                    "shorturl_home",
-                                    "status_name"			// Dynamic Value ... not editable by user
+                                    "register_shorturl_home",
+                                    "register_status_name"			// Dynamic Value ... not editable by user
 		                        ),
 	        "media_option"   => array(
                                     "media_files"
@@ -79,11 +81,10 @@ class Option
                                     "image_files"
 		                        ),
 	        "example_option"   => array(
-                                    "one_files",
-                                    "two_files",
-                                    "three_files",
-                                    "four_files"
-		                        )
+                "example_one",
+                "example_two",
+                "example_three"
+            )
 	    );
 
 }

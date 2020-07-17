@@ -28,11 +28,18 @@ class Logger extends Basic {
     protected static $instance;
 
     /**
+     * $mask is the local (protected) copy of mask.
+     *
+     * @var int $mask
+     */
+    protected static $mask;
+
+    /**
      * $logger_mask is the current mask for all logging.
      *
      * @var uint $logger_mask.
      */
-    private static $logger_mask = 0;//0x2000 | 0x0800;//Logmask::$mask['log_registry'];
+    private static $logger_mask = 0;
 
     /**
      * This constructor supports the Singleton creation design.
@@ -49,6 +56,8 @@ class Logger extends Basic {
      */
     public function set_logger_mask(
         $arg_mask ) {
+
+        //error_log("set_logger_mask: {$arg_mask}");
 
         self::$logger_mask = $arg_mask;
     }

@@ -41,37 +41,26 @@ class Log_Option extends Basic
             "admin_init", 
             array(get_class(), "init")); 
 
-        add_action(
-            Action::$init[get_called_class()],
-            array(self::$registry, "init_registry"),
-            Callback::EXPECT_DEFAULT_PRIORITY,
-            Callback::EXPECT_TWO_ARGUMENTS);
-
-        add_action(
-            Action::$init[get_called_class()],
-            array(get_class(), 'init_log_mask'),
-            Callback::EXPECT_DEFAULT_PRIORITY,
-            Callback::EXPECT_ZERO_ARGUMENTS);
-
-        add_action(
-            Action::$validate[get_called_class()],
-            array(get_class(), 'update_log_mask'),
-            Callback::EXPECT_DEFAULT_PRIORITY,
-            Callback::EXPECT_ONE_ARGUMENT);
-
-        add_filter(
-            Filter::$validate[get_called_class()],
-            array(self::$registry, "update_registry"),
-            Callback::EXPECT_DEFAULT_PRIORITY,
-            Callback::EXPECT_TWO_ARGUMENTS);
-
 	}
 	
-    public static function init_log_mask() {
+    public function init_log_mask(
+        $arg_page,
+        $arg_name_list ) {
 
+        //error_log(" ************* INIT_LOG_MASK **************");
+        //error_log( $arg_page );
+        //error_log( print_r($arg_name_list, true) );
+
+        //error_log( get_called_class() );
+
+        //self::$registry->dump();
+
+        //$log_mask = self::$registry->get( WP_Option::$option[ get_called_class() ] );
         $log_mask = self::$registry->get( get_called_class() );
 
         self::$logger->set_logger_mask( 0 );
+
+        //error_log("INIT_LOG_MASK: " . print_r($log_mask, true));
 
         foreach($log_mask as $log=>$mask) {
             if ( $mask ) {
@@ -81,15 +70,21 @@ class Log_Option extends Basic
 
     }
     
-    public static function update_log_mask($arg_log_mask) {
+    public static function update_log_mask(
+        $arg_log_mask) {
 
         $log_mask = $arg_log_mask;
 
         self::$logger->set_logger_mask( 0 );
 
+        //error_log("UPDATE_LOG_MASK: " . print_r($log_mask, true));
+
         foreach($log_mask as $log=>$mask) {
             if ( $mask ) {
+                //error_log("Found one: " . $log);
+                //error_log("Global BEFORE: " . self::$logger->get_logger_mask());
                 self::$logger->set_logger_mask( self::$logger->get_logger_mask() | Logmask::$mask[ $log ] );
+                //error_log("Global AFTER: " . self::$logger->get_logger_mask());
             }
         }
 
@@ -104,6 +99,34 @@ class Log_Option extends Basic
      */
     public static function init()
     {
+        add_action(
+            Action::$init[get_called_class()],
+            array(self::$registry, "init_registry"),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
+
+        add_action(
+            Action::$init[get_called_class()],
+            array(self::$instance, 'init_log_mask'),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
+
+        add_action(
+            Action::$validate[get_called_class()],
+            array(get_called_class(), 'update_log_mask'),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_ONE_ARGUMENT);
+
+        add_filter(
+            Filter::$validate[get_called_class()],
+            array(self::$registry, "update_registry"),
+            Callback::EXPECT_DEFAULT_PRIORITY,
+            Callback::EXPECT_TWO_ARGUMENTS);
+
+        //error_log("INSIDE: ". get_called_class() . __FUNCTION__);
+        //error_log("Global mask:" . self::$logger->get_logger_mask());
+        //error_log("Local mask:" . self::$mask);
+        
         self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
         $option = self::$wp_option->get( get_called_class() );
@@ -161,10 +184,21 @@ EOD;
             array(self::get_instance(), "validate_log_option")
         );
 
+
+        /**
+         * We ACTUALLY don't turn-on logging till after this
+         * call to action.
+         */
         do_action(
             Action::$init[get_called_class()],
             get_called_class(),
-            $option );
+            Option::$OPTION_LIST[self::$section] ); 
+
+
+        /**
+         * Now, I can officially say, "log this."
+         */
+        self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ . " ... After the fact.");
 
     }
 

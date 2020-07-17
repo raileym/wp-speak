@@ -32,6 +32,17 @@ class Media_Option extends Basic
             "admin_init", 
             array(get_class(), "init")); 
 
+	}
+	
+    public function get_section() {
+        return self::$section;
+    }
+    
+    /**
+     *	Orchestrates the creation of the Media Panel
+     */
+    public static function init($arg1)
+    {
         add_action(
             Action::$init[get_called_class()],
             array(self::$registry, "init_registry"),
@@ -44,17 +55,6 @@ class Media_Option extends Basic
             Callback::EXPECT_DEFAULT_PRIORITY,
             Callback::EXPECT_TWO_ARGUMENTS);
         
-	}
-	
-    public function get_section() {
-        return self::$section;
-    }
-    
-    /**
-     *	Orchestrates the creation of the Media Panel
-     */
-    public static function init($arg1)
-    {
         self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
         $option = self::$wp_option->get( get_called_class() );
@@ -103,17 +103,17 @@ EOD;
         //$the_query = new WP_Query( $args );
 
         if ( !self::$img_table->update_all( 'status', 'invalid' ) ) {
-            add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+            self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
             return;
         }
 
         if ( !self::$image_table->update_all( 'status', 'invalid' ) ) {
-            add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+            self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
             return;
         }
 
         if ( !self::$img_image_table->update_all( 'status', 'invalid' ) ) {
-            add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+            self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
             return;
         }
 
@@ -169,57 +169,57 @@ EOD;
                         "image_id"     => $image['image_id']);
 
                     if ( !self::$img_table->validate( $img ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
             
                     if ( !self::$image_table->validate( $image ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
             
                     if ( !self::$img_image_table->validate( $img_image ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
             
                     if ( !self::$img_table->insert_unique( $img ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
                         
                     if ( !self::$image_table->insert_unique( $image ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$img_image_table->insert_unique( $img_image ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$img_table->update( 'status', 'valid', 'img_id', $img['img_id'] ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$img_table->update( 'attr_alt', $img['attr_alt'], 'img_id', $img['img_id'] ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$image_table->update( 'status', 'valid', 'image_id', $image['image_id'] ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$img_image_table->update( 'status', 'valid', 'img_image_id', $img_image['img_image_id'] ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !$img_fetch = self::$img_table->fetch( 'img_id', $img['img_id'] ) ) {
-                        add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                         return;
                     }
                     
@@ -475,9 +475,9 @@ EOF;
 
     public function validate_media_option( $arg_input )
     {
-        //self::$logger->log( self::$mask, "Validation: " . __FUNCTION__ );
-        //self::$logger->log( self::$mask, "Input");
-        //self::$logger->log( self::$mask, print_r( $arg_input, true ) );
+        self::$logger->log( self::$mask, "Validation: " . __FUNCTION__ );
+        self::$logger->log( self::$mask, "Input");
+        self::$logger->log( self::$mask, print_r( $arg_input, true ) );
 
         // Define the array for the updated options
         $output = array();
@@ -516,12 +516,12 @@ EOF;
             $use_alt    = $arg_input[ "{$element}_sel_alt_{$cnt}" ];
             
             if ( !self::$img_table->update('alt', $custom_alt, 'img_id', $img_id) ) {
-                add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                 return;
             }
             
             if ( !self::$img_table->update('use_alt', $use_alt, 'img_id', $img_id) ) {
-                add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
                 return;
             }
             

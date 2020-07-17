@@ -31,10 +31,10 @@ namespace WP_Speak;
 //ini_set( 'error_log', 'mr-debug-log' );
 
 
-// function exception_error_handler($errno, $errstr, $errfile, $errline ) {
-//     throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
-// }
-// set_error_handler('WP_Speak\exception_error_handler');
+function exception_error_handler($errno, $errstr, $errfile, $errline ) {
+    throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
+}
+set_error_handler('WP_Speak\exception_error_handler');
 
 /**
  * Admin is a concrete class that orchestrates the creation

@@ -37,12 +37,13 @@ class WP_Settings extends Basic
     public function create_add_settings_field($arg_page, $arg_section) {
 
         $use_list     = array_fill(0, 6, NULL);
-        $use_page     = $arg_page;
+        $use_page     = WP_Option::$option[ $arg_page ];
         $use_section  = $arg_section;
         
         return function($arg_list) use ($use_page, $use_section, $use_list) {
         
             // Doctor up our arg_list for our callable function
+            //$arg_list["args"]["page"]    = $use_page;
             $arg_list["args"]["page"]    = $use_page;
             $arg_list["args"]["element"] = $arg_list["id"];
 
@@ -50,7 +51,7 @@ class WP_Settings extends Basic
             $use_list[self::FIELD_IDX_ID]       = $arg_list["id"];
             $use_list[self::FIELD_IDX_TITLE]    = $arg_list["title"];
             $use_list[self::FIELD_IDX_CALLBACK] = $arg_list["callback"];
-            $use_list[self::FIELD_IDX_PAGE]     = WP_Option::$option[ $use_page ];
+            $use_list[self::FIELD_IDX_PAGE]     = $use_page;
             $use_list[self::FIELD_IDX_SECTION]  = $use_section;
             $use_list[self::FIELD_IDX_ARGS]     = $arg_list["args"];
 
@@ -62,7 +63,7 @@ class WP_Settings extends Basic
     public function create_add_settings_section($arg_page) {
 
         $use_list     = array_fill(0, 6, NULL);
-        $use_page     = $arg_page;
+        $use_page     = WP_Option::$option[ $arg_page ];
         
         return function($arg_list) use ($use_page, $use_list) {
         
@@ -78,7 +79,7 @@ class WP_Settings extends Basic
             $use_list[self::SECTION_IDX_ID]       = $arg_list["id"];
             $use_list[self::SECTION_IDX_TITLE]    = $arg_list["title"];
             $use_list[self::SECTION_IDX_CALLBACK] = function() use ($use_callback, $use_args) { return $use_callback( $use_args ); };
-            $use_list[self::SECTION_IDX_PAGE]     = WP_Option::$option[ $use_page ];
+            $use_list[self::SECTION_IDX_PAGE]     = $use_page;
 
             call_user_func_array("add_settings_section", $use_list);
             
@@ -96,5 +97,21 @@ class WP_Settings extends Basic
             $args);
 
     }
+
+
+    public function add_settings_error(
+        $setting,
+        $code,
+        $message,
+        $type ) {
+        
+        return add_settings_error(
+            $setting,
+            $code,
+            $message,
+            $type );
+        
+    }
+    
 }
 ?>

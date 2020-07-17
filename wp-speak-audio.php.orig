@@ -1,0 +1,109 @@
+<?php
+namespace WP_Speak\Audio;
+
+// if ( !is_admin() )
+// {
+    // The caller (non-privileged) sets up the call credentials
+    //
+    function wps_enqueue_speak_scripts() {
+//        if ( !is_admin() )
+//        {
+            $params = array(
+              'url'      => admin_url('admin-ajax.php'),
+              'audio'    => wp_create_nonce('audio-hWLv9nsqfN6UtyVyVzsL'),
+              'speak'    => "https://".$_SERVER['SERVER_NAME']."/speak/",
+              'name'     => 'malcolm'
+            );
+//             wp_localize_script("ctns-problems", 'ajax', $params );
+            wp_localize_script("wps-main", 'AJAX', $params );
+//        }
+    }
+    add_action("wp_enqueue_scripts", "WP_Speak\Audio\wps_enqueue_speak_scripts");
+
+// } else {
+
+    // The calleee (privileged) responds to the ajax request,
+    // checking credentials.
+    //
+    function wps_speak_callback() {
+
+        check_ajax_referer( 'audio-hWLv9nsqfN6UtyVyVzsL', 'audio' );
+    
+        $file  = $_POST['file'];
+
+        $response = array();
+        $response["name"] = "malcolm";
+        $response["file"] = $file;
+        $response["mp3"]  = "https://".$_SERVER['SERVER_NAME']."/speak/?file=".$file."&audio=".$_POST['audio'];
+
+        $words = "<speak version='1.0' xmlns='www.w3.org/2001/10/synthesis' xml:lang='en-US'>".$_POST['words']."</speak>";
+
+        $extension = "mp3";
+        $mime_type = "audio/mpeg, audio/x-mpeg, audio/x-mpeg-3, audio/mpeg3";
+
+        if(file_exists(ABSPATH . "audio/".$file.".mp3")) {
+            //$data["ibm"] = file_get_contents(ABSPATH . "audio/".$file.".mp3");
+            $response["status"] = "cached";
+            echo json_encode($response);
+            wp_die();
+        }
+
+        $words = str_replace(array("\\'",'\\"'), array("'",'"'), $words);
+        
+        file_put_contents(ABSPATH . "audio/".$file.".txt", $words);
+
+        // $data = array("text" => "{$words}");                                                                    
+        $data = array("text" => $words, "voice" => "en-US_AllisonVoice");                                                                    
+        $data_string = json_encode($data);
+
+        $ch = curl_init();
+        // See https://cloud.ibm.com/docs/services/text-to-speech?topic=text-to-speech-voices#voices
+        // And check out the corresponding demo. MichaelV2 actually sounds reasonable.
+        //        
+//        curl_setopt($ch, CURLOPT_URL, "https://stream.watsonplatform.net/text-to-speech/api/v1/synthesize?voice=en-US_AllisonV2Voice");
+        
+        // Newer URL
+        // https://api.us-south.text-to-speech.watson.cloud.ibm.com/instances/866a24a9-30b7-468f-ad74-ecc9004afdf0
+        //
+        // Newer API
+        // JG6tQ0Fp3Ag3RmOGkc_eYy6zD6QoWmyMxTg-hsu1VIdW
+        
+        // OLDER URLs
+        //        curl_setopt($ch, CURLOPT_URL, "https://stream.watsonplatform.net/text-to-speech/api/v1/synthesize?voice=en-US_MichaelV2Voice");
+        //        curl_setopt($ch, CURLOPT_URL, "https://stream.watsonplatform.net/text-to-speech/api/v1/synthesize?voice=en-US_AllisonVoice");
+        curl_setopt($ch, CURLOPT_URL, "https://api.us-south.text-to-speech.watson.cloud.ibm.com/instances/866a24a9-30b7-468f-ad74-ecc9004afdf0/v1/synthesize?voice=en-US_MichaelV2Voice");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Accept: audio/wav'
+            ));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);                                                                  
+        curl_setopt($ch, CURLOPT_VERBOSE, 0); 
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 866a24a9-30b7-468f-ad74-ecc9004afdf0
+
+        // USERPWD is not used
+        //        curl_setopt($ch, CURLOPT_USERPWD, "d78823b1-b67b-495b-8dd5-adb6e3b15bc4:nI5tnzXSp5tV");
+        
+        // APIKEY instead
+        curl_setopt($ch, CURLOPT_USERPWD, "apikey:JG6tQ0Fp3Ag3RmOGkc_eYy6zD6QoWmyMxTg-hsu1VIdW");
+
+        $output = curl_exec ($ch);
+        curl_close ($ch);
+
+        file_put_contents(ABSPATH . "audio/".$file.".mp3", $output);
+
+    // 	$response["ibm"] = $output;
+    
+        $response["status"] = "new";
+        echo json_encode($response);
+    
+        wp_die();
+    }
+
+    add_action( 'wp_ajax_wps_speak',         'WP_Speak\Audio\wps_speak_callback'  );
+    add_action( 'wp_ajax_nopriv_wps_speak',  'WP_Speak\Audio\wps_speak_callback'  ); 
+
+// }
+
+
