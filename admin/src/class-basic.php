@@ -48,6 +48,14 @@ class Basic {
 	protected static $wp_settings;
 
 
+    /**
+     * $registry_datastore is the handle to the datastore.
+     *
+     * @var int $registry_datastore.
+     */
+    protected static $registry_datastore;
+
+
 	/**
 	 * The function get_instance serves the role of returning an instance.
 	 * This function supports the Singleton creation pattern.
@@ -115,6 +123,16 @@ class Basic {
 	public function set_registry( Registry $arg_registry ) {
         //error_log( get_called_class() . ": " . __FUNCTION__ );
 		self::$registry = $arg_registry;
+		return $this;
+	}
+
+	/**
+	 * The function set_registry sets the instance handle for the registry.
+	 *
+	 * @param Registry $arg_registry is a handle to a Registry instance.
+	 */
+	public function set_registry_datastore( Registry_Datastore $arg_registry_datastore ) {
+		self::$registry_datastore = $arg_registry_datastore;
 		return $this;
 	}
 

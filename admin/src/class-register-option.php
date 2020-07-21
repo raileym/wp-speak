@@ -57,7 +57,7 @@ class Register_Option extends Basic
             Filter::$validate[get_called_class()],
             array(self::$registry, "update_registry"),
             Callback::EXPECT_DEFAULT_PRIORITY,
-            Callback::EXPECT_TWO_ARGUMENTS);
+            Callback::EXPECT_THREE_ARGUMENTS);
         
         self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
@@ -142,6 +142,7 @@ EOD;
         {
             return apply_filters(
                 Filter::$validate[get_called_class()],
+                get_called_class(),
                 $output,
                 Option::$OPTION_LIST[self::$section]);
         }
@@ -169,6 +170,7 @@ EOD;
         // Return the new collection
         $output = apply_filters(
             Filter::$validate[get_called_class()],
+            get_called_class(),
             $output,
             Option::$OPTION_LIST[self::$section]);
         //error_log("BELOW");

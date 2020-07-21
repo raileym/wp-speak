@@ -53,7 +53,7 @@ class Media_Option extends Basic
             Filter::$validate[get_called_class()],
             array(self::$registry, "update_registry"),
             Callback::EXPECT_DEFAULT_PRIORITY,
-            Callback::EXPECT_TWO_ARGUMENTS);
+            Callback::EXPECT_THREE_ARGUMENTS);
         
         self::$logger->log( self::$mask, get_called_class() . " " . __FUNCTION__ );
 
@@ -256,9 +256,9 @@ EOD;
              "args"=>array( "master" => $master )]
         ]);
         
-        self::$registry->set( WP_Option::$option[ 'img_table' ],       self::init_table_registry( self::$img_table ) );
-        self::$registry->set( WP_Option::$option[ 'image_table' ],     self::init_table_registry( self::$image_table ) );
-        self::$registry->set( WP_Option::$option[ 'img_image_table' ], self::init_table_registry( self::$img_image_table ) );
+        self::$registry_datastore->set( WP_Option::$option[ 'img_table' ],       self::init_table_registry( self::$img_table ) );
+        self::$registry_datastore->set( WP_Option::$option[ 'image_table' ],     self::init_table_registry( self::$image_table ) );
+        self::$registry_datastore->set( WP_Option::$option[ 'img_image_table' ], self::init_table_registry( self::$img_image_table ) );
 
         //self::$registry->init_table_registry(self::$img_table_title,       self::$img_table);
         //self::$registry->init_table_registry(self::$image_table_title,     self::$image_table);
@@ -487,6 +487,7 @@ EOF;
         {
             return apply_filters(
                 Filter::$validate[get_called_class()],
+                get_called_class(),
                 $output,
                 Option::$OPTION_LIST[self::$section]);
         }
@@ -530,6 +531,7 @@ EOF;
          // Return the new collection
         return apply_filters(
             Filter::$validate[get_called_class()],
+            get_called_class(),
             $output,
             Option::$OPTION_LIST[self::$section]);
 

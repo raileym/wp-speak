@@ -142,6 +142,7 @@ require( dirname(__FILE__)."/admin/src/class-error.php" );
 require( dirname(__FILE__)."/admin/src/class-option.php" );
 require( dirname(__FILE__)."/admin/src/class-logmask.php" );
 require( dirname(__FILE__)."/admin/src/class-basic.php" );
+require( dirname(__FILE__)."/admin/src/class-wp-option-exception.php" );
 require( dirname(__FILE__)."/admin/src/class-wp-option.php" );
 require( dirname(__FILE__)."/admin/src/class-wp-settings.php" );
 //require( dirname(__FILE__)."/admin/src/class-add-settings-field.php" );
@@ -159,7 +160,7 @@ require( dirname(__FILE__)."/admin/src/class-example-option.php" );
 require( dirname(__FILE__)."/admin/src/class-log-option.php" );
 require( dirname(__FILE__)."/admin/src/class-media-option.php" );
 require( dirname(__FILE__)."/admin/src/class-image-option.php" );
-require( dirname(__FILE__)."/admin/src/abstract-registry.php" );
+require( dirname(__FILE__)."/admin/src/class-registry-datastore.php" );
 require( dirname(__FILE__)."/admin/src/class-registry.php" );
 require( dirname(__FILE__)."/admin/src/class-logger.php" );
 // require( dirname(__FILE__)."/includes/classes/audio.php" );
@@ -177,14 +178,20 @@ WP_Option::get_instance()
     ->set_logger(Logger::get_instance())
     ->set_mask(Logmask::$mask["log_wp_option"]);
 
+Registry_Datastore::get_instance()
+    ->set_logger(Logger::get_instance())
+    ->set_mask(Logmask::$mask["log_registry"]); // Going to piggy-back on Registry.
+
 Registry::get_instance()
     ->set_wp_option(WP_Option::get_instance())
+    ->set_registry_datastore(Registry_Datastore::get_instance())
     ->set_wp_settings(WP_Settings::get_instance())
     ->set_logger(Logger::get_instance())
     ->set_mask(Logmask::$mask["log_registry"]);
 
 Log_Option::get_instance()
     ->set_wp_option(WP_Option::get_instance())
+    ->set_registry_datastore(Registry_Datastore::get_instance())
     ->set_wp_settings(WP_Settings::get_instance())
     ->set_logger(Logger::get_instance())
     ->set_registry(Registry::get_instance())

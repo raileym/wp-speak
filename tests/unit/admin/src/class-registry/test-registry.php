@@ -28,6 +28,7 @@ class Test_Registry extends TestCase {
     private static $logger;
     private static $wp_option;
     private static $table;
+    private static $registry_datastore;
 
 
 
@@ -37,12 +38,13 @@ class Test_Registry extends TestCase {
     public function setUp() {
         parent::setUp();
         
-		self::$logger         = $this->createMock(Logger::class);
+		self::$logger             = $this->createMock(Logger::class);
 
-		self::$wp_option      = $this->createMock(WP_Option::class);
+		self::$wp_option          = $this->createMock(WP_Option::class);
 
-		self::$table          = $this->createMock(Table::class);
+		self::$table              = $this->createMock(Table::class);
 
+        self::$registry_datastore = $this->createMock(Registry_Datastore::class);
     }
 
     /**
@@ -74,25 +76,23 @@ class Test_Registry extends TestCase {
     }
 
     /**
-     * Nominal: Testing init_registry() on empty option.
+     * Error: Testing init_registry() on empty option.
      *
      * @test
      */
-    public function test_init_registry_01() {
+    public function test_init_registry_E02() {
 
-        self::$logger->expects($this->exactly(5))
+        self::$logger->expects($this->exactly(4))
                      ->method('log')
                      ->withConsecutive(
                          [Logmask::$mask['log_registry'], 'init_registry(bogus)'],
                          [Logmask::$mask['log_registry'], 'init_registry'],
                          [Logmask::$mask['log_registry'], 'init_registry(bogus). get_option() returns \'empty\'.'],
-                         [Logmask::$mask['log_registry'], 'MASK OPTIONS on init: '],
-                         [Logmask::$mask['log_registry'], '-2-----------------------------------']
+                         [Logmask::$mask['log_registry'], 'From OPTIONS on init: ']
                      );
-        
 
         self::$wp_option->expects($this->once())
-                        ->method('get_option')
+                        ->method('get')
                         ->with('bogus')
                         ->willReturn(array());
         
@@ -112,49 +112,54 @@ class Test_Registry extends TestCase {
      */
     public function test_init_registry_02() {
 
-        self::$logger->expects($this->exactly(8))
+        self::$logger->expects($this->exactly(7))
                      ->method('log')
                      ->withConsecutive(
                          [Logmask::$mask['log_registry'], 'init_registry(fake)'],
                          [Logmask::$mask['log_registry'], 'init_registry'],
-                         [Logmask::$mask['log_registry'], 'MASK OPTIONS on init: '],
+                         [Logmask::$mask['log_registry'], 'From OPTIONS on init: '],
                          [Logmask::$mask['log_registry'], 'Set Registry. fake-01 = FAKE-01'],
                          [Logmask::$mask['log_registry'], 'Set Registry. fake-02 = FAKE-02'],
                          [Logmask::$mask['log_registry'], 'Set Registry. fake-03 = FAKE-03'],
-                         [Logmask::$mask['log_registry'], 'Set Registry. fake-04 = FAKE-04'],
-                         [Logmask::$mask['log_registry'], '-2-----------------------------------']
+                         [Logmask::$mask['log_registry'], 'Set Registry. fake-04 = FAKE-04']
                      );
         
-        self::$wp_option->expects($this->once())
-                        ->method('get_option')
-                        ->with('fake')
-                        ->willReturn(array(
-                            'fake-01'=> 'FAKE-01', 
-                            'fake-02'=> 'FAKE-02', 
-                            'fake-03'=> 'FAKE-03', 
-                            'fake-04'=> 'FAKE-04'));
+        $option = array(
+            'fake-01'=> 'FAKE-01', 
+            'fake-02'=> 'FAKE-02', 
+            'fake-03'=> 'FAKE-03', 
+            'fake-04'=> 'FAKE-04');
+        
+        self::$wp_option
+            ->expects($this->once())
+            ->method('get')
+            ->with('fake')
+            ->willReturn($option);
         
         $registry = Registry::get_instance()
-                  ->set_array_registry( self::$array_registry )
+                  ->set_registry_datastore( self::$registry_datastore )
                   ->set_wp_option( self::$wp_option )
                   ->set_logger( self::$logger )
                   ->set_mask(Logmask::$mask['log_registry']);
         
-        $registry->expects($this->exactly(4))
-                 ->method('set')
-                 ->willReturn('Dont care')
-                 ->withConsecutive(
-                     ['fake-01', 'FAKE-01'],
-                     ['fake-02', 'FAKE-02'],
-                     ['fake-03', 'FAKE-03'],
-                     ['fake-04', 'FAKE-04']
-                 );
+        self::$registry_datastore
+            ->expects($this->exactly(5))
+            ->method('set')
+            ->willReturn('Dont care')
+            ->withConsecutive(
+                ['fake',    $option],
+                ['fake-01', 'FAKE-01'],
+                ['fake-02', 'FAKE-02'],
+                ['fake-03', 'FAKE-03'],
+                ['fake-04', 'FAKE-04']
+            );
         
-        $registry->init_registry('fake', 
-                                 array('fake-01', 
-                                       'fake-02',
-                                       'fake-03',
-                                       'fake-04'));
+        $registry
+            ->init_registry('fake', 
+                            array('fake-01', 
+                                  'fake-02',
+                                  'fake-03',
+                                  'fake-04'));
     }
     
     /**
@@ -164,40 +169,43 @@ class Test_Registry extends TestCase {
      */
     public function test_init_registry_03() {
 
-        self::$logger->expects($this->exactly(8))
+        $option = array(
+            'fake-01'=> 'FAKE-01', 
+            'password'=> 'FAKE-02', 
+            'fake-03'=> 'FAKE-03', 
+            'fake-04'=> 'FAKE-04');
+                
+        self::$logger->expects($this->exactly(7))
                      ->method('log')
                      ->withConsecutive(
                          [Logmask::$mask['log_registry'], 'init_registry(fake)'],
                          [Logmask::$mask['log_registry'], 'init_registry'],
-                         [Logmask::$mask['log_registry'], 'MASK OPTIONS on init: '],
+                         [Logmask::$mask['log_registry'], 'From OPTIONS on init: '],
                          [Logmask::$mask['log_registry'], 'Set Registry. fake-01 = FAKE-01'],
                          [Logmask::$mask['log_registry'], 'Set Registry. password = ********'],
                          [Logmask::$mask['log_registry'], 'Set Registry. fake-03 = FAKE-03'],
-                         [Logmask::$mask['log_registry'], 'Set Registry. fake-04 = FAKE-04'],
-                         [Logmask::$mask['log_registry'], '-2-----------------------------------']
+                         [Logmask::$mask['log_registry'], 'Set Registry. fake-04 = FAKE-04']
                      );
         
         self::$wp_option->expects($this->once())
-                        ->method('get_option')
+                        ->method('get')
                         ->with('fake')
-                        ->willReturn(array(
-                            'fake-01'=> 'FAKE-01', 
-                            'password'=> 'FAKE-02', 
-                            'fake-03'=> 'FAKE-03', 
-                            'fake-04'=> 'FAKE-04'));
+                        ->willReturn($option);
         
-        self::$array_registry->expects($this->exactly(4))
-                             ->method('set')
-                             ->willReturn('Dont care')
-                             ->withConsecutive(
-                                 ['fake-01', 'FAKE-01'],
-                                 ['password', 'FAKE-02'],
-                                 ['fake-03', 'FAKE-03'],
-                                 ['fake-04', 'FAKE-04']
-                             );
+        self::$registry_datastore
+            ->expects($this->exactly(5))
+            ->method('set')
+            ->willReturn('Dont care')
+            ->withConsecutive(
+                ['fake',    $option],
+                ['fake-01', 'FAKE-01'],
+                ['password', 'FAKE-02'],
+                ['fake-03', 'FAKE-03'],
+                ['fake-04', 'FAKE-04']
+            );
         
         $registry = Registry::get_instance()
-                  ->set_array_registry( self::$array_registry )
+                  ->set_registry_datastore( self::$registry_datastore )
                   ->set_wp_option( self::$wp_option )
                   ->set_logger( self::$logger )
                   ->set_mask(Logmask::$mask['log_registry']);
@@ -214,52 +222,56 @@ class Test_Registry extends TestCase {
      *
      * @test
      */
-    public function test_init_table_registry_01() {
+    public function test_update_registry_01() {
 
-        $expected = array();
+        $name_list = array(
+            'fake-01',
+            'password',
+            'fake-03',
+            'fake-04'
+        );
 
-        /**
-         * Talk about threading the needle.
-         */
-        foreach( ['1', '2', '3', '4'] as $key=>$val_no ) {
-            $row = array();
-            foreach( ['a', 'b', 'c'] as $val_alpha ) {
-                $row[$val_alpha . $val_no] = $val_alpha . $val_no;
-            }
-
-            // Start with the fake table name.
-            $table_name = 'fake-id-' . $val_no;
-
-            // Add the one row-element that is tied
-            // to the table name, so to speak.
-            $row['fake-id'] = $table_name;
-            $expected[$table_name] = $row;
-        }
-
-        self::$table->expects($this->once())
-                    ->method('id')
-                    ->willReturn(
-                        'fake-id');
+        $output = array(
+            'fake-01'=> 'FAKE-01', 
+            'password'=> 'FAKE-02', 
+            'fake-03'=> 'FAKE-03', 
+            'fake-04'=> 'FAKE-04');
+                
+        self::$logger->expects($this->exactly(7))
+                     ->method('log')
+                     ->withConsecutive(
+                         [Logmask::$mask['log_registry'], 'update_registry(fake)'],
+                         [Logmask::$mask['log_registry'], 'update_registry'],
+                         [Logmask::$mask['log_registry'], 'update_registry'],
+                         [Logmask::$mask['log_registry'], 'Update Registry. fake-01 = FAKE-01'],
+                         [Logmask::$mask['log_registry'], 'Update Registry. password = ********'],
+                         [Logmask::$mask['log_registry'], 'Update Registry. fake-03 = FAKE-03'],
+                         [Logmask::$mask['log_registry'], 'Update Registry. fake-04 = FAKE-04']
+                     );
         
-        self::$table->expects($this->once())
-                    ->method('tag')
-                    ->willReturn(
-                        'fake-tag');
-
-        self::$table->expects($this->once())
-                    ->method('fetch_all')
-                    ->willReturn(
-                        $expected);
-
-        self::$array_registry->expects($this->once())
-                             ->method('set')
-                             ->willReturn(array(['Dont care']))
-                             ->with( 'fake-tag', $expected );
+        self::$registry_datastore
+            ->expects($this->exactly(5))
+            ->method('set')
+            ->willReturn('Dont care')
+            ->withConsecutive(
+                ['fake',    $output],
+                ['fake-01', 'FAKE-01'],
+                ['password', 'FAKE-02'],
+                ['fake-03', 'FAKE-03'],
+                ['fake-04', 'FAKE-04']
+            );
         
         $registry = Registry::get_instance()
-                  ->set_array_registry( self::$array_registry );
+                  ->set_registry_datastore( self::$registry_datastore )
+                  ->set_wp_option( self::$wp_option )
+                  ->set_logger( self::$logger )
+                  ->set_mask(Logmask::$mask['log_registry']);
         
-        $registry->init_table_registry(self::$table);
+        $registry->update_registry(
+            "fake",
+            $output,
+            $name_list);
 
     }
+    
 }

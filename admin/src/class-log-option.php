@@ -47,16 +47,7 @@ class Log_Option extends Basic
         $arg_page,
         $arg_name_list ) {
 
-        //error_log(" ************* INIT_LOG_MASK **************");
-        //error_log( $arg_page );
-        //error_log( print_r($arg_name_list, true) );
-
-        //error_log( get_called_class() );
-
-        //self::$registry->dump();
-
-        //$log_mask = self::$registry->get( WP_Option::$option[ get_called_class() ] );
-        $log_mask = self::$registry->get( get_called_class() );
+        $log_mask = self::$registry_datastore->get( get_called_class() );
 
         self::$logger->set_logger_mask( 0 );
 
@@ -121,7 +112,7 @@ class Log_Option extends Basic
             Filter::$validate[get_called_class()],
             array(self::$registry, "update_registry"),
             Callback::EXPECT_DEFAULT_PRIORITY,
-            Callback::EXPECT_TWO_ARGUMENTS);
+            Callback::EXPECT_THREE_ARGUMENTS);
 
         //error_log("INSIDE: ". get_called_class() . __FUNCTION__);
         //error_log("Global mask:" . self::$logger->get_logger_mask());
@@ -217,6 +208,7 @@ EOD;
         {
             $results = apply_filters(
                 Filter::$validate[get_called_class()],
+                get_called_class(),
                 $output,
                 Option::$OPTION_LIST[self::$section]);
 
@@ -235,6 +227,7 @@ EOD;
         // Return the new collection
         $output = apply_filters(
             Filter::$validate[get_called_class()],
+            get_called_class(),
             $output,
             Option::$OPTION_LIST[self::$section] );
         

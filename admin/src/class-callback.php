@@ -6,9 +6,10 @@ class Callback extends Basic
 	const EXPECT_DEFAULT_PRIORITY = 10;         /** For add_action: use default priority of 10 */
 	const EXPECT_NON_DEFAULT_PRIORITY = 11;
 
-	const EXPECT_ZERO_ARGUMENTS = 0;            /** For add_action: expect zero arguments */
-	const EXPECT_ONE_ARGUMENT   = 1;            /** For add_action: expect one argument */
-	const EXPECT_TWO_ARGUMENTS  = 2;            /** For add_action: expect two arguments */
+	const EXPECT_ZERO_ARGUMENTS  = 0;            /** For add_action: expect zero arguments */
+	const EXPECT_ONE_ARGUMENT    = 1;            /** For add_action: expect one argument */
+	const EXPECT_TWO_ARGUMENTS   = 2;            /** For add_action: expect two arguments */
+	const EXPECT_THREE_ARGUMENTS = 3;            /** For add_action: expect three arguments */
 
     const CHECKBOX  = array("WP_Speak\Callback", "element_checkbox_callback");
     const PARAGRAPH = array("WP_Speak\Callback", "section_paragraph_callback");
