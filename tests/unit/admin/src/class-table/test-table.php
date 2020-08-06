@@ -1,6 +1,6 @@
 <?php
 /**
- * Testing for class Logger.
+ * Testing for class Table.
  *
  * The following tests include both nominal and error tests.
  *
@@ -11,261 +11,70 @@
 namespace WP_Speak;
 
 /**
- * Testing for class Logger.
+ * Testing for class Table.
  */
 class Test_Table extends \WP_UnitTestCase {
 
-    private static $logger;
+    private static $table;
 
     public function setUp() {
         parent::setUp();
         
-        self::$logger = Logger::get_instance();
+        self::$table       = Table::get_instance();
     }
 
     /**
-     * Nominal: Testing basic set_logger_mask()/get_logger_mask().
+     * Nominal: Testing basic set_tag()/tag().
      *
      * @test
      */
-    public function test_set_logger_mask_01() {
+    public function test_create_01() {
 
-        $tgt_mask = 0x0010;
+        global $wpdb;
 
-        self::$logger->set_logger_mask( $tgt_mask );
+        $tag = 'TAG';
+        $columns = SQL::$columns['img'];
+        $sql = SQL::$create_table_sql['img'];
 
-        $mask = self::$logger->get_logger_mask();
+        $table = self::$table->create($tag, $columns, $sql);
 
-        $this->assertEquals( $tgt_mask, $mask );
+        $this->assertEquals( $tag, $table->tag() );
+        $this->assertEquals( $tag.'_id', $table->id() );
+        $this->assertEquals( $wpdb->prefix . "speak_" . $tag, $table->table() );
+        $this->assertEquals( $wpdb->get_charset_collate(), $table->charset() );
+        $this->assertEquals( $columns, $table->columns() );
+        $this->assertEquals( $sql, $table->sql() );
     }
 
-
     /**
-     * Nominal: Testing single write() with dummy message.
+     * Nominal: Testing basic set_tag()/tag().
      *
      * @test
      */
-    public function test_write_01() {
+    public function test_install_01() {
 
-        $tgt_mask    = 0x0010;
-        $tgt_message = 'Dummy message: ' . __FUNCTION__;
+        global $wpdb;
 
-        Error::clear_errlog();
-        Error::clear_errmsg();
+        $tag = 'TAG';
+        $src = 'https://www.cnn.com';
+        $columns = SQL::$columns['img'];
+        $sql = SQL::$create_table_sql['img'];
 
-        self::$logger->set_logger_mask( $tgt_mask );
-        self::$logger->write( $tgt_mask, $tgt_message, Logger::LOGGER_NO_PRINT );
+        $image = array();
+        
+        $image['status']      = 'No status';
+        $image['src']         = 'http://google.com';
+        $image['alt']         = "No ALT";
+        $image['img']         = "<img src='{$src}'></img>";
+        $image['path']        = str_replace(array("http://", "https://"), array("", ""), $image['src']);
+        $image['title']       = basename( $image['src'] );
+        $image['image_id']    = md5( $image['src'] );
 
-        $errlog = Error::get_errlog();
+        $table = self::$table->create($tag, $columns, $sql);
 
-        $this->assertEquals( $tgt_message, $errlog );
-
+        $this->assertTrue( $table->validate( $image ) );
+            
     }
-
-
-    /**
-     * Nominal: Testing single write() with wrong mask.
-     *
-     * @test
-     */
-    public function test_write_02() {
-
-        $mask        = 0x0010;
-        $other_mask  = 0x0100;
-        $tgt_message = 'Dummy message: ' . __FUNCTION__;
-
-        Error::clear_errlog();
-        Error::clear_errmsg();
-
-        self::$logger->set_logger_mask( $mask );
-        self::$logger->write( $other_mask, $tgt_message, Logger::LOGGER_NO_PRINT );
-
-        $errlog = Error::get_errlog();
-
-        $this->assertEquals( '', $errlog );
-
-    }
-
-
-    /**
-     * Nominal: Testing write() with an array of messages.
-     *
-     * @test
-     */
-    public function test_write_03() {
-
-        $mask        = 0x0010;
-        $tgt_message = array();
-
-        Error::clear_errlog();
-        Error::clear_errmsg();
-
-        self::$logger->set_logger_mask( $mask );
-
-        foreach ( [ 1, 2, 3, 4 ] as $idx => $val ) {
-            $tgt_message[ $idx ] = "Dummy message-{$val}: " . __FUNCTION__;
-        }
-
-        self::$logger->write( $mask, $tgt_message, Logger::LOGGER_NO_PRINT );
-
-        $errlog = Error::get_errlog();
-
-        $this->assertEquals( trim( print_r( $tgt_message, true ) ), $errlog );
-
-    }
-
-
-    /**
-     * Nominal: Testing write() with multiple messages.
-     *
-     * @test
-     */
-    public function test_write_04() {
-
-        $mask        = 0x0010;
-        $tgt_message = '';
-
-        Error::clear_errlog();
-        Error::clear_errmsg();
-
-        self::$logger->set_logger_mask( $mask );
-
-        foreach ( [ 1, 2, 3, 4 ] as $idx => $val ) {
-            $message      = "Dummy message-{$val}: " . __FUNCTION__;
-            $tgt_message .= $message . PHP_EOL;
-            self::$logger->write( $mask, $message, Logger::LOGGER_NO_PRINT );
-
-        }
-
-        $errlog = Error::get_errlog();
-
-        $this->assertEquals( print_r( trim( $tgt_message ), true ), $errlog );
-
-    }
-
-
-    /**
-     * Nominal: Testing write() with multiple messages printed to errlog.
-     *
-     * @test Nominal test for write().
-     */
-    public function test_write_05() {
-
-        $mask        = 0x0010;
-        $tgt_message = '';
-
-        Error::clear_errlog();
-        Error::clear_errmsg();
-
-        self::$logger->set_logger_mask( $mask );
-
-        foreach ( [ 1, 2, 3, 4 ] as $idx => $val ) {
-            $message      = "Dummy message-{$idx}: " . __FUNCTION__;
-            $tgt_message .= $message . PHP_EOL;
-            self::$logger->write( $mask, $message, Logger::LOGGER_PRINT );
-
-        }
-
-        $errlog = Error::get_errlog();
-
-        $this->assertEquals( print_r( '', true ), $errlog );
-
-    }
-
-
-    /**
-     * Nominal: Testing write() for many messages, grouped, not printed.
-     *
-     * @test
-     */
-    public function test_write_06() {
-
-        $mask        = 0x0010;
-        $tgt_message = '';
-
-        Error::clear_errlog();
-        Error::clear_errmsg();
-
-        self::$logger->set_logger_mask( $mask );
-
-        foreach ( [ 1, 2, 3, 4 ] as $idx_p => $p ) {
-            foreach ( [ 1, 2, 3, 4 ] as $idx_n => $n ) {
-                foreach ( [ 1, 2, 3, 4 ] as $idx_m => $m ) {
-                    $message      = "Messages ({$p}, {$n},{$m}): " . __FUNCTION__;
-                    $tgt_message .= $message . PHP_EOL;
-                    self::$logger->write( $mask, $message, Logger::LOGGER_NO_PRINT );
-
-                }
-            }
-        }
-
-        $errlog = Error::get_errlog();
-
-        $this->assertEquals( trim( print_r( $tgt_message, true ) ), $errlog );
-
-    }
-
-    /**
-     * Nominal: Testing write() with many messages, not printed, then printed.
-     *
-     * @test Nominal test for write().
-     */
-    public function test_write_07() {
-
-        $mask        = 0x0010;
-        $tgt_message = '';
-
-        Error::clear_errlog();
-        Error::clear_errmsg();
-
-        self::$logger->set_logger_mask( $mask );
-
-        foreach ( [ 1, 2, 3, 4 ] as $idx_p => $p ) {
-            foreach ( [ 1, 2, 3, 4 ] as $idx_n => $n ) {
-                foreach ( [ 1, 2, 3, 4 ] as $idx_m => $m ) {
-                    $message      = "Messages ({$p}, {$n},{$m}): " . __FUNCTION__;
-                    $tgt_message .= $message . PHP_EOL;
-                    self::$logger->write( $mask, $message, Logger::LOGGER_NO_PRINT );
-
-                }
-            }
-        }
-
-        $errlog = Error::get_errlog();
-
-        Error::clear_errlog();
-
-        self::$logger->write( $mask, $errlog, Logger::LOGGER_PRINT );
-
-        $this->assertEquals( trim( print_r( $tgt_message, true ) ), $errlog );
-
-    }
-
-
-    /**
-     * Nominal: Testing write() for one message, printed.
-     *
-     * @test Nominal test for write().
-     */
-    public function test_write_08() {
-
-        $tgt_mask    = 0x0010;
-        $tgt_message = 'Dummy message: ' . __FUNCTION__;
-
-        Error::clear_errlog();
-        Error::clear_errmsg();
-
-        self::$logger->set_logger_mask( $tgt_mask );
-        self::$logger->write( $tgt_mask, $tgt_message, Logger::LOGGER_PRINT );
-
-        $errlog = Error::get_errlog();
-
-        $this->assertEquals( '', $errlog );
-
-    }
-
-
-    /*--------------------------------------------------------------*/
 
 }
 

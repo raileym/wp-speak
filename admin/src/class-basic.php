@@ -56,6 +56,14 @@ class Basic {
     protected static $registry_datastore;
 
 
+    /**
+     * $error is the handle to the error.
+     *
+     * @var Error $error.
+     */
+    protected static $error;
+
+
 	/**
 	 * The function get_instance serves the role of returning an instance.
 	 * This function supports the Singleton creation pattern.
@@ -133,6 +141,17 @@ class Basic {
 	 */
 	public function set_registry_datastore( Registry_Datastore $arg_registry_datastore ) {
 		self::$registry_datastore = $arg_registry_datastore;
+		return $this;
+	}
+
+
+	/**
+	 * The function set_registry sets the instance handle for the registry.
+	 *
+	 * @param Error $arg_error is a handle to an Error instance.
+	 */
+	public function set_error( Error $arg_error ) {
+		self::$error = $arg_error;
 		return $this;
 	}
 

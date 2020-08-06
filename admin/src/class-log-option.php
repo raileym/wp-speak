@@ -20,7 +20,7 @@ class Log_Option extends Basic
 	    );
 	private static $default_options = array(
             "log_admin"      => 0,
-            "log_cache"      => 0,
+            "log_wpdb"       => 0,
             "log_callback"   => 0,
             "log_copyright"  => 0,
             "log_debug"      => 0,
@@ -32,7 +32,8 @@ class Log_Option extends Basic
             "log_log"        => 0,
             "log_media"      => 0,
             "log_register"   => 0,
-            "log_registry"   => 0
+            "log_registry"   => 0,
+            "log_error"      => 0
         );
 
 	protected function __construct() { 
@@ -154,7 +155,7 @@ EOD;
 
         array_map( self::$add_settings_field["log"], [
             ["id"=>"log_admin",      "title"=>"Log ADMIN",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
-            ["id"=>"log_cache",      "title"=>"Log CACHE",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_wpdb",       "title"=>"Log WPDB",       "callback"=>Callback::CHECKBOX, "args"=>array( )],
             ["id"=>"log_callback",   "title"=>"Log CALLBACK",   "callback"=>Callback::CHECKBOX, "args"=>array( )],
             ["id"=>"log_copyright",  "title"=>"Log COPYRIGHT",  "callback"=>Callback::CHECKBOX, "args"=>array( )],
             ["id"=>"log_debug",      "title"=>"Log DEBUG",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
@@ -167,6 +168,7 @@ EOD;
             ["id"=>"log_media",      "title"=>"Log MEDIA",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
             ["id"=>"log_register",   "title"=>"Log REGISTER",   "callback"=>Callback::CHECKBOX, "args"=>array( )],
             ["id"=>"log_registry",   "title"=>"Log REGISTRY",   "callback"=>Callback::CHECKBOX, "args"=>array( )],
+            ["id"=>"log_error",      "title"=>"Log ERROR",      "callback"=>Callback::CHECKBOX, "args"=>array( )],
         ]);
 
         self::$wp_settings->register_setting(

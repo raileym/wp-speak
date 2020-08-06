@@ -16,11 +16,13 @@ namespace WP_Speak;
 class Test_Logger extends \WP_UnitTestCase {
 
     private static $logger;
+    private static $error;
 
     public function setUp() {
         parent::setUp();
         
         self::$logger = Logger::get_instance();
+        self::$error = Error::get_instance();
     }
 
     /**
@@ -50,13 +52,13 @@ class Test_Logger extends \WP_UnitTestCase {
         $tgt_mask    = 0x0010;
         $tgt_message = 'Dummy message: ' . __FUNCTION__;
 
-        Error::clear_errlog();
-        Error::clear_errmsg();
+        self::$error->clear_errlog();
+        self::$error->clear_errmsg();
 
         self::$logger->set_logger_mask( $tgt_mask );
         self::$logger->write( $tgt_mask, $tgt_message, Logger::LOGGER_NO_PRINT );
 
-        $errlog = Error::get_errlog();
+        $errlog = self::$error->get_errlog();
 
         $this->assertEquals( $tgt_message, $errlog );
 
@@ -74,13 +76,13 @@ class Test_Logger extends \WP_UnitTestCase {
         $other_mask  = 0x0100;
         $tgt_message = 'Dummy message: ' . __FUNCTION__;
 
-        Error::clear_errlog();
-        Error::clear_errmsg();
+        self::$error->clear_errlog();
+        self::$error->clear_errmsg();
 
         self::$logger->set_logger_mask( $mask );
         self::$logger->write( $other_mask, $tgt_message, Logger::LOGGER_NO_PRINT );
 
-        $errlog = Error::get_errlog();
+        $errlog = self::$error->get_errlog();
 
         $this->assertEquals( '', $errlog );
 
@@ -97,8 +99,8 @@ class Test_Logger extends \WP_UnitTestCase {
         $mask        = 0x0010;
         $tgt_message = array();
 
-        Error::clear_errlog();
-        Error::clear_errmsg();
+        self::$error->clear_errlog();
+        self::$error->clear_errmsg();
 
         self::$logger->set_logger_mask( $mask );
 
@@ -108,7 +110,7 @@ class Test_Logger extends \WP_UnitTestCase {
 
         self::$logger->write( $mask, $tgt_message, Logger::LOGGER_NO_PRINT );
 
-        $errlog = Error::get_errlog();
+        $errlog = self::$error->get_errlog();
 
         $this->assertEquals( trim( print_r( $tgt_message, true ) ), $errlog );
 
@@ -125,8 +127,8 @@ class Test_Logger extends \WP_UnitTestCase {
         $mask        = 0x0010;
         $tgt_message = '';
 
-        Error::clear_errlog();
-        Error::clear_errmsg();
+        self::$error->clear_errlog();
+        self::$error->clear_errmsg();
 
         self::$logger->set_logger_mask( $mask );
 
@@ -137,7 +139,7 @@ class Test_Logger extends \WP_UnitTestCase {
 
         }
 
-        $errlog = Error::get_errlog();
+        $errlog = self::$error->get_errlog();
 
         $this->assertEquals( print_r( trim( $tgt_message ), true ), $errlog );
 
@@ -154,8 +156,8 @@ class Test_Logger extends \WP_UnitTestCase {
         $mask        = 0x0010;
         $tgt_message = '';
 
-        Error::clear_errlog();
-        Error::clear_errmsg();
+        self::$error->clear_errlog();
+        self::$error->clear_errmsg();
 
         self::$logger->set_logger_mask( $mask );
 
@@ -166,7 +168,7 @@ class Test_Logger extends \WP_UnitTestCase {
 
         }
 
-        $errlog = Error::get_errlog();
+        $errlog = self::$error->get_errlog();
 
         $this->assertEquals( print_r( '', true ), $errlog );
 
@@ -183,8 +185,8 @@ class Test_Logger extends \WP_UnitTestCase {
         $mask        = 0x0010;
         $tgt_message = '';
 
-        Error::clear_errlog();
-        Error::clear_errmsg();
+        self::$error->clear_errlog();
+        self::$error->clear_errmsg();
 
         self::$logger->set_logger_mask( $mask );
 
@@ -199,7 +201,7 @@ class Test_Logger extends \WP_UnitTestCase {
             }
         }
 
-        $errlog = Error::get_errlog();
+        $errlog = self::$error->get_errlog();
 
         $this->assertEquals( trim( print_r( $tgt_message, true ) ), $errlog );
 
@@ -215,8 +217,8 @@ class Test_Logger extends \WP_UnitTestCase {
         $mask        = 0x0010;
         $tgt_message = '';
 
-        Error::clear_errlog();
-        Error::clear_errmsg();
+        self::$error->clear_errlog();
+        self::$error->clear_errmsg();
 
         self::$logger->set_logger_mask( $mask );
 
@@ -231,9 +233,9 @@ class Test_Logger extends \WP_UnitTestCase {
             }
         }
 
-        $errlog = Error::get_errlog();
+        $errlog = self::$error->get_errlog();
 
-        Error::clear_errlog();
+        self::$error->clear_errlog();
 
         self::$logger->write( $mask, $errlog, Logger::LOGGER_PRINT );
 
@@ -252,13 +254,13 @@ class Test_Logger extends \WP_UnitTestCase {
         $tgt_mask    = 0x0010;
         $tgt_message = 'Dummy message: ' . __FUNCTION__;
 
-        Error::clear_errlog();
-        Error::clear_errmsg();
+        self::$error->clear_errlog();
+        self::$error->clear_errmsg();
 
         self::$logger->set_logger_mask( $tgt_mask );
         self::$logger->write( $tgt_mask, $tgt_message, Logger::LOGGER_PRINT );
 
-        $errlog = Error::get_errlog();
+        $errlog = self::$error->get_errlog();
 
         $this->assertEquals( '', $errlog );
 

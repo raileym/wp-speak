@@ -21,7 +21,7 @@ class Logmask
         array(
             'log_all'        => 0xFFFF,
             'log_admin'      => 0x0001,
-            'log_cache'      => 0x0002,
+            'log_wpdb'       => 0x0002,
             'log_callback'   => 0x0004,
             'log_copyright'  => 0x0008,
             'log_debug'      => 0x0010,
@@ -34,6 +34,7 @@ class Logmask
             'log_media'      => 0x0800,
             'log_register'   => 0x1000,
             'log_registry'   => 0x2000,
-            'log_wp_option'  => 0x4000,
+            'log_error'      => 0x4000,
+            'log_wp_option'  => 0x8000,
         );
 }

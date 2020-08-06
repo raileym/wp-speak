@@ -16,25 +16,16 @@ namespace WP_Speak;
  */
 class Errnm {
 
-	/**
-	 * The mapping of error names to error numbers. I am leaving
-	 * this construct as a variable NOT a constant to support
-	 * earlier versions of PHP. Also, I am choosing to make this
-	 * array public, at least for testing purposes.
-	 *
-	 * @var $NM
-	 */
-	public static $nm = array(
-		'ERR_DB_PREPARE'      => 9,
-		'ERR_DB_UPDATE_ALL'   => 8,
-		'ERR_DB_UPDATE'       => 7,
-		'ERR_DB_EMPTY_STRING' => 6,
-		'ERR_DB_NULL_VALUE'   => 5,
-		'ERR_DB_BAD_VALUE'    => 4,
-		'ERR_DB_BAD_INSERT'   => 3,
-		'ERR_DB_BAD_COLUMN'   => 2,
-		'ERR_DB_INSERT'       => 1,
-		'ERR_DB_OKAY'         => 0,
-	);
+    const ERR_NM_PREPARE      = "ERR_NM_PREPARE";
+    const ERR_NM_UPDATE_ALL   = "ERR_NM_UPDATE_ALL";
+    const ERR_NM_UPDATE       = "ERR_NM_UPDATE";
+    const ERR_NM_EMPTY_STRING = "ERR_NM_EMPTY_STRING";
+    const ERR_NM_NULL_VALUE   = "ERR_NM_NULL_VALUE";
+    const ERR_NM_BAD_VALUE    = "ERR_NM_BAD_VALUE";
+    const ERR_NM_BAD_INSERT   = "ERR_NM_BAD_INSERT";
+    const ERR_NM_BAD_COLUMN   = "ERR_NM_BAD_COLUMN";
+    const ERR_NM_INSERT       = "ERR_NM_INSERT";
+    const ERR_NM_OKAY         = "ERR_NM_OKAY";
+
 }
 

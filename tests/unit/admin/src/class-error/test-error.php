@@ -15,6 +15,14 @@ namespace WP_Speak;
  */
 class Test_Error extends \WP_UnitTestCase {
 
+    private static $error;
+
+    public function setUp() {
+        parent::setUp();
+        
+        self::$error = Error::get_instance();
+    }
+
     /**
      * Nominal: Testing the basic set_errnm()/get_errnm().
      *
@@ -22,11 +30,11 @@ class Test_Error extends \WP_UnitTestCase {
      */
     public function test_errnm_01() {
 
-        $tgt_errnm = Error::ERR_NM_PREPARE;
+        $tgt_errnm = Errnm::ERR_NM_PREPARE;
 
-        Error::set_errnm( $tgt_errnm );
+        self::$error->set_errnm( $tgt_errnm );
 
-        $errnm = Error::get_errnm();
+        $errnm = self::$error->get_errnm();
 
         $this->assertEquals( $tgt_errnm, $errnm );
     }
@@ -39,12 +47,12 @@ class Test_Error extends \WP_UnitTestCase {
      */
     public function test_errnm_02() {
 
-        $tgt_errno = Error::ERR_NO_PREPARE;
+        $tgt_errno = Errno::ERR_NO_PREPARE;
         $tgt_errnm = Error::$errnm[ $tgt_errno ];
 
-        Error::set_errno( $tgt_errno );
+        self::$error->set_errno( $tgt_errno );
 
-        $errnm = Error::get_errnm();
+        $errnm = self::$error->get_errnm();
 
         $this->assertEquals( $tgt_errnm, $errnm );
 
@@ -61,11 +69,11 @@ class Test_Error extends \WP_UnitTestCase {
      */
     public function test_errno_01() {
 
-        $tgt_errno = Error::ERR_NO_PREPARE;
+        $tgt_errno = Errno::ERR_NO_PREPARE;
 
-        Error::set_errno( $tgt_errno );
+        self::$error->set_errno( $tgt_errno );
 
-        $errno = Error::get_errno();
+        $errno = self::$error->get_errno();
 
         $this->assertEquals( $tgt_errno, $errno );
 
@@ -79,12 +87,12 @@ class Test_Error extends \WP_UnitTestCase {
      */
     public function test_errno_02() {
 
-        $tgt_errnm = Error::ERR_NM_PREPARE;
+        $tgt_errnm = Errnm::ERR_NM_PREPARE;
         $tgt_errno = Error::$errno[ $tgt_errnm ];
 
-        Error::set_errnm( $tgt_errnm );
+        self::$error->set_errnm( $tgt_errnm );
 
-        $errno = Error::get_errno();
+        $errno = self::$error->get_errno();
 
         $this->assertEquals( $tgt_errno, $errno );
 
@@ -101,12 +109,12 @@ class Test_Error extends \WP_UnitTestCase {
      */
     public function test_msg_01() {
 
-        $tgt_errmsg = Error::$errnm[ Error::ERR_NO_UPDATE_ALL ];
+        $tgt_errmsg = Error::$errnm[ Errno::ERR_NO_UPDATE_ALL ];
 
-        Error::set_errno( Error::ERR_NO_UPDATE_ALL );
-        Error::set_errmsg();
+        self::$error->set_errno( Errno::ERR_NO_UPDATE_ALL );
+        self::$error->set_errmsg();
 
-        $errmsg = Error::get_errmsg();
+        $errmsg = self::$error->get_errmsg();
 
         $this->assertEquals( $tgt_errmsg, $errmsg );
 
@@ -120,13 +128,13 @@ class Test_Error extends \WP_UnitTestCase {
      */
     public function test_msg_02() {
 
-        $tgt_errmsg = Error::$errnm[ Error::ERR_NO_UPDATE_ALL ] . ': Dummy message';
+        $tgt_errmsg = Error::$errnm[ Errno::ERR_NO_UPDATE_ALL ] . ': Dummy message';
 
-        Error::clear_errmsg();
-        Error::set_errno( Error::ERR_NO_UPDATE_ALL );
-        Error::set_errmsg( 'Dummy message' );
+        self::$error->clear_errmsg();
+        self::$error->set_errno( Errno::ERR_NO_UPDATE_ALL );
+        self::$error->set_errmsg( 'Dummy message' );
 
-        $errmsg = Error::get_errmsg();
+        $errmsg = self::$error->get_errmsg();
 
         $this->assertEquals( trim( $tgt_errmsg ), trim( $errmsg ) );
 
@@ -139,17 +147,17 @@ class Test_Error extends \WP_UnitTestCase {
      */
     public function test_msg_03() {
 
-        $tgt_errmsg  = Error::$errnm[ Error::ERR_NO_UPDATE_ALL ] . ': Dummy message-02. ';
-        $tgt_errmsg .= Error::$errnm[ Error::ERR_NO_UPDATE_ALL ] . ': Dummy message-01';
+        $tgt_errmsg  = Error::$errnm[ Errno::ERR_NO_UPDATE_ALL ] . ': Dummy message-02. ';
+        $tgt_errmsg .= Error::$errnm[ Errno::ERR_NO_UPDATE_ALL ] . ': Dummy message-01';
 
-        Error::clear_errmsg();
-        Error::set_errno( Error::ERR_NO_UPDATE_ALL );
-        Error::set_errmsg( 'Dummy message-01' );
+        self::$error->clear_errmsg();
+        self::$error->set_errno( Errno::ERR_NO_UPDATE_ALL );
+        self::$error->set_errmsg( 'Dummy message-01' );
 
-        Error::set_errno( Error::ERR_NO_UPDATE_ALL );
-        Error::set_errmsg( 'Dummy message-02' );
+        self::$error->set_errno( Errno::ERR_NO_UPDATE_ALL );
+        self::$error->set_errmsg( 'Dummy message-02' );
 
-        $errmsg = Error::get_errmsg();
+        $errmsg = self::$error->get_errmsg();
 
         $this->assertEquals( trim( $tgt_errmsg ), trim( $errmsg ) );
 
@@ -162,30 +170,30 @@ class Test_Error extends \WP_UnitTestCase {
      */
     public function test_log_01() {
 
-        $tgt_errlog  = Error::$errnm[ Error::ERR_NO_UPDATE_ALL ] . ': Dummy message-01';
-        $tgt_errlog .= PHP_EOL . Error::$errnm[ Error::ERR_NO_UPDATE_ALL ] . ': Dummy message-02';
-        $tgt_errlog .= PHP_EOL . Error::$errnm[ Error::ERR_NO_UPDATE_ALL ] . ': Dummy message-03';
-        $tgt_errlog .= PHP_EOL . Error::$errnm[ Error::ERR_NO_UPDATE_ALL ] . ': Dummy message-04';
+        $tgt_errlog  = Error::$errnm[ Errno::ERR_NO_UPDATE_ALL ] . ': Dummy message-01';
+        $tgt_errlog .= PHP_EOL . Error::$errnm[ Errno::ERR_NO_UPDATE_ALL ] . ': Dummy message-02';
+        $tgt_errlog .= PHP_EOL . Error::$errnm[ Errno::ERR_NO_UPDATE_ALL ] . ': Dummy message-03';
+        $tgt_errlog .= PHP_EOL . Error::$errnm[ Errno::ERR_NO_UPDATE_ALL ] . ': Dummy message-04';
 
-        Error::clear_errlog();
+        self::$error->clear_errlog();
 
-        Error::clear_errmsg();
-        Error::set_errno( Error::ERR_NO_UPDATE_ALL );
-        Error::set_errmsg( 'Dummy message-01' );
+        self::$error->clear_errmsg();
+        self::$error->set_errno( Errno::ERR_NO_UPDATE_ALL );
+        self::$error->set_errmsg( 'Dummy message-01' );
 
-        Error::clear_errmsg();
-        Error::set_errno( Error::ERR_NO_UPDATE_ALL );
-        Error::set_errmsg( 'Dummy message-02' );
+        self::$error->clear_errmsg();
+        self::$error->set_errno( Errno::ERR_NO_UPDATE_ALL );
+        self::$error->set_errmsg( 'Dummy message-02' );
 
-        Error::clear_errmsg();
-        Error::set_errno( Error::ERR_NO_UPDATE_ALL );
-        Error::set_errmsg( 'Dummy message-03' );
+        self::$error->clear_errmsg();
+        self::$error->set_errno( Errno::ERR_NO_UPDATE_ALL );
+        self::$error->set_errmsg( 'Dummy message-03' );
 
-        Error::clear_errmsg();
-        Error::set_errno( Error::ERR_NO_UPDATE_ALL );
-        Error::set_errmsg( 'Dummy message-04' );
+        self::$error->clear_errmsg();
+        self::$error->set_errno( Errno::ERR_NO_UPDATE_ALL );
+        self::$error->set_errmsg( 'Dummy message-04' );
 
-        $errlog = Error::get_errlog();
+        $errlog = self::$error->get_errlog();
 
         $this->assertEquals( trim( $tgt_errlog ), trim( $errlog ) );
 

@@ -90,7 +90,7 @@ EOD;
 
 
         if ( !self::$image_table->update_all( 'status', 'invalid' ) ) {
-            self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+            self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
             return;
         }
 
@@ -127,17 +127,17 @@ EOD;
                     $image['image_id']    = md5( $image['src'] );
                     
                     if ( !self::$image_table->validate( $image ) ) {
-                        self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
             
                     if ( !self::$image_table->insert_unique( $image ) ) {
-                        self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$image_table->update( 'status', 'valid', 'image_id', $image['image_id'] ) ) {
-                        self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
 
@@ -328,7 +328,7 @@ EOF;
             $custom_alt = $arg_input[ "{$element}_custom_alt_{$cnt}" ];
             
             if ( !self::$image_table->update('alt', $custom_alt, 'image_id', $image_id) ) {
-                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
                 return;
             }
             
@@ -351,30 +351,30 @@ EOF;
             $image = $master["image"][ $img_image["image_id"] ];
             
             if ( !self::$img_table->validate( $img ) ) {
-                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
                 return;
             }
             
             if ( !self::$image_table->validate( $image ) ) {
-                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
                 return;
             }
             
             $img_id = self::$img_table->insert($img);
             if ( FALSE === $img_id ) {
-                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
                 return;
             }
 
             $image_id = self::$image_table->insert($image);
             if ( FALSE === $image_id ) {
-                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
                 return;
             }
 
             $img_image_id = self::$img_image_table->insert( array("img_id" => $img_id, "image_id" => $image_id) );
             if ( FALSE === $img_image_id ) {
-                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'image_files', 'Image Files', self::$error->get_errmsg(), 'error' );
                 return;
             }
         }

@@ -100,7 +100,7 @@ class Logger extends Basic {
             return;
         }
 
-        Error::write_errlog( $arg_message, $arg_print_errlog_ind );
+        self::$error->write_errlog( $arg_message, $arg_print_errlog_ind );
     }
 
     /**

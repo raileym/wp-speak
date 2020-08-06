@@ -45,7 +45,7 @@ class Option
 	        "log_option"       => array(
                                     "log_registry",
                                     "log_admin",
-                                    "log_cache",
+                                    "log_wpdb",
                                     "log_copyright",
                                     "log_debug",
                                     "log_example",
@@ -55,7 +55,8 @@ class Option
                                     "log_include",
                                     "log_log",
                                     "log_media",
-                                    "log_register"
+                                    "log_register",
+                                    "log_error"
 		                        ),
 	        "ibm_watson_option"  => array(
                 "ibm_watson_message",		// Dynamic Value ... not editable by user

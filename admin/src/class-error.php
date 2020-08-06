@@ -14,7 +14,17 @@ namespace WP_Speak;
 /**
  * Error provides the assorted constructs for error-handling.
  */
-class Error extends Errno {
+class Error extends Basic {
+
+
+    protected static $instance;
+
+    /**
+     * $mask is the local (protected) copy of mask.
+     *
+     * @var int $mask
+     */
+    protected static $mask;
 
     /**
      * $errno_idx is an index into the errno array.
@@ -60,6 +70,53 @@ class Error extends Errno {
      */
     private static $use_print_errlog_ind = false;
 
+	/**
+	 * The mapping of error names to error numbers. I am leaving
+	 * this construct as a variable NOT a constant to support
+	 * earlier versions of PHP. Also, I am choosing to make this
+	 * array public, at least for testing purposes.
+	 *
+	 * @var $errno
+	 */
+	public static $errno = array(
+		Errnm::ERR_NM_PREPARE      => Errno::ERR_NO_PREPARE,
+		Errnm::ERR_NM_UPDATE_ALL   => Errno::ERR_NO_UPDATE_ALL,
+		Errnm::ERR_NM_UPDATE       => Errno::ERR_NO_UPDATE,
+		Errnm::ERR_NM_EMPTY_STRING => Errno::ERR_NO_EMPTY_STRING,
+		Errnm::ERR_NM_NULL_VALUE   => Errno::ERR_NO_NULL_VALUE,
+		Errnm::ERR_NM_BAD_VALUE    => Errno::ERR_NO_BAD_VALUE,
+		Errnm::ERR_NM_BAD_INSERT   => Errno::ERR_NO_BAD_INSERT,
+		Errnm::ERR_NM_BAD_COLUMN   => Errno::ERR_NO_BAD_COLUMN,
+		Errnm::ERR_NM_INSERT       => Errno::ERR_NO_INSERT,
+		Errnm::ERR_NM_OKAY         => Errno::ERR_NO_OKAY
+	);
+
+	/**
+	 * The mapping of error names to error numbers. I am leaving
+	 * this construct as a variable NOT a constant to support
+	 * earlier versions of PHP. Also, I am choosing to make this
+	 * array public, at least for testing purposes.
+	 *
+	 * @var $errnm
+	 */
+	public static $errnm = array(
+		Errno::ERR_NO_PREPARE      => Errnm::ERR_NM_PREPARE,
+		Errno::ERR_NO_UPDATE_ALL   => Errnm::ERR_NM_UPDATE_ALL,
+		Errno::ERR_NO_UPDATE       => Errnm::ERR_NM_UPDATE,
+		Errno::ERR_NO_EMPTY_STRING => Errnm::ERR_NM_EMPTY_STRING,
+		Errno::ERR_NO_NULL_VALUE   => Errnm::ERR_NM_NULL_VALUE,
+		Errno::ERR_NO_BAD_VALUE    => Errnm::ERR_NM_BAD_VALUE,
+		Errno::ERR_NO_BAD_INSERT   => Errnm::ERR_NM_BAD_INSERT,
+		Errno::ERR_NO_BAD_COLUMN   => Errnm::ERR_NM_BAD_COLUMN,
+		Errno::ERR_NO_INSERT       => Errnm::ERR_NM_INSERT,
+		Errno::ERR_NO_OKAY         => Errnm::ERR_NM_OKAY
+	);
+
+
+
+
+
+
     /**
      * The function set_errnm sets the current index
      * for the errnm array. The function checks whether
@@ -67,7 +124,7 @@ class Error extends Errno {
      *
      * @param int $arg_errnm_idx is an index into errnm.
      */
-    public static function set_errnm( $arg_errnm_idx ) {
+    public function set_errnm( $arg_errnm_idx ) {
         assert( array_key_exists( $arg_errnm_idx, self::$errno ), sprintf( Assert::ASSERT_UNDEFINED, 'arg_errnm_idx', $arg_errnm_idx ) );
 
         self::$errnm_idx = $arg_errnm_idx;
@@ -81,7 +138,7 @@ class Error extends Errno {
      *
      * @param int $arg_errno_idx is an index into errno.
      */
-    public static function set_errno( $arg_errno_idx ) {
+    public function set_errno( $arg_errno_idx ) {
         assert( Assert::in_range( $arg_errno_idx, 0, count( self::$errno ) ), sprintf( Assert::ASSERT_OUT_OF_BOUNDS, 'arg_errno_idx', $arg_errno_idx ) );
 
         self::$errno_idx = $arg_errno_idx;
@@ -93,7 +150,7 @@ class Error extends Errno {
      * The function get_errnm gets the current index
      * for the errnm array.
      */
-    public static function get_errnm() {
+    public function get_errnm() {
         assert( array_key_exists( self::$errno_idx, self::$errnm ), sprintf( Assert::ASSERT_INDEX_NOT_FOUND, 'errno_idx', self::$errno_idx ) );
         return self::$errnm_idx;
     }
@@ -102,7 +159,7 @@ class Error extends Errno {
      * The function get_errno gets the current index
      * for the errno array.
      */
-    public static function get_errno() {
+    public function get_errno() {
         assert( array_key_exists( self::$errnm_idx, self::$errno ), sprintf( Assert::ASSERT_INDEX_NOT_FOUND, 'errnm_idx', self::$errnm_idx ) );
         return self::$errno_idx;
     }
@@ -110,7 +167,7 @@ class Error extends Errno {
     /**
      * The function clear_errlog simply resets the errlog.
      */
-    public static function clear_errlog() {
+    public function clear_errlog() {
         self::$errlog = '';
     }
 
@@ -120,7 +177,7 @@ class Error extends Errno {
      * @param string $arg_message is the message to write.
      * @param bool   $arg_print_errlog_ind denotes whether to print the log.
      */
-    public static function write_errlog(
+    public function write_errlog(
         $arg_message,
         $arg_print_errlog_ind = true ) {
 
@@ -144,14 +201,14 @@ class Error extends Errno {
     /**
      * The function print_errlog simply prints the errlog to error_log.
      */
-    public static function print_errlog() {
+    public function print_errlog() {
         error_log( self::get_errlog( true ) );
     }
 
     /**
      * The function clear_errmsg simply resets the errmsg.
      */
-    public static function clear_errmsg() {
+    public function clear_errmsg() {
         self::$errmsg = '';
     }
 
@@ -164,7 +221,7 @@ class Error extends Errno {
      * @param string $arg_errmsg is the incoming errmsg.
      * @param string ...$args is any extra arguments (for sprintf).
      */
-    public static function set_errmsg( $arg_errmsg = null, ...$args ) {
+    public function set_errmsg( $arg_errmsg = null, ...$args ) {
 
         if ( empty( $arg_errmsg ) ) {
 
@@ -204,7 +261,7 @@ class Error extends Errno {
      *
      * @param string $arg_clear_errmsg_ind denotes whether to reset errmsg.
      */
-    public static function get_errmsg( $arg_clear_errmsg_ind = true ) {
+    public function get_errmsg( $arg_clear_errmsg_ind = true ) {
 
         $errmsg = self::$errmsg;
 
@@ -221,7 +278,7 @@ class Error extends Errno {
      *
      * @param string $arg_clear_errlog_ind denotes whether to reset errmsg.
      */
-    public static function get_errlog( $arg_clear_errlog_ind = true ) {
+    public function get_errlog( $arg_clear_errlog_ind = true ) {
 
         $errlog = trim( self::$errlog );
 

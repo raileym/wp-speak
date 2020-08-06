@@ -103,17 +103,17 @@ EOD;
         //$the_query = new WP_Query( $args );
 
         if ( !self::$img_table->update_all( 'status', 'invalid' ) ) {
-            self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+            self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
             return;
         }
 
         if ( !self::$image_table->update_all( 'status', 'invalid' ) ) {
-            self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+            self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
             return;
         }
 
         if ( !self::$img_image_table->update_all( 'status', 'invalid' ) ) {
-            self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+            self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
             return;
         }
 
@@ -169,57 +169,57 @@ EOD;
                         "image_id"     => $image['image_id']);
 
                     if ( !self::$img_table->validate( $img ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
             
                     if ( !self::$image_table->validate( $image ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
             
                     if ( !self::$img_image_table->validate( $img_image ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
             
                     if ( !self::$img_table->insert_unique( $img ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
                         
                     if ( !self::$image_table->insert_unique( $image ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$img_image_table->insert_unique( $img_image ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$img_table->update( 'status', 'valid', 'img_id', $img['img_id'] ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$img_table->update( 'attr_alt', $img['attr_alt'], 'img_id', $img['img_id'] ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$image_table->update( 'status', 'valid', 'image_id', $image['image_id'] ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !self::$img_image_table->update( 'status', 'valid', 'img_image_id', $img_image['img_image_id'] ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
 
                     if ( !$img_fetch = self::$img_table->fetch( 'img_id', $img['img_id'] ) ) {
-                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                        self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                         return;
                     }
                     
@@ -517,12 +517,12 @@ EOF;
             $use_alt    = $arg_input[ "{$element}_sel_alt_{$cnt}" ];
             
             if ( !self::$img_table->update('alt', $custom_alt, 'img_id', $img_id) ) {
-                self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                 return;
             }
             
             if ( !self::$img_table->update('use_alt', $use_alt, 'img_id', $img_id) ) {
-                self::$wp_settings->add_settings_error( 'media_files', 'Media Files', Error::get_errmsg(), 'error' );
+                self::$wp_settings->add_settings_error( 'media_files', 'Media Files', self::$error->get_errmsg(), 'error' );
                 return;
             }
             
